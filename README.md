@@ -1,7 +1,7 @@
 # blablafront
 
 blablatwo frontend
-![App Screenshot](assets/screenshot.png)
+![App Screenshot](assets/Screenshot.png)
 ![App Screenshot](assets/img.png)
 
 ## Getting Started
