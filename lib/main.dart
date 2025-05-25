@@ -1,8 +1,7 @@
-import 'package:blablafront/views/LoginScreen.dart';
-import 'package:blablafront/views/flex_screen.dart';
+import 'package:blablafront/views/Search_Ride_Screen.dart';
+import 'package:blablafront/views/Search_Screen.dart';
 import 'package:flutter/material.dart';
-import 'views/Search_Ride_Screen.dart';
-import 'views/profile_screen.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -24,7 +23,6 @@ class MyApp extends StatelessWidget {
 
 final ThemeData blablatwoTheme = ThemeData(
   brightness: Brightness.light,
-  // Create a color scheme from a seed color.
   colorScheme: ColorScheme.fromSeed(
     seedColor: Colors.teal,
     brightness: Brightness.light,
@@ -52,5 +50,11 @@ final ThemeData blablatwoTheme = ThemeData(
         fontWeight: FontWeight.normal,
       ),
     ),
+  ),
+  floatingActionButtonTheme: FloatingActionButtonThemeData(
+    backgroundColor: Colors.teal, // Primary color for FAB
+    foregroundColor: Colors.white, // Icon/text color for FAB
+    elevation: 6.0,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)), // Standard FAB shape
   ),
 );
