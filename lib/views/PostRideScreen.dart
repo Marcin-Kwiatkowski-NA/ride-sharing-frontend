@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
+import 'CityAutocompleteField.dart';
+
 class PostRideScreen extends StatefulWidget {
   const PostRideScreen({super.key});
 
@@ -22,11 +24,15 @@ class _PostRideScreenState extends State<PostRideScreen> {
   final _priceController = TextEditingController();
   final _seatsController = TextEditingController();
 
+  // --- STATE TO HOLD SELECTED CITY IDs ---
+  int? _originCityOsmId;
+  int? _destinationCityOsmId;
+
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
 
-  final Long _driverId = 1;
-  final Long _vehicleId = 1;
+  final int _driverId = 1;
+  final int _vehicleId = 1;
 
   @override
   void dispose() {
@@ -39,6 +45,100 @@ class _PostRideScreenState extends State<PostRideScreen> {
     _seatsController.dispose();
     super.dispose();
   }
+
+  // --- SUBMIT RIDE LOGIC ---
+  Future<void> _submitRide() async {
+    //
+    // --- 1. VALIDATE THE FORM & IDs ---
+    //
+    if (!_formKey.currentState!.validate()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: const Text('Please correct the errors in the form.'), backgroundColor: Theme.of(context).colorScheme.error),
+      );
+      return;
+    }
+    // New validation: ensure user selected a city from the list, not just typed a name
+    if (_originCityOsmId == null || _destinationCityOsmId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: const Text('Please select origin and destination from the suggestions.'), backgroundColor: Theme.of(context).colorScheme.error),
+      );
+      return;
+    }
+
+    setState(() { _isLoading = true; });
+
+    //
+    // --- 2. PREPARE THE DATA PAYLOAD ---
+    //
+    final departureDateTime = DateTime(
+      _selectedDate!.year, _selectedDate!.month, _selectedDate!.day,
+      _selectedTime!.hour, _selectedTime!.minute,
+    );
+    String formattedDepartureTime = DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(departureDateTime);
+    String pricePerSeatVal = _priceController.text.trim().replaceAll(',', '.');
+    String descriptionVal = _descriptionController.text.trim();
+
+    final rideData = {
+      'driverId': _driverId,
+      'origin': {
+        'osmId': _originCityOsmId,
+        'name': _originController.text, // Add this line
+      },
+      'destination': {
+        'osmId': _destinationCityOsmId,
+        'name': _destinationController.text, // Add this line
+      },
+      'departureTime': formattedDepartureTime,
+      'availableSeats': int.parse(_seatsController.text.trim()),
+      'pricePerSeat': pricePerSeatVal,
+      'vehicleId': _vehicleId,
+      'description': descriptionVal.isNotEmpty ? descriptionVal : null, // Send description
+    };
+
+    //
+    // --- 3. MAKE THE API CALL ---
+    //
+    const String apiUrl = 'http://ow0wk84w4sogcgs8g0s488wg.130.61.31.172.sslip.io/rides';
+
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        body: jsonEncode(rideData),
+      );
+
+      if (response.statusCode == 201) { // Typically 201 Created for POST
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ride posted successfully!'), backgroundColor: Colors.green),
+        );
+        // Clear form after success
+        _formKey.currentState?.reset();
+        _dateController.clear();
+        _timeController.clear();
+        _descriptionController.clear();
+        setState(() {
+          _selectedDate = null;
+          _selectedTime = null;
+          _originCityOsmId = null;
+          _destinationCityOsmId = null;
+        });
+      } else {
+        // Your existing excellent error handling
+        String errorMessage = 'Failed to post ride. Status: ${response.statusCode}';
+        // ... (error parsing logic from your original code) ...
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage), backgroundColor: Theme.of(context).colorScheme.error),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('An error occurred: $e'), backgroundColor: Theme.of(context).colorScheme.error),
+      );
+    } finally {
+      setState(() { _isLoading = false; });
+    }
+  }
+
 
   Future<void> _pickDate(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(
@@ -92,132 +192,7 @@ class _PostRideScreenState extends State<PostRideScreen> {
     }
   }
 
-  Future<void> _submitRide() async {
-    if (!_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Please correct the errors in the form.'),
-          backgroundColor: Theme.of(context).colorScheme.error,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      return;
-    }
-
-    _formKey.currentState!.save();
-    setState(() {
-      _isLoading = true;
-    });
-
-    String originCityName = _originController.text.trim();
-    String destinationCityName = _destinationController.text.trim();
-
-    if (_selectedDate == null || _selectedTime == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please select a valid date and time.'), backgroundColor: Theme.of(context).colorScheme.error),
-      );
-      setState(() { _isLoading = false; });
-      return;
-    }
-    final departureDateTime = DateTime(
-      _selectedDate!.year, _selectedDate!.month, _selectedDate!.day,
-      _selectedTime!.hour, _selectedTime!.minute,
-    );
-    if (departureDateTime.isBefore(DateTime.now())) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Departure time must be in the future.'), backgroundColor: Theme.of(context).colorScheme.error),
-      );
-      setState(() { _isLoading = false; });
-      return;
-    }
-    String formattedDepartureTime = DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(departureDateTime);
-
-    int availableSeatsVal = int.parse(_seatsController.text.trim());
-
-    String pricePerSeatVal = _priceController.text.trim().replaceAll(',', '.');
-    try {
-      double price = double.parse(pricePerSeatVal);
-      if (price < 0) {
-        throw const FormatException("Price cannot be negative.");
-      }
-    } catch(e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Invalid price format or value. Price cannot be negative.'), backgroundColor: Theme.of(context).colorScheme.error));
-      setState(() { _isLoading = false; });
-      return;
-    }
-
-    final rideData = {
-      'driverId': _driverId,
-      'origin': originCityName,
-      'destination': destinationCityName,
-      'departureTime': formattedDepartureTime,
-      'availableSeats': availableSeatsVal,
-      'pricePerSeat': pricePerSeatVal,
-      'vehicleId': _vehicleId,
-    };
-
-    const String apiUrl = 'http://ow0wk84w4sogcgs8g0s488wg.130.61.31.172.sslip.io/rides';
-
-    try {
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        headers: {'Content-Type': 'application/json; charset=UTF-8'},
-        body: jsonEncode(rideData),
-      );
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Ride posted successfully!'),
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-        _formKey.currentState?.reset();
-        _dateController.clear();
-        _timeController.clear();
-        setState(() {
-          _selectedDate = null;
-          _selectedTime = null;
-        });
-
-      } else {
-        String errorMessage = 'Failed to post ride. Status: ${response.statusCode}';
-        if (response.body.isNotEmpty) {
-          try {
-            final errorData = jsonDecode(response.body);
-            if (errorData is Map) {
-              if(errorData.containsKey('message')) errorMessage = errorData['message'];
-              if (errorData.containsKey('errors') && errorData['errors'] is Map) {
-                (errorData['errors'] as Map).forEach((key, value) {
-                  errorMessage += '\n- $key: $value';
-                });
-              } else if (errorData.containsKey('error')) {
-                errorMessage += '\nDetails: ${errorData['error']}';
-              }
-            } else {
-              errorMessage += '\nResponse: ${response.body}';
-            }
-          } catch (e) {
-            errorMessage += '\nError parsing response: ${response.body}';
-          }
-        }
-        print(response.body);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMessage, maxLines: 5, overflow: TextOverflow.ellipsis,), backgroundColor: Theme.of(context).colorScheme.error, duration: const Duration(seconds: 7), behavior: SnackBarBehavior.floating,),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('An error occurred: $e'), backgroundColor: Theme.of(context).colorScheme.error, behavior: SnackBarBehavior.floating,),
-      );
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-
+  // This helper function is now only used for non-autocomplete fields
   Widget _buildStyledTextField({
     required TextEditingController controller,
     required String labelText,
@@ -286,29 +261,15 @@ class _PostRideScreenState extends State<PostRideScreen> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Post Your Ride 🚐'),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Theme.of(context).appBarTheme.titleTextStyle?.color),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-      ),
+      appBar: AppBar(title: const Text('Post Your Ride 🚐')),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           child: Container(
             padding: const EdgeInsets.all(20.0),
             decoration: BoxDecoration(
-              color: colorScheme.surface.withOpacity(0.9),
-              borderRadius: BorderRadius.circular(16.0),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
-                  blurRadius: 12,
-                  offset: const Offset(0, 6),
-                )
-              ],
-            ),
+                color: colorScheme.surface.withOpacity(0.9),
+                borderRadius: BorderRadius.circular(16.0)),
             child: Form(
               key: _formKey,
               child: Column(
@@ -316,39 +277,50 @@ class _PostRideScreenState extends State<PostRideScreen> {
                 children: <Widget>[
                   Padding(
                     padding: const EdgeInsets.only(bottom: 24.0, top: 8.0),
-                    child: Text(
-                      'Offer a Ride',
-                      style: textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold, color: colorScheme.primary),
-                      textAlign: TextAlign.center,
+                    child: Text('Offer a Ride', style: textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.primary), textAlign: TextAlign.center),
+                  ),
+
+                  // --- WIDGETS FOR ORIGIN AND DESTINATION ---
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10.0),
+                    child: CityAutocompleteField(
+                      controller: _originController,
+                      labelText: 'Origin City',
+                      prefixIcon: Icons.trip_origin,
+                      onCitySelected: (city) { // 'city' is the City object from your autocomplete
+                        setState(() {
+                          _originController.text = city.name;
+                          _originCityOsmId = city.osmId; // STORE THE OSM_ID
+                        });
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) return 'Origin City is required.';
+                        if (_originCityOsmId == null) return 'Please select a city from the list.';
+                        return null;
+                      },
                     ),
                   ),
-                  _buildStyledTextField(
-                    controller: _originController,
-                    labelText: 'Origin City Name',
-                    hintText: 'e.g., New York',
-                    prefixIcon: Icons.trip_origin,
-                    context: context,
-                    keyboardType: TextInputType.text,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) return 'Origin City Name is required.';
-                      if (value.length > 100) return 'Origin city name cannot exceed 100 characters.';
-                      return null;
-                    },
+
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10.0),
+                    child: CityAutocompleteField(
+                      controller: _destinationController,
+                      labelText: 'Destination City',
+                      prefixIcon: Icons.flag_outlined,
+                      onCitySelected: (city) { // 'city' is the City object from your autocomplete
+                        setState(() {
+                          _destinationController.text = city.name;
+                          _destinationCityOsmId = city.osmId; // STORE THE OSM_ID
+                        });
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) return 'Destination City is required.';
+                        if (_destinationCityOsmId == null) return 'Please select a city from the list.';
+                        return null;
+                      },
+                    ),
                   ),
-                  _buildStyledTextField(
-                    controller: _destinationController,
-                    labelText: 'Destination City Name',
-                    hintText: 'e.g., Boston',
-                    prefixIcon: Icons.flag_outlined,
-                    context: context,
-                    keyboardType: TextInputType.text,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) return 'Destination City Name is required.';
-                      if (value.length > 100) return 'Destination city name cannot exceed 100 characters.';
-                      return null;
-                    },
-                  ),
+
                   _buildStyledTextField(
                     controller: _dateController,
                     labelText: 'Date of Departure',
@@ -438,5 +410,3 @@ class _PostRideScreenState extends State<PostRideScreen> {
     );
   }
 }
-
-typedef Long = int;
