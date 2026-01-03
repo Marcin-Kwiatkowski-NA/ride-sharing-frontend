@@ -4,32 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../utils/constants.dart';
 import 'CityAutocompleteField.dart';
 import 'Date_Search_Field.dart';
-
-class DateSearchField extends StatelessWidget {
-  const DateSearchField({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      readOnly: true,
-      decoration: InputDecoration(
-        labelText: 'Date',
-        filled: true,
-        fillColor: Colors.white60,
-        labelStyle: Theme.of(context).textTheme.titleMedium,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide.none,
-        ),
-        suffixIcon: const Icon(Icons.calendar_today),
-      ),
-      onTap: () { /* Your date picker logic here */ },
-      style: Theme.of(context).textTheme.titleLarge,
-    );
-  }
-}
-// --- End of Placeholder Widgets ---
-
+import 'search_results_screen.dart';
 
 class SearchWidget extends StatefulWidget {
   final String title;
@@ -43,6 +18,7 @@ class SearchWidget extends StatefulWidget {
 class _SearchWidgetState extends State<SearchWidget> {
   final _fromController = TextEditingController();
   final _toController = TextEditingController();
+  DateTime? _selectedDate;
 
   // Store the selected city IDs
   int? _originCityOsmId;
@@ -55,24 +31,31 @@ class _SearchWidgetState extends State<SearchWidget> {
     super.dispose();
   }
 
+  void _onDateSelected(DateTime? date) {
+    setState(() {
+      _selectedDate = date;
+    });
+  }
+
   void _performSearch() {
-    if (_originCityOsmId != null && _destinationCityOsmId != null) {
-      // Handle the search logic
-      print('Searching from City ID: $_originCityOsmId to City ID: $_destinationCityOsmId');
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Searching from ID:$_originCityOsmId to ID:$_destinationCityOsmId'))
-      );
-    } else {
-      // This should not happen if the button is disabled correctly
-      print('Origin or Destination not selected.');
-    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SearchResultsScreen(
+          origin: _fromController.text.trim(),
+          destination: _toController.text.trim(),
+          departureDate: _selectedDate,
+        ),
+      ),
+    );
+  }
+
+  bool get _canSearch {
+    return _originCityOsmId != null && _destinationCityOsmId != null;
   }
 
   @override
   Widget build(BuildContext context) {
-    // Check if both fields have a selected city to enable the button
-    final bool isSearchEnabled = _originCityOsmId != null && _destinationCityOsmId != null;
-
     return Card(
       elevation: 4,
       margin: const EdgeInsets.all(16),
@@ -81,7 +64,7 @@ class _SearchWidgetState extends State<SearchWidget> {
       child: Padding(
         padding: Constants().padding_20,
         child: Column(
-          mainAxisSize: MainAxisSize.min, // Constrain column to its children's size
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             if (widget.title.isNotEmpty)
@@ -94,7 +77,7 @@ class _SearchWidgetState extends State<SearchWidget> {
                 ),
               ),
 
-            // Use the new Autocomplete Widget for 'From'
+            // Autocomplete Widget for 'From'
             CityAutocompleteField(
               controller: _fromController,
               labelText: 'From',
@@ -106,13 +89,13 @@ class _SearchWidgetState extends State<SearchWidget> {
                 });
               },
             ),
-            const SizedBox(height: 16), // Proper spacing
+            const SizedBox(height: 16),
 
-            // Use the new Autocomplete Widget for 'To'
+            // Autocomplete Widget for 'To'
             CityAutocompleteField(
               controller: _toController,
               labelText: 'To',
-              prefixIcon: Icons.trip_origin,
+              prefixIcon: Icons.location_on,
               onCitySelected: (city) {
                 setState(() {
                   _toController.text = city.name;
@@ -120,21 +103,21 @@ class _SearchWidgetState extends State<SearchWidget> {
                 });
               },
             ),
-            const SizedBox(height: 16), // Proper spacing
+            const SizedBox(height: 16),
 
-            const DateSearchField(),
-            const SizedBox(height: 24), // Proper spacing
+            DateSearchField(onDateSelected: _onDateSelected),
+            const SizedBox(height: 24),
 
             ElevatedButton(
-              onPressed: isSearchEnabled ? _performSearch : null, // Enable button conditionally
+              onPressed: _canSearch ? _performSearch : null,
               style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  backgroundColor: Colors.blue.shade700,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)
-                  )
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                backgroundColor: Colors.blue.shade700,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
               child: const Text('Search'),
             ),

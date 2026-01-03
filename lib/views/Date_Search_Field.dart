@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Add intl to your pubspec.yaml
+import 'package:intl/intl.dart';
 
 class DateSearchField extends StatefulWidget {
-  const DateSearchField({super.key});
+  final Function(DateTime?)? onDateSelected;
+
+  const DateSearchField({super.key, this.onDateSelected});
 
   @override
   _DateSearchFieldState createState() => _DateSearchFieldState();
@@ -10,6 +12,7 @@ class DateSearchField extends StatefulWidget {
 
 class _DateSearchFieldState extends State<DateSearchField> {
   final TextEditingController _dateController = TextEditingController();
+  DateTime? _selectedDate;
 
   @override
   void dispose() {
@@ -20,15 +23,16 @@ class _DateSearchFieldState extends State<DateSearchField> {
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(), // Starting date
-      firstDate: DateTime(2000), // Lower bound for date selection
-      lastDate: DateTime(2100), // Upper bound for date selection
+      initialDate: _selectedDate ?? DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
     );
     if (pickedDate != null) {
       setState(() {
-        // Format the date using the intl package (e.g., "2025-02-25")
+        _selectedDate = pickedDate;
         _dateController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
       });
+      widget.onDateSelected?.call(pickedDate);
     }
   }
 
@@ -36,15 +40,15 @@ class _DateSearchFieldState extends State<DateSearchField> {
   Widget build(BuildContext context) {
     return TextField(
       controller: _dateController,
-      readOnly: true, // Prevent manual editing
+      readOnly: true,
       decoration: InputDecoration(
         filled: true,
         fillColor: Colors.white60,
         labelText: 'Select Date',
         labelStyle: Theme.of(context).textTheme.headlineSmall,
-        suffixIcon: Icon(Icons.calendar_today),
+        suffixIcon: const Icon(Icons.calendar_today),
       ),
-      onTap: () => _selectDate(context), // Open date picker on tap
+      onTap: () => _selectDate(context),
     );
   }
 }
