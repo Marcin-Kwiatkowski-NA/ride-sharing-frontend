@@ -62,7 +62,7 @@ class _CityAutocompleteFieldState extends State<CityAutocompleteField> {
 
     setState(() { _isLoading = true; _errorMessage = null; });
 
-    final uri = Uri.parse('http://cggwocwcgkog4wow84k8goc8.130.61.31.172.sslip.io/api?q=$query&osm_tag=place:city&osm_tag=place:town&osm_tag=place:village');
+    final uri = Uri.parse('http://photon.130.61.31.172.sslip.io/api?q=$query&osm_tag=place:city&osm_tag=place:town&osm_tag=place:village');
 
     try {
       final response = await http.get(uri).timeout(const Duration(seconds: 5));
