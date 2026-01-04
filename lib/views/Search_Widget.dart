@@ -72,7 +72,8 @@ class _SearchWidgetState extends State<SearchWidget> {
   }
 
   bool get _canSearch {
-    return _originCityOsmId != null && _destinationCityOsmId != null;
+    // Allow search with no criteria to browse all available rides
+    return true;
   }
 
   @override

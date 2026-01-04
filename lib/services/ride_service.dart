@@ -5,7 +5,7 @@ import '../models/Ride.dart';
 
 class RideApiService {
   static const String baseUrl =
-      'http://ow0wk84w4sogcgs8g0s488wg.130.61.31.172.sslip.io';
+      'http://vamos.130.61.31.172.sslip.io';
 
   Future<List<Ride>> searchRides({
     String? origin,

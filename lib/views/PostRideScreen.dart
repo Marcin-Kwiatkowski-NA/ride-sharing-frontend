@@ -98,7 +98,7 @@ class _PostRideScreenState extends State<PostRideScreen> {
     //
     // --- 3. MAKE THE API CALL ---
     //
-    const String apiUrl = 'http://ow0wk84w4sogcgs8g0s488wg.130.61.31.172.sslip.io/rides';
+    const String apiUrl = 'http://vamos.130.61.31.172.sslip.io/rides';
 
     try {
       final response = await http.post(
