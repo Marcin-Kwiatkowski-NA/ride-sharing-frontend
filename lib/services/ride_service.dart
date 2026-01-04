@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../models/Ride.dart';
 
@@ -10,6 +11,7 @@ class RideApiService {
     String? origin,
     String? destination,
     DateTime? departureDate,
+    TimeOfDay? departureTimeFrom,
     int minSeats = 1,
     int page = 0,
     int size = 10,
@@ -27,6 +29,10 @@ class RideApiService {
     if (departureDate != null) {
       queryParams['departureDate'] =
           departureDate.toIso8601String().split('T')[0];
+    }
+    if (departureTimeFrom != null) {
+      queryParams['departureTimeFrom'] =
+          '${departureTimeFrom.hour.toString().padLeft(2, '0')}:${departureTimeFrom.minute.toString().padLeft(2, '0')}:00';
     }
 
     final uri =

@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../utils/constants.dart';
 import 'CityAutocompleteField.dart';
 import 'Date_Search_Field.dart';
+import 'Time_Seatch_Field.dart';
 import 'search_results_screen.dart';
 
 class SearchWidget extends StatefulWidget {
@@ -19,6 +20,8 @@ class _SearchWidgetState extends State<SearchWidget> {
   final _fromController = TextEditingController();
   final _toController = TextEditingController();
   DateTime? _selectedDate;
+  TimeOfDay? _selectedTime;
+  bool _anyTime = true;
 
   // Store the selected city IDs
   int? _originCityOsmId;
@@ -34,6 +37,23 @@ class _SearchWidgetState extends State<SearchWidget> {
   void _onDateSelected(DateTime? date) {
     setState(() {
       _selectedDate = date;
+      // Reset time selection when date changes
+      _anyTime = true;
+      _selectedTime = null;
+    });
+  }
+
+  void _onTimeSelected(TimeOfDay? time) {
+    setState(() {
+      _selectedTime = time;
+      _anyTime = false;
+    });
+  }
+
+  void _selectAnyTime() {
+    setState(() {
+      _anyTime = true;
+      _selectedTime = null;
     });
   }
 
@@ -45,6 +65,7 @@ class _SearchWidgetState extends State<SearchWidget> {
           origin: _fromController.text.trim(),
           destination: _toController.text.trim(),
           departureDate: _selectedDate,
+          departureTimeFrom: _anyTime ? null : _selectedTime,
         ),
       ),
     );
@@ -106,6 +127,12 @@ class _SearchWidgetState extends State<SearchWidget> {
             const SizedBox(height: 16),
 
             DateSearchField(onDateSelected: _onDateSelected),
+
+            if (_selectedDate != null) ...[
+              const SizedBox(height: 16),
+              _buildTimeSection(context),
+            ],
+
             const SizedBox(height: 24),
 
             ElevatedButton(
@@ -124,6 +151,37 @@ class _SearchWidgetState extends State<SearchWidget> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildTimeSection(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: ElevatedButton.icon(
+            onPressed: _selectAnyTime,
+            icon: Icon(
+              _anyTime ? Icons.check_circle : Icons.circle_outlined,
+              size: 20,
+            ),
+            label: const Text('Any time'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _anyTime
+                  ? Theme.of(context).primaryColor
+                  : Colors.grey.shade300,
+              foregroundColor: _anyTime ? Colors.white : Colors.black87,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: TimeSearchField(
+            onTimeSelected: _onTimeSelected,
+            initialTime: _selectedTime,
+          ),
+        ),
+      ],
     );
   }
 }

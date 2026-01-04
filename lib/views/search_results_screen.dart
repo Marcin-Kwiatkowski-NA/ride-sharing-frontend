@@ -8,12 +8,14 @@ class SearchResultsScreen extends StatefulWidget {
   final String? origin;
   final String? destination;
   final DateTime? departureDate;
+  final TimeOfDay? departureTimeFrom;
 
   const SearchResultsScreen({
     super.key,
     this.origin,
     this.destination,
     this.departureDate,
+    this.departureTimeFrom,
   });
 
   @override
@@ -43,6 +45,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
         origin: widget.origin,
         destination: widget.destination,
         departureDate: widget.departureDate,
+        departureTimeFrom: widget.departureTimeFrom,
       );
       setState(() {
         _rides = rides;

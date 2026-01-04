@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 
 class TimeSearchField extends StatefulWidget {
-  const TimeSearchField({super.key});
+  final Function(TimeOfDay?) onTimeSelected;
+  final TimeOfDay? initialTime;
+
+  const TimeSearchField({
+    super.key,
+    required this.onTimeSelected,
+    this.initialTime,
+  });
 
   @override
   _TimeSearchFieldState createState() => _TimeSearchFieldState();
@@ -9,6 +16,18 @@ class TimeSearchField extends StatefulWidget {
 
 class _TimeSearchFieldState extends State<TimeSearchField> {
   final TextEditingController _timeController = TextEditingController();
+  TimeOfDay? _selectedTime;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialTime != null) {
+      _selectedTime = widget.initialTime;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _timeController.text = widget.initialTime!.format(context);
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -19,14 +38,14 @@ class _TimeSearchFieldState extends State<TimeSearchField> {
   Future<void> _selectTime(BuildContext context) async {
     final TimeOfDay? pickedTime = await showTimePicker(
       context: context,
-      initialTime: TimeOfDay.now(), // Starting time
+      initialTime: _selectedTime ?? TimeOfDay.now(),
     );
     if (pickedTime != null) {
       setState(() {
-        // Format the time using the context's localization.
-        // Alternatively, you can format manually if needed.
+        _selectedTime = pickedTime;
         _timeController.text = pickedTime.format(context);
       });
+      widget.onTimeSelected(pickedTime);
     }
   }
 
@@ -34,13 +53,15 @@ class _TimeSearchFieldState extends State<TimeSearchField> {
   Widget build(BuildContext context) {
     return TextField(
       controller: _timeController,
-      readOnly: true, // Prevent manual editing
+      readOnly: true,
       decoration: InputDecoration(
         labelText: 'Select Time',
-        labelStyle: Theme.of(context).textTheme.headlineLarge,
+        labelStyle: Theme.of(context).textTheme.bodyLarge,
+        filled: true,
+        fillColor: Colors.white60,
         suffixIcon: const Icon(Icons.access_time),
       ),
-      onTap: () => _selectTime(context), // Open time picker on tap
+      onTap: () => _selectTime(context),
     );
   }
 }
