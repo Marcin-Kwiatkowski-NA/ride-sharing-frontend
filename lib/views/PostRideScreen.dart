@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-
+import 'package:provider/provider.dart';
+import 'package:blablafront/core/services/api_client.dart';
+import 'package:blablafront/core/utils/exceptions.dart';
 import 'CityAutocompleteField.dart';
 
 class PostRideScreen extends StatefulWidget {
@@ -98,16 +98,12 @@ class _PostRideScreenState extends State<PostRideScreen> {
     //
     // --- 3. MAKE THE API CALL ---
     //
-    const String apiUrl = 'http://vamos.130.61.31.172.sslip.io/rides';
+    final apiClient = Provider.of<ApiClient>(context, listen: false);
 
     try {
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        headers: {'Content-Type': 'application/json; charset=UTF-8'},
-        body: jsonEncode(rideData),
-      );
+      final response = await apiClient.post('/rides', body: rideData);
 
-      if (response.statusCode == 201) { // Typically 201 Created for POST
+      if (response.statusCode == 201 || response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Ride posted successfully!'), backgroundColor: Colors.green),
         );
@@ -122,14 +118,19 @@ class _PostRideScreenState extends State<PostRideScreen> {
           _originCityOsmId = null;
           _destinationCityOsmId = null;
         });
-      } else {
-        // Your existing excellent error handling
-        String errorMessage = 'Failed to post ride. Status: ${response.statusCode}';
-        // ... (error parsing logic from your original code) ...
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMessage), backgroundColor: Theme.of(context).colorScheme.error),
-        );
       }
+    } on TokenExpiredException {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Session expired. Please log in again.'), backgroundColor: Theme.of(context).colorScheme.error),
+      );
+    } on ApiException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to post ride: ${e.message}'), backgroundColor: Theme.of(context).colorScheme.error),
+      );
+    } on NetworkException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Network error: ${e.message}'), backgroundColor: Theme.of(context).colorScheme.error),
+      );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('An error occurred: $e'), backgroundColor: Theme.of(context).colorScheme.error),

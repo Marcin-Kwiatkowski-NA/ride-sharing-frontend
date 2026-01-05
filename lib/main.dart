@@ -1,22 +1,54 @@
 import 'package:blablafront/views/Search_Ride_Screen.dart';
-import 'package:blablafront/views/Search_Screen.dart';
+import 'package:blablafront/views/LoginScreen.dart';
 import 'package:flutter/material.dart';
-
+import 'package:provider/provider.dart';
+import 'package:blablafront/core/providers/auth_provider.dart';
+import 'package:blablafront/core/services/api_client.dart';
+import 'package:blablafront/routes/app_router.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()..initialize()),
+        Provider(create: (_) => ApiClient()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    // Connect ApiClient token expiration to AuthProvider
+    final apiClient = Provider.of<ApiClient>(context, listen: false);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    apiClient.onTokenExpired = () => authProvider.handleTokenExpiration();
+
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Vamos Ride Sharing',
       theme: blablatwoTheme,
-      home: SearchRideScreen(),
+      onGenerateRoute: AppRouter.generateRoute,
+      home: Consumer<AuthProvider>(
+        builder: (context, authProvider, _) {
+          // Show loading screen while checking auth status
+          if (authProvider.status == AuthStatus.uninitialized) {
+            return const Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+
+          // Navigate based on authentication status
+          return authProvider.isAuthenticated
+              ? const SearchRideScreen()
+              : const LoginScreen();
+        },
+      ),
     );
   }
 }

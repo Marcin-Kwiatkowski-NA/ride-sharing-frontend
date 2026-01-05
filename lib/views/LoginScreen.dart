@@ -1,7 +1,6 @@
-import 'package:blablafront/services/auth_service.dart';
-import 'package:blablafront/views/Search_Ride_Screen.dart';
 import 'package:flutter/material.dart';
-
+import 'package:provider/provider.dart';
+import 'package:blablafront/core/providers/auth_provider.dart';
 import 'Bottom_Buttons.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -12,7 +11,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final AuthService _authService = AuthService();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -137,38 +135,32 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() => _isLoading = true);
 
-    final result = await _authService.signInWithCredentials(
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final success = await authProvider.signInWithCredentials(
       _usernameController.text,
       _passwordController.text,
     );
 
     setState(() => _isLoading = false);
 
-    if (result.success) {
-      _navigateToHome();
-    } else {
-      _showError(result.error ?? 'Login failed');
+    if (!success && authProvider.errorMessage != null) {
+      _showError(authProvider.errorMessage!);
     }
+    // Navigation handled automatically by Provider in main.dart
   }
 
   Future<void> _handleGoogleSignIn() async {
     setState(() => _isLoading = true);
 
-    final result = await _authService.signInWithGoogle();
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final success = await authProvider.signInWithGoogle();
 
     setState(() => _isLoading = false);
 
-    if (result.success) {
-      _navigateToHome();
-    } else if (!result.cancelled) {
-      _showError(result.error ?? 'Google sign-in failed');
+    if (!success && authProvider.errorMessage != null) {
+      _showError(authProvider.errorMessage!);
     }
-  }
-
-  void _navigateToHome() {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const SearchRideScreen()),
-    );
+    // Navigation handled automatically by Provider in main.dart
   }
 
   void _showError(String message) {
