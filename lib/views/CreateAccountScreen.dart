@@ -194,10 +194,12 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
 
     setState(() => _isLoading = false);
 
-    if (!success && authProvider.errorMessage != null) {
+    if (success) {
+      // Clear navigation stack and go to home
+      AppRouter.navigateAndClearStack(context, AppRoutes.home);
+    } else if (authProvider.errorMessage != null) {
       _showError(authProvider.errorMessage!);
     }
-    // Navigation handled automatically by Provider in main.dart
   }
 
   void _handleGoogleSignUp() {
