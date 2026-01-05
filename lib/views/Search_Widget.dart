@@ -110,6 +110,11 @@ class _SearchWidgetState extends State<SearchWidget> {
                   _originCityOsmId = city.osmId;
                 });
               },
+              onCityCleared: () {
+                setState(() {
+                  _originCityOsmId = null;
+                });
+              },
             ),
             const SizedBox(height: 16),
 
@@ -122,6 +127,11 @@ class _SearchWidgetState extends State<SearchWidget> {
                 setState(() {
                   _toController.text = city.name;
                   _destinationCityOsmId = city.osmId;
+                });
+              },
+              onCityCleared: () {
+                setState(() {
+                  _destinationCityOsmId = null;
                 });
               },
             ),

@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/City.dart';
 
@@ -11,6 +12,7 @@ class CityAutocompleteField extends StatefulWidget {
   final String labelText;
   final IconData prefixIcon;
   final void Function(City) onCitySelected;
+  final void Function()? onCityCleared;
   final String? Function(String?)? validator;
 
 
@@ -20,6 +22,7 @@ class CityAutocompleteField extends StatefulWidget {
     required this.labelText,
     required this.prefixIcon,
     required this.onCitySelected,
+    this.onCityCleared,
     this.validator,
   });
 
@@ -37,17 +40,74 @@ class _CityAutocompleteFieldState extends State<CityAutocompleteField> {
   static final Map<String, List<City>> _cache = {};
   static const int _maxCacheSize = 50;
 
+  // Recent cities selected by user (shared across all instances, persisted)
+  static final List<City> _recentCities = [];
+  static const int _maxRecentCities = 10;
+  static const String _recentCitiesKey = 'recent_cities';
+  static bool _recentCitiesLoaded = false;
+
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRecentCities();
+  }
+
   @override
   void dispose() {
     _debounce?.cancel();
     super.dispose();
   }
 
+  Future<void> _loadRecentCities() async {
+    if (_recentCitiesLoaded) return;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final jsonString = prefs.getString(_recentCitiesKey);
+      if (jsonString != null) {
+        final List<dynamic> jsonList = json.decode(jsonString);
+        _recentCities.clear();
+        _recentCities.addAll(jsonList.map((j) => City.fromStorageJson(j)).toList());
+      }
+      _recentCitiesLoaded = true;
+      if (mounted) setState(() {});
+    } catch (e) {
+      // Ignore errors loading recent cities
+    }
+  }
+
+  Future<void> _saveRecentCities() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final jsonList = _recentCities.map((c) => c.toStorageJson()).toList();
+      await prefs.setString(_recentCitiesKey, json.encode(jsonList));
+    } catch (e) {
+      // Ignore errors saving recent cities
+    }
+  }
+
+  void _addToRecentCities(City city) {
+    // Remove if already exists (to move it to front)
+    _recentCities.removeWhere((c) => c.osmId == city.osmId);
+    // Add to front
+    _recentCities.insert(0, city);
+    // Keep only max recent cities
+    if (_recentCities.length > _maxRecentCities) {
+      _recentCities.removeLast();
+    }
+    // Persist to storage
+    _saveRecentCities();
+  }
+
   Future<void> _fetchSuggestions(String query) async {
-    if (query.length < 2) {
-      setState(() { _suggestions = []; _isLoading = false; _errorMessage = null; });
+    if (query.isEmpty) {
+      // Show only recent cities when field is empty/focused
+      setState(() { _suggestions = List.from(_recentCities); _isLoading = false; _errorMessage = null; });
       return;
     }
+
+    // Clear suggestions and show loading when typing
+    setState(() { _suggestions = []; _isLoading = true; _errorMessage = null; });
 
     // Check cache first
     final cacheKey = query.toLowerCase();
@@ -59,8 +119,6 @@ class _CityAutocompleteFieldState extends State<CityAutocompleteField> {
       });
       return;
     }
-
-    setState(() { _isLoading = true; _errorMessage = null; });
 
     final uri = Uri.parse('http://photon.130.61.31.172.sslip.io/api?q=$query&osm_tag=place:city&osm_tag=place:town&osm_tag=place:village');
 
@@ -92,19 +150,40 @@ class _CityAutocompleteFieldState extends State<CityAutocompleteField> {
     final theme = Theme.of(context);
     return Autocomplete<City>(
         optionsBuilder: (TextEditingValue textEditingValue) {
+          final query = textEditingValue.text;
+
+          // Debounce API fetch
           if (_debounce?.isActive ?? false) _debounce!.cancel();
           _debounce = Timer(const Duration(milliseconds: 400), () {
-            _fetchSuggestions(textEditingValue.text);
+            _fetchSuggestions(query);
           });
-          // Return current suggestions - loading/error handled in optionsViewBuilder
-          return _suggestions;
+
+          // Show recent cities only when field is empty
+          if (query.isEmpty) {
+            return List.from(_recentCities);
+          }
+
+          // When typing, show only API suggestions (filtered by query)
+          final lowerQuery = query.toLowerCase();
+          return _suggestions
+              .where((c) => c.name.toLowerCase().contains(lowerQuery))
+              .toList();
         },
         displayStringForOption: (City option) => option.name,
         onSelected: (City selection) {
+          _addToRecentCities(selection);
           widget.onCitySelected(selection);
           FocusScope.of(context).unfocus();
         },
         fieldViewBuilder: (context, fieldController, focusNode, onFieldSubmitted) {
+          // Sync external controller with internal one
+          fieldController.addListener(() {
+            final text = fieldController.text;
+            widget.controller.text = text;
+            if (text.isEmpty) {
+              widget.onCityCleared?.call();
+            }
+          });
           return TextFormField(
             controller: fieldController,
             focusNode: focusNode,

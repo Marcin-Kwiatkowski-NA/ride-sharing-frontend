@@ -12,6 +12,20 @@ class City {
     );
   }
 
+  factory City.fromStorageJson(Map<String, dynamic> json) {
+    return City(
+      name: json['name'] ?? 'Unknown City',
+      osmId: json['osmId'],
+    );
+  }
+
+  Map<String, dynamic> toStorageJson() {
+    return {
+      'name': name,
+      'osmId': osmId,
+    };
+  }
+
   String get displayName {
     return '$name, $osmId';
   }
