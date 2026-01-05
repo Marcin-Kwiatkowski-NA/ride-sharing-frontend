@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:blablafront/views/LoginScreen.dart';
+import 'package:blablafront/views/CreateAccountScreen.dart';
 import 'package:blablafront/views/Search_Ride_Screen.dart';
 import 'package:blablafront/views/PostRideScreen.dart';
 import 'package:blablafront/core/utils/route_guards.dart';
@@ -7,6 +8,7 @@ import 'package:blablafront/core/utils/route_guards.dart';
 /// Route names for the application
 class AppRoutes {
   static const String login = '/login';
+  static const String createAccount = '/create-account';
   static const String home = '/home';
   static const String search = '/search';
   static const String postRide = '/post-ride';
@@ -27,6 +29,12 @@ class AppRouter {
       case AppRoutes.login:
         return MaterialPageRoute(
           builder: (_) => const LoginScreen(),
+          settings: settings,
+        );
+
+      case AppRoutes.createAccount:
+        return MaterialPageRoute(
+          builder: (_) => const CreateAccountScreen(),
           settings: settings,
         );
 

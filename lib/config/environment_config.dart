@@ -22,7 +22,8 @@ class EnvironmentConfig {
         return 'https://vamos-staging.130.61.31.172.sslip.io';
       case 'development':
       default:
-        return 'https://vamos.130.61.31.172.sslip.io';
+        // Using HTTP temporarily for development (SSL cert issue)
+        return 'http://vamos.130.61.31.172.sslip.io';
     }
   }
 

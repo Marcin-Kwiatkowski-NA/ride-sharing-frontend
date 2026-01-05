@@ -90,6 +90,35 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  /// Register with email and password
+  ///
+  /// Returns true if registration was successful, false otherwise.
+  /// Updates authentication state and notifies listeners.
+  Future<bool> register(String email, String password) async {
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final result = await _authService.register(email, password);
+
+      if (result.success && result.user != null) {
+        _currentUser = result.user;
+        _status = AuthStatus.authenticated;
+        _errorMessage = null;
+        notifyListeners();
+        return true;
+      } else {
+        _errorMessage = result.error ?? 'Registration failed';
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
+      _errorMessage = 'An error occurred: ${e.toString()}';
+      notifyListeners();
+      return false;
+    }
+  }
+
   /// Sign in with Google
   ///
   /// Returns true if sign-in was successful, false otherwise.

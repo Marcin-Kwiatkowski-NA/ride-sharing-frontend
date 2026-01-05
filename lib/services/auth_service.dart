@@ -54,6 +54,30 @@ class AuthService {
     }
   }
 
+  // Register with email/password
+  Future<AuthResult> register(String email, String password) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/auth/register'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email, 'password': password}),
+      );
+
+      if (response.statusCode == 201) {
+        final data = jsonDecode(response.body);
+        await _storage.write(key: 'access_token', value: data['accessToken']);
+        await _storage.write(key: 'user', value: jsonEncode(data['user']));
+        return AuthResult.success(User.fromJson(data['user']));
+      } else if (response.statusCode == 409) {
+        return AuthResult.error('An account with this email already exists');
+      } else {
+        return AuthResult.error('Registration failed: ${response.statusCode}');
+      }
+    } catch (e) {
+      return AuthResult.error(e.toString());
+    }
+  }
+
   // Traditional login with username/password
   Future<AuthResult> signInWithCredentials(String username, String password) async {
     try {

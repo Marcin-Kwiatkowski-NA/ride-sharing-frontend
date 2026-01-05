@@ -2,55 +2,65 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:blablafront/core/providers/auth_provider.dart';
 import 'package:blablafront/routes/app_router.dart';
-import 'Bottom_Buttons.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class CreateAccountScreen extends StatefulWidget {
+  const CreateAccountScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<CreateAccountScreen> createState() => _CreateAccountScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  final _usernameController = TextEditingController();
+class _CreateAccountScreenState extends State<CreateAccountScreen> {
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
-      body: Center(child: _buildLoginForm()),
+      appBar: AppBar(title: const Text('Create Account')),
+      body: Center(child: _buildForm()),
     );
   }
 
   @override
   void dispose() {
-    _usernameController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
-  Widget _buildLoginForm() {
-    int screenNumber = 3;
+  Widget _buildForm() {
     return Form(
       key: _formKey,
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Username field
+            const SizedBox(height: 20),
+
+            // Email field
             TextFormField(
-              controller: _usernameController,
+              controller: _emailController,
+              keyboardType: TextInputType.emailAddress,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               decoration: const InputDecoration(
-                labelText: 'Username',
-                prefixIcon: Icon(Icons.person),
+                labelText: 'Email',
+                prefixIcon: Icon(Icons.email),
               ),
-              validator: (text) =>
-                  text!.isEmpty ? 'Enter your username' : null,
+              validator: (text) {
+                if (text == null || text.isEmpty) {
+                  return 'Enter your email';
+                }
+                if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(text)) {
+                  return 'Enter a valid email';
+                }
+                return null;
+              },
             ),
             const SizedBox(height: 16),
 
@@ -63,23 +73,51 @@ class _LoginScreenState extends State<LoginScreen> {
                 labelText: 'Password',
                 prefixIcon: Icon(Icons.lock),
               ),
-              validator: (text) =>
-                  text!.isEmpty ? 'Enter your password' : null,
+              validator: (text) {
+                if (text == null || text.isEmpty) {
+                  return 'Enter a password';
+                }
+                if (text.length < 6) {
+                  return 'Password must be at least 6 characters';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+
+            // Confirm password field
+            TextFormField(
+              controller: _confirmPasswordController,
+              obscureText: true,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              decoration: const InputDecoration(
+                labelText: 'Confirm Password',
+                prefixIcon: Icon(Icons.lock_outline),
+              ),
+              validator: (text) {
+                if (text == null || text.isEmpty) {
+                  return 'Confirm your password';
+                }
+                if (text != _passwordController.text) {
+                  return 'Passwords do not match';
+                }
+                return null;
+              },
             ),
             const SizedBox(height: 24),
 
-            // Login button
+            // Create Account button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _isLoading ? null : _handleLogin,
+                onPressed: _isLoading ? null : _handleRegister,
                 child: _isLoading
                     ? const SizedBox(
                         height: 20,
                         width: 20,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Text('Login'),
+                    : const Text('Create Account'),
               ),
             ),
             const SizedBox(height: 30),
@@ -100,11 +138,11 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: 30),
 
-            // Google Sign-In button
+            // Google Sign-In placeholder button
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
-                onPressed: _isLoading ? null : _handleGoogleSignIn,
+                onPressed: _isLoading ? null : _handleGoogleSignUp,
                 icon: Image.asset(
                   'assets/google_logo.png',
                   height: 24,
@@ -119,31 +157,28 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 30),
 
-            // Sign up link
+            // Login link
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text("Don't have an account? "),
+                const Text('Already have an account? '),
                 TextButton(
                   onPressed: () {
-                    AppRouter.navigateTo(context, AppRoutes.createAccount);
+                    Navigator.of(context).pop();
                   },
-                  child: const Text('Sign up'),
+                  child: const Text('Login'),
                 ),
               ],
             ),
-
-            const Spacer(),
-            Bottom_Buttons(primary: screenNumber),
           ],
         ),
       ),
     );
   }
 
-  Future<void> _handleLogin() async {
+  Future<void> _handleRegister() async {
     final form = _formKey.currentState;
     if (form?.validate() == false) {
       return;
@@ -152,8 +187,8 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = true);
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final success = await authProvider.signInWithCredentials(
-      _usernameController.text,
+    final success = await authProvider.register(
+      _emailController.text,
       _passwordController.text,
     );
 
@@ -165,18 +200,13 @@ class _LoginScreenState extends State<LoginScreen> {
     // Navigation handled automatically by Provider in main.dart
   }
 
-  Future<void> _handleGoogleSignIn() async {
-    setState(() => _isLoading = true);
-
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final success = await authProvider.signInWithGoogle();
-
-    setState(() => _isLoading = false);
-
-    if (!success && authProvider.errorMessage != null) {
-      _showError(authProvider.errorMessage!);
-    }
-    // Navigation handled automatically by Provider in main.dart
+  void _handleGoogleSignUp() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Google sign-up coming soon!'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   void _showError(String message) {
