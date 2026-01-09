@@ -3,6 +3,7 @@ import 'package:blablafront/views/LoginScreen.dart';
 import 'package:blablafront/views/CreateAccountScreen.dart';
 import 'package:blablafront/views/Search_Ride_Screen.dart';
 import 'package:blablafront/views/PostRideScreen.dart';
+import 'package:blablafront/views/profile_screen.dart';
 import 'package:blablafront/core/utils/route_guards.dart';
 
 /// Route names for the application
@@ -48,6 +49,12 @@ class AppRouter {
       case AppRoutes.postRide:
         return MaterialPageRoute(
           builder: (_) => const AuthGuard(child: PostRideScreen()),
+          settings: settings,
+        );
+
+      case AppRoutes.profile:
+        return MaterialPageRoute(
+          builder: (_) => const AuthGuard(child: ProfileScreen()),
           settings: settings,
         );
 

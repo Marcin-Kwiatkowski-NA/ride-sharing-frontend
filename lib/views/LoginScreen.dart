@@ -159,10 +159,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() => _isLoading = false);
 
-    if (!success && authProvider.errorMessage != null) {
+    if (success) {
+      if (mounted) AppRouter.navigateAndClearStack(context, AppRoutes.home);
+    } else if (authProvider.errorMessage != null) {
       _showError(authProvider.errorMessage!);
     }
-    // Navigation handled automatically by Provider in main.dart
   }
 
   Future<void> _handleGoogleSignIn() async {
@@ -173,10 +174,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() => _isLoading = false);
 
-    if (!success && authProvider.errorMessage != null) {
+    if (success) {
+      if (mounted) AppRouter.navigateAndClearStack(context, AppRoutes.home);
+    } else if (authProvider.errorMessage != null) {
       _showError(authProvider.errorMessage!);
     }
-    // Navigation handled automatically by Provider in main.dart
   }
 
   void _showError(String message) {

@@ -195,8 +195,8 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     setState(() => _isLoading = false);
 
     if (success) {
-      // Clear navigation stack and go to home
-      AppRouter.navigateAndClearStack(context, AppRoutes.home);
+      // Clear navigation stack and go to profile
+      if (mounted) AppRouter.navigateAndClearStack(context, AppRoutes.profile);
     } else if (authProvider.errorMessage != null) {
       _showError(authProvider.errorMessage!);
     }

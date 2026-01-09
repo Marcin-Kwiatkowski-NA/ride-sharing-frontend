@@ -1,9 +1,9 @@
 import 'package:blablafront/views/Search_Passenger_Screen.dart';
 import 'package:blablafront/views/Search_Ride_Screen.dart';
+import 'package:blablafront/views/profile_screen.dart';
 import 'package:flutter/material.dart';
 
 import 'Bottom_Button.dart';
-import 'LoginScreen.dart';
 
 class Bottom_Buttons extends StatelessWidget {
   final int primary;
@@ -32,7 +32,7 @@ class Bottom_Buttons extends StatelessWidget {
           BottomButton(
             icon: Icons.account_box_rounded,
             text: 'Profile',
-            route: MaterialPageRoute(builder: (_) => LoginScreen()),
+            route: MaterialPageRoute(builder: (_) => const ProfileScreen()),
             primary: primary == 3 ? true : false,
           ),
         ],
