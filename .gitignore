@@ -37,7 +37,33 @@ app.*.symbols
 # Obfuscation related
 app.*.map.json
 
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
+# Android
+android/
+
+# iOS generated
+/ios/Pods/
+/ios/.symlinks/
+/ios/Flutter/Flutter.framework
+/ios/Flutter/Flutter.podspec
+*.ipa
+
+# Generated code (build_runner, freezed, json_serializable, mockito)
+*.g.dart
+*.freezed.dart
+*.mocks.dart
+
+# Coverage
+coverage/
+
+# Web generated
+/web/favicon.png
+
+# macOS generated
+/macos/Pods/
+
+# Environment
+.env
+.env.*
+
+# claude
+tmpclaude*

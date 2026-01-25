@@ -19,7 +19,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.10.0
+  sdk: ">=3.10.0 <4.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -37,7 +37,6 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   http: ^1.4.0
-  async: ^2.13.0
   google_fonts: ^6.2.1
   shared_preferences: ^2.5.4
 
@@ -47,12 +46,27 @@ dependencies:
 
   # State Management
   provider: ^6.1.2
+  flutter_riverpod: ^3.1.0
+
+  # Networking
+  dio: ^5.9.0
+
+  # Code Generation (annotations)
+  freezed_annotation: ^3.1.0
+  json_annotation: ^4.9.0
+
+  # External Actions
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   mockito: ^5.4.4
   build_runner: ^2.6.0
+
+  # Code Generation
+  freezed: ^3.2.3
+  json_serializable: ^6.11.2
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
