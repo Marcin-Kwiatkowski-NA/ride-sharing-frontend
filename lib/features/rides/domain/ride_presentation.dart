@@ -19,7 +19,7 @@ class RidePresentation {
   static RideUiModel toUiModel(RideResponseDto dto) {
     final isInternal = dto.source == RideSource.internal;
     final hasPhone = dto.driver?.phoneNumber?.isNotEmpty == true;
-    final hasExternal = dto.externalUrl?.isNotEmpty == true;
+    final hasExternal = dto.sourceUrl?.isNotEmpty == true;
 
     // Time formatting with approximate indicator
     final timeStr = _timeFormat.format(dto.departureTime);
@@ -90,7 +90,7 @@ class RidePresentation {
       driverName: driverName,
       driverPhone: dto.driver?.phoneNumber,
       hasDriverPhone: hasPhone,
-      externalUrl: dto.externalUrl,
+      sourceUrl: dto.sourceUrl,
       hasExternalUrl: hasExternal,
       status: dto.rideStatus,
       statusDisplay: statusDisplay,

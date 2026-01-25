@@ -42,7 +42,7 @@ class RideUiModel {
   final bool hasDriverPhone;
 
   // External
-  final String? externalUrl;
+  final String? sourceUrl;
   final bool hasExternalUrl;
 
   // Status
@@ -74,7 +74,7 @@ class RideUiModel {
     required this.driverName,
     required this.driverPhone,
     required this.hasDriverPhone,
-    required this.externalUrl,
+    required this.sourceUrl,
     required this.hasExternalUrl,
     required this.status,
     required this.statusDisplay,

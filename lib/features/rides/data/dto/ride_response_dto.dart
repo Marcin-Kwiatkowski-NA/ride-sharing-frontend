@@ -24,7 +24,7 @@ sealed class RideResponseDto with _$RideResponseDto {
     @Default(RideStatus.open) RideStatus rideStatus,
     DateTime? lastModified,
     @Default([]) List<DriverProfileDto> passengers,
-    String? externalUrl,
+    String? sourceUrl,
   }) = _RideResponseDto;
 
   factory RideResponseDto.fromJson(Map<String, dynamic> json) =>

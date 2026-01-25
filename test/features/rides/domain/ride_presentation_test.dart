@@ -16,7 +16,7 @@ void main() {
       int availableSeats = 3,
       RideStatus rideStatus = RideStatus.open,
       String? phoneNumber,
-      String? externalUrl,
+      String? sourceUrl,
       String? driverName,
     }) {
       return RideResponseDto(
@@ -34,7 +34,7 @@ void main() {
           name: driverName,
           phoneNumber: phoneNumber,
         ),
-        externalUrl: externalUrl,
+        sourceUrl: sourceUrl,
       );
     }
 
@@ -100,7 +100,7 @@ void main() {
       test('shows "Community listing" badge for FACEBOOK source', () {
         final dto = createTestRide(
           source: RideSource.facebook,
-          externalUrl: 'https://facebook.com/post/123',
+          sourceUrl: 'https://facebook.com/post/123',
         );
 
         final uiModel = RidePresentation.toUiModel(dto);
@@ -125,7 +125,7 @@ void main() {
       test('sets CTA to "View original post" for Facebook ride with URL', () {
         final dto = createTestRide(
           source: RideSource.facebook,
-          externalUrl: 'https://facebook.com/post/123',
+          sourceUrl: 'https://facebook.com/post/123',
         );
 
         final uiModel = RidePresentation.toUiModel(dto);
@@ -139,7 +139,7 @@ void main() {
         final dto = createTestRide(
           source: RideSource.facebook,
           phoneNumber: '+48123456789',
-          externalUrl: 'https://facebook.com/post/123',
+          sourceUrl: 'https://facebook.com/post/123',
         );
 
         final uiModel = RidePresentation.toUiModel(dto);
@@ -164,7 +164,7 @@ void main() {
         final dto = createTestRide(
           source: RideSource.facebook,
           phoneNumber: null,
-          externalUrl: null,
+          sourceUrl: null,
         );
 
         final uiModel = RidePresentation.toUiModel(dto);

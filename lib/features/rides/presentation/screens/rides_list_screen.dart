@@ -127,7 +127,7 @@ class RidesListScreen extends ConsumerWidget {
     if (ride.hasDriverPhone) {
       Launchers.makePhoneCall(ride.driverPhone!);
     } else if (ride.hasExternalUrl) {
-      Launchers.openUrl(ride.externalUrl!);
+      Launchers.openUrl(ride.sourceUrl!);
     }
   }
 }
