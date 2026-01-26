@@ -1,9 +1,8 @@
-import 'dart:developer' as developer;
-
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/network/dio_provider.dart';
+import 'dto/paginated_response.dart';
 import 'dto/ride_response_dto.dart';
 import 'dto/search_criteria_dto.dart';
 
@@ -15,8 +14,9 @@ class RideApiClient {
 
   /// Search rides with criteria.
   ///
-  /// Returns paginated list of rides matching the search criteria.
-  Future<List<RideResponseDto>> searchRides(SearchCriteriaDto criteria) async {
+  /// Returns paginated response with rides and pagination metadata.
+  Future<PaginatedResponse<RideResponseDto>> searchRides(
+      SearchCriteriaDto criteria) async {
     final queryParams = <String, dynamic>{
       'page': criteria.page,
       'size': criteria.size,
@@ -39,10 +39,21 @@ class RideApiClient {
           '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}:00';
     }
 
-    final response = await _dio.get('/rides/search', queryParameters: queryParams);
+    final response =
+        await _dio.get('/rides/search', queryParameters: queryParams);
 
-    final List<dynamic> content = response.data['content'] ?? [];
-    return content.map((json) => RideResponseDto.fromJson(json)).toList();
+    final data = response.data;
+    final List<dynamic> content = data['content'] ?? [];
+    final rides =
+        content.map((json) => RideResponseDto.fromJson(json)).toList();
+
+    return PaginatedResponse(
+      content: rides,
+      totalElements: data['totalElements'] ?? 0,
+      totalPages: data['totalPages'] ?? 0,
+      currentPage: data['number'] ?? 0,
+      last: data['last'] ?? true,
+    );
   }
 
   /// Get all rides with pagination.

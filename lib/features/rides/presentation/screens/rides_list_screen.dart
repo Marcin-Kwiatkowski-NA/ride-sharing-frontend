@@ -3,21 +3,53 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/utils/launchers.dart';
 import '../../domain/ride_ui_model.dart';
-import '../providers/rides_providers.dart';
+import '../providers/paginated_rides_provider.dart';
 import '../providers/search_criteria_provider.dart';
 import '../widgets/ride_card.dart';
 import '../widgets/ride_skeleton.dart';
 import '../widgets/search_filter_bar.dart';
 
-/// Screen displaying list of rides with search/filter functionality.
-///
-/// Pure Riverpod - uses ConsumerWidget, no old Provider dependencies.
-class RidesListScreen extends ConsumerWidget {
+/// Screen displaying list of rides with search/filter and infinite scroll.
+class RidesListScreen extends ConsumerStatefulWidget {
   const RidesListScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final ridesAsync = ref.watch(ridesSearchProvider);
+  ConsumerState<RidesListScreen> createState() => _RidesListScreenState();
+}
+
+class _RidesListScreenState extends ConsumerState<RidesListScreen> {
+  final _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_isNearBottom) {
+      ref.read(paginatedRidesProvider.notifier).loadMore();
+    }
+  }
+
+  bool get _isNearBottom {
+    if (!_scrollController.hasClients) return false;
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.offset;
+    // Trigger when 200px from bottom
+    return currentScroll >= (maxScroll - 200);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ridesState = ref.watch(paginatedRidesProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -36,23 +68,26 @@ class RidesListScreen extends ConsumerWidget {
         children: [
           const SearchFilterBar(),
           Expanded(
-            child: ridesAsync.when(
-              loading: () => const RideSkeletonList(),
-              error: (error, stack) => _buildErrorWidget(context, ref, error),
-              data: (rides) => _buildRidesList(context, ref, rides),
-            ),
+            child: _buildBody(context, ridesState),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildRidesList(
-    BuildContext context,
-    WidgetRef ref,
-    List<RideUiModel> rides,
-  ) {
-    if (rides.isEmpty) {
+  Widget _buildBody(BuildContext context, PaginatedRidesState state) {
+    // Show skeleton only on initial load
+    if (state.isLoading && state.rides.isEmpty) {
+      return const RideSkeletonList();
+    }
+
+    // Show error with retry
+    if (state.error != null && state.rides.isEmpty) {
+      return _buildErrorWidget(context, state.error!);
+    }
+
+    // Show empty state
+    if (!state.isLoading && state.rides.isEmpty) {
       return const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -65,14 +100,30 @@ class RidesListScreen extends ConsumerWidget {
       );
     }
 
+    return _buildRidesList(context, state);
+  }
+
+  Widget _buildRidesList(BuildContext context, PaginatedRidesState state) {
+    final rides = state.rides;
+
     return RefreshIndicator(
       onRefresh: () async {
-        ref.invalidate(ridesSearchProvider);
+        await ref.read(paginatedRidesProvider.notifier).refresh();
       },
       child: ListView.builder(
+        controller: _scrollController,
         padding: const EdgeInsets.all(16),
-        itemCount: rides.length,
+        // Add 1 for loading indicator when loading more
+        itemCount: state.hasMore ? rides.length + 1 : rides.length,
         itemBuilder: (context, index) {
+          // Loading indicator at the bottom
+          if (index >= rides.length) {
+            return const Padding(
+              padding: EdgeInsets.symmetric(vertical: 16),
+              child: Center(child: CircularProgressIndicator()),
+            );
+          }
+
           final ride = rides[index];
           return RideCard(
             ride: ride,
@@ -90,7 +141,7 @@ class RidesListScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildErrorWidget(BuildContext context, WidgetRef ref, Object error) {
+  Widget _buildErrorWidget(BuildContext context, Object error) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -112,7 +163,7 @@ class RidesListScreen extends ConsumerWidget {
             const SizedBox(height: 16),
             ElevatedButton.icon(
               onPressed: () {
-                ref.invalidate(ridesSearchProvider);
+                ref.read(paginatedRidesProvider.notifier).refresh();
               },
               icon: const Icon(Icons.refresh),
               label: const Text('Retry'),

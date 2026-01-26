@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'dto/paginated_response.dart';
 import 'dto/ride_response_dto.dart';
 import 'dto/search_criteria_dto.dart';
 import 'ride_api_client.dart';
@@ -14,7 +15,8 @@ class RideRepository {
   RideRepository(this._apiClient);
 
   /// Search rides with criteria.
-  Future<List<RideResponseDto>> searchRides(SearchCriteriaDto criteria) {
+  Future<PaginatedResponse<RideResponseDto>> searchRides(
+      SearchCriteriaDto criteria) {
     return _apiClient.searchRides(criteria);
   }
 

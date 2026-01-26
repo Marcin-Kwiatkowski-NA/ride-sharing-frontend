@@ -40,6 +40,9 @@ app.*.map.json
 # Android
 android/
 
+wondows/
+linux/
+
 # iOS generated
 /ios/Pods/
 /ios/.symlinks/
