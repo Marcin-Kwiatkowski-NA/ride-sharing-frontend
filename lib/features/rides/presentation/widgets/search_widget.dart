@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../utils/constants.dart';
-import 'CityAutocompleteField.dart';
-import 'Date_Search_Field.dart';
-import 'Time_Seatch_Field.dart';
-import 'search_results_screen.dart';
+import '../../../../utils/constants.dart';
+import '../../../../shared/widgets/city_autocomplete_field.dart';
+import '../../../../shared/widgets/date_search_field.dart';
+import '../../../../shared/widgets/time_search_field.dart';
+import '../screens/search_results_screen.dart';
 
 class SearchWidget extends StatefulWidget {
   final String title;
@@ -78,11 +78,13 @@ class _SearchWidgetState extends State<SearchWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Card(
       elevation: 4,
       margin: const EdgeInsets.all(16),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      color: Colors.blue.shade50,
+      color: theme.colorScheme.primaryContainer,
       child: Padding(
         padding: Constants().padding_20,
         child: Column(
@@ -95,7 +97,7 @@ class _SearchWidgetState extends State<SearchWidget> {
                 child: Text(
                   widget.title,
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.abel(fontSize: 40, color: Colors.blue.shade800),
+                  style: GoogleFonts.abel(fontSize: 40, color: theme.colorScheme.primary),
                 ),
               ),
 
@@ -151,7 +153,7 @@ class _SearchWidgetState extends State<SearchWidget> {
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                backgroundColor: Colors.blue.shade700,
+                backgroundColor: theme.colorScheme.primary,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),

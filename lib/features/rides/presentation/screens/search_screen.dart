@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'Backgroung.dart';
-import 'Bottom_Buttons.dart';
-import 'Search_Widget.dart';
+import '../../../../shared/widgets/background.dart';
+import '../widgets/search_widget.dart';
 
 class SearchScreen extends StatelessWidget {
   final int screenNumber;
@@ -14,18 +13,17 @@ class SearchScreen extends StatelessWidget {
     return SafeArea(
       child: Background(
         child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: 700),
+          constraints: const BoxConstraints(maxWidth: 700),
           child: Column(
             children: [
               Transform.translate(
-                offset: Offset(0, 10),
+                offset: const Offset(0, 10),
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: SearchWidget(title: findTitle(screenNumber)),
                 ),
               ),
-              Spacer(),
-              Bottom_Buttons(primary: screenNumber),
+              const Spacer(),
             ],
           ),
         ),

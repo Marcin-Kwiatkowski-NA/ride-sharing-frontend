@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../models/Ride.dart';
-import '../services/ride_service.dart';
-import 'ride_details_screen.dart';
+import '../../../../models/Ride.dart';
+import '../../../../services/ride_service.dart';
+import '../../../rides/presentation/screens/ride_details_screen_legacy.dart';
 
 class MyBookingsScreen extends StatefulWidget {
   const MyBookingsScreen({super.key});
@@ -105,7 +105,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                 await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => RideDetailsScreen(ride: ride),
+                    builder: (context) => RideDetailsScreenLegacy(ride: ride),
                   ),
                 );
                 _fetchBookedRides();

@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../models/Ride.dart';
-import '../services/ride_service.dart';
+import '../../../../models/Ride.dart';
+import '../../../../services/ride_service.dart';
 
-class RideDetailsScreen extends StatefulWidget {
+class RideDetailsScreenLegacy extends StatefulWidget {
   final Ride ride;
 
-  const RideDetailsScreen({super.key, required this.ride});
+  const RideDetailsScreenLegacy({super.key, required this.ride});
 
   @override
-  State<RideDetailsScreen> createState() => _RideDetailsScreenState();
+  State<RideDetailsScreenLegacy> createState() => _RideDetailsScreenLegacyState();
 }
 
-class _RideDetailsScreenState extends State<RideDetailsScreen> {
+class _RideDetailsScreenLegacyState extends State<RideDetailsScreenLegacy> {
   final RideApiService _rideService = RideApiService();
   late Ride _ride;
   bool _isBooking = false;

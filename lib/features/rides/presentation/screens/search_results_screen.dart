@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../models/Ride.dart';
-import '../services/ride_service.dart';
-import 'ride_details_screen.dart';
+import '../../../../models/Ride.dart';
+import '../../../../services/ride_service.dart';
+import 'ride_details_screen_legacy.dart';
 
 class SearchResultsScreen extends StatefulWidget {
   final String? origin;
@@ -122,7 +122,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
           await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => RideDetailsScreen(ride: ride),
+              builder: (context) => RideDetailsScreenLegacy(ride: ride),
             ),
           );
           _fetchRides();

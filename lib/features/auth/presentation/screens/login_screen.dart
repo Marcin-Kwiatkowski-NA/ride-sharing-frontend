@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:blablafront/core/providers/auth_provider.dart';
 import 'package:blablafront/routes/app_router.dart';
-import 'Bottom_Buttons.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -20,7 +19,15 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
+      appBar: AppBar(
+        title: const Text('Login'),
+        leading: Navigator.canPop(context)
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => Navigator.pop(context),
+              )
+            : null,
+      ),
       body: Center(child: _buildLoginForm()),
     );
   }
@@ -33,7 +40,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildLoginForm() {
-    int screenNumber = 3;
     return Form(
       key: _formKey,
       child: Padding(
@@ -134,9 +140,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ],
             ),
-
-            const Spacer(),
-            Bottom_Buttons(primary: screenNumber),
           ],
         ),
       ),

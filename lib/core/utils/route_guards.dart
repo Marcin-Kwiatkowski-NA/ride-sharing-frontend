@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:blablafront/core/providers/auth_provider.dart';
-import 'package:blablafront/views/LoginScreen.dart';
+import 'package:blablafront/features/auth/presentation/screens/login_screen.dart';
 
 /// Widget that protects routes from unauthenticated access
 ///
@@ -29,9 +29,8 @@ class AuthGuard extends StatelessWidget {
         if (!authProvider.isAuthenticated) {
           // Use addPostFrameCallback to avoid build-time navigation
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            Navigator.of(context).pushAndRemoveUntil(
+            Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const LoginScreen()),
-              (route) => false,
             );
           });
 

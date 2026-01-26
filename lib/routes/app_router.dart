@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:blablafront/views/LoginScreen.dart';
-import 'package:blablafront/views/CreateAccountScreen.dart';
-import 'package:blablafront/views/Search_Ride_Screen.dart';
-import 'package:blablafront/views/PostRideScreen.dart';
-import 'package:blablafront/views/profile_screen.dart';
+import 'package:blablafront/features/auth/presentation/screens/login_screen.dart';
+import 'package:blablafront/features/auth/presentation/screens/create_account_screen.dart';
+import 'package:blablafront/features/rides/presentation/screens/post_ride_screen.dart';
+import 'package:blablafront/features/profile/presentation/screens/profile_screen.dart';
+import 'package:blablafront/features/navigation/main_layout.dart';
 import 'package:blablafront/core/utils/route_guards.dart';
 import 'package:blablafront/features/rides/presentation/screens/rides_list_screen.dart';
 import 'package:blablafront/features/rides/presentation/screens/ride_details_screen.dart';
@@ -46,7 +46,7 @@ class AppRouter {
       case AppRoutes.home:
       case AppRoutes.search:
         return MaterialPageRoute(
-          builder: (_) => const AuthGuard(child: SearchRideScreen()),
+          builder: (_) => const MainLayout(),
           settings: settings,
         );
 
@@ -78,7 +78,7 @@ class AppRouter {
       default:
         // Unknown route - redirect to home
         return MaterialPageRoute(
-          builder: (_) => const AuthGuard(child: SearchRideScreen()),
+          builder: (_) => const MainLayout(),
           settings: settings,
         );
     }

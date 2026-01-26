@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:blablafront/core/services/api_client.dart';
 import 'package:blablafront/core/utils/exceptions.dart';
-import 'CityAutocompleteField.dart';
+import '../../../../shared/widgets/city_autocomplete_field.dart';
 
 class PostRideScreen extends StatefulWidget {
   const PostRideScreen({super.key});
@@ -262,7 +262,7 @@ class _PostRideScreenState extends State<PostRideScreen> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Post Your Ride 🚐')),
+      appBar: AppBar(title: const Text('Post Your Ride')),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
@@ -383,10 +383,10 @@ class _PostRideScreenState extends State<PostRideScreen> {
                   ElevatedButton(
                     onPressed: _isLoading ? null : _submitRide,
                     style: Theme.of(context).elevatedButtonTheme.style?.copyWith(
-                      padding: MaterialStateProperty.all(
+                      padding: WidgetStateProperty.all(
                           const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0)),
-                      foregroundColor: MaterialStateProperty.all(Colors.white),
-                      textStyle: MaterialStateProperty.resolveWith((states) {
+                      foregroundColor: WidgetStateProperty.all(Colors.white),
+                      textStyle: WidgetStateProperty.resolveWith((states) {
                         final originalStyle = Theme.of(context).elevatedButtonTheme.style?.textStyle?.resolve(states);
                         return originalStyle?.copyWith(fontWeight: FontWeight.bold, fontSize: 18);
                       }),
