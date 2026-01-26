@@ -184,7 +184,9 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                         '${_ride.availableSeats}'),
                     const Divider(height: 24),
                     _buildInfoRow(Icons.payments, 'Price per Seat',
-                        '${_ride.pricePerSeat.toStringAsFixed(2)} PLN'),
+                        _ride.pricePerSeat != null
+                            ? '${_ride.pricePerSeat!.toStringAsFixed(2)} PLN'
+                            : 'Ask driver'),
                     const Divider(height: 24),
                     _buildInfoRow(
                         Icons.info_outline, 'Status', _ride.rideStatus.name),

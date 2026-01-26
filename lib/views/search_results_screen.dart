@@ -185,7 +185,9 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                     ],
                   ),
                   Text(
-                    '${ride.pricePerSeat.toStringAsFixed(2)} PLN',
+                    ride.pricePerSeat != null
+                        ? '${ride.pricePerSeat!.toStringAsFixed(2)} PLN'
+                        : 'Ask driver',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Theme.of(context).colorScheme.primary,

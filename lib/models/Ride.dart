@@ -5,7 +5,7 @@ class Ride {
   final City destination;
   final DateTime departureTime;
   final int availableSeats;
-  final double pricePerSeat;
+  final double? pricePerSeat;
   final Vehicle? vehicle;
   final RideStatus rideStatus;
   final DateTime? lastModified;
@@ -18,7 +18,7 @@ class Ride {
     required this.destination,
     required this.departureTime,
     required this.availableSeats,
-    required this.pricePerSeat,
+    this.pricePerSeat,
     this.vehicle,
     RideStatus? rideStatus,
     this.lastModified,
@@ -34,7 +34,7 @@ class Ride {
       destination: City.fromJson(json['destination']),
       departureTime: DateTime.parse(json['departureTime']),
       availableSeats: json['availableSeats'] as int,
-      pricePerSeat: (json['pricePerSeat'] as num).toDouble(),
+      pricePerSeat: (json['pricePerSeat'] as num?)?.toDouble(),
       vehicle: json['vehicle'] != null ? Vehicle.fromJson(json['vehicle']) : null,
       rideStatus: RideStatus.values.firstWhere(
         (e) => e.name == json['rideStatus'],
