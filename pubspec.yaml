@@ -45,8 +45,7 @@ dependencies:
   flutter_secure_storage: ^10.0.0
 
   # State Management
-  provider: ^6.1.2
-  flutter_riverpod: ^3.1.0
+  flutter_riverpod: ^3.0.3
 
   # Networking
   dio: ^5.9.0
@@ -54,6 +53,7 @@ dependencies:
   # Code Generation (annotations)
   freezed_annotation: ^3.1.0
   json_annotation: ^4.9.0
+  riverpod_annotation: ^3.0.3
 
   # External Actions
   url_launcher: ^6.3.2
@@ -67,6 +67,7 @@ dev_dependencies:
   # Code Generation
   freezed: ^3.2.3
   json_serializable: ^6.11.2
+  riverpod_generator: ^3.0.3
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

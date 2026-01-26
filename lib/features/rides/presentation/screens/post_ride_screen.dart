@@ -1,19 +1,19 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
-import 'package:blablafront/core/services/api_client.dart';
-import 'package:blablafront/core/utils/exceptions.dart';
+import 'package:blablafront/core/network/dio_provider.dart';
 import 'package:blablafront/core/widgets/core_widgets.dart';
 import '../../../../shared/widgets/city_autocomplete_field.dart';
 
-class PostRideScreen extends StatefulWidget {
+class PostRideScreen extends ConsumerStatefulWidget {
   const PostRideScreen({super.key});
 
   @override
-  State<PostRideScreen> createState() => _PostRideScreenState();
+  ConsumerState<PostRideScreen> createState() => _PostRideScreenState();
 }
 
-class _PostRideScreenState extends State<PostRideScreen> {
+class _PostRideScreenState extends ConsumerState<PostRideScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
 
@@ -83,31 +83,33 @@ class _PostRideScreenState extends State<PostRideScreen> {
       'driverId': _driverId,
       'origin': {
         'osmId': _originCityOsmId,
-        'name': _originController.text, // Add this line
+        'name': _originController.text,
       },
       'destination': {
         'osmId': _destinationCityOsmId,
-        'name': _destinationController.text, // Add this line
+        'name': _destinationController.text,
       },
       'departureTime': formattedDepartureTime,
       'availableSeats': int.parse(_seatsController.text.trim()),
       'pricePerSeat': pricePerSeatVal,
       'vehicleId': _vehicleId,
-      'description': descriptionVal.isNotEmpty ? descriptionVal : null, // Send description
+      'description': descriptionVal.isNotEmpty ? descriptionVal : null,
     };
 
     //
     // --- 3. MAKE THE API CALL ---
     //
-    final apiClient = Provider.of<ApiClient>(context, listen: false);
+    final dio = ref.read(dioProvider);
 
     try {
-      final response = await apiClient.post('/rides', body: rideData);
+      final response = await dio.post('/rides', data: rideData);
 
       if (response.statusCode == 201 || response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Ride posted successfully!'), backgroundColor: Colors.green),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Ride posted successfully!'), backgroundColor: Colors.green),
+          );
+        }
         // Clear form after success
         _formKey.currentState?.reset();
         _dateController.clear();
@@ -120,24 +122,33 @@ class _PostRideScreenState extends State<PostRideScreen> {
           _destinationCityOsmId = null;
         });
       }
-    } on TokenExpiredException {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Session expired. Please log in again.'), backgroundColor: Theme.of(context).colorScheme.error),
-      );
-    } on ApiException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to post ride: ${e.message}'), backgroundColor: Theme.of(context).colorScheme.error),
-      );
-    } on NetworkException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Network error: ${e.message}'), backgroundColor: Theme.of(context).colorScheme.error),
-      );
+    } on DioException catch (e) {
+      if (!mounted) return;
+
+      if (e.response?.statusCode == 401) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: const Text('Session expired. Please log in again.'), backgroundColor: Theme.of(context).colorScheme.error),
+        );
+      } else if (e.type == DioExceptionType.connectionError || e.type == DioExceptionType.connectionTimeout) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Network error: ${e.message}'), backgroundColor: Theme.of(context).colorScheme.error),
+        );
+      } else {
+        final errorMessage = e.response?.data?['message'] ?? e.message ?? 'Unknown error';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to post ride: $errorMessage'), backgroundColor: Theme.of(context).colorScheme.error),
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('An error occurred: $e'), backgroundColor: Theme.of(context).colorScheme.error),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('An error occurred: $e'), backgroundColor: Theme.of(context).colorScheme.error),
+        );
+      }
     } finally {
-      setState(() { _isLoading = false; });
+      if (mounted) {
+        setState(() { _isLoading = false; });
+      }
     }
   }
 

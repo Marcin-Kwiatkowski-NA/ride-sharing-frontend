@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:blablafront/core/providers/auth_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:blablafront/core/providers/auth_notifier.dart';
+import 'package:blablafront/core/providers/auth_state.dart';
 import 'package:blablafront/routes/app_router.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -18,6 +19,18 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Listen for auth state changes to handle navigation and errors
+    ref.listen<AuthState>(authProvider, (previous, next) {
+      // Navigate to home on successful authentication
+      if (next.status == AuthStatus.authenticated) {
+        AppRouter.navigateAndClearStack(context, AppRoutes.home);
+      }
+      // Show error message if present
+      if (next.errorMessage != null && next.errorMessage != previous?.errorMessage) {
+        _showError(next.errorMessage!);
+      }
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Login'),
@@ -154,33 +167,23 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() => _isLoading = true);
 
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final success = await authProvider.signInWithCredentials(
+    await ref.read(authProvider.notifier).signInWithCredentials(
       _usernameController.text,
       _passwordController.text,
     );
 
-    setState(() => _isLoading = false);
-
-    if (success) {
-      if (mounted) AppRouter.navigateAndClearStack(context, AppRoutes.home);
-    } else if (authProvider.errorMessage != null) {
-      _showError(authProvider.errorMessage!);
+    if (mounted) {
+      setState(() => _isLoading = false);
     }
   }
 
   Future<void> _handleGoogleSignIn() async {
     setState(() => _isLoading = true);
 
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final success = await authProvider.signInWithGoogle();
+    await ref.read(authProvider.notifier).signInWithGoogle();
 
-    setState(() => _isLoading = false);
-
-    if (success) {
-      if (mounted) AppRouter.navigateAndClearStack(context, AppRoutes.home);
-    } else if (authProvider.errorMessage != null) {
-      _showError(authProvider.errorMessage!);
+    if (mounted) {
+      setState(() => _isLoading = false);
     }
   }
 

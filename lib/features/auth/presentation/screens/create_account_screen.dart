@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:blablafront/core/providers/auth_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:blablafront/core/providers/auth_notifier.dart';
+import 'package:blablafront/core/providers/auth_state.dart';
 import 'package:blablafront/routes/app_router.dart';
 
-class CreateAccountScreen extends StatefulWidget {
+class CreateAccountScreen extends ConsumerStatefulWidget {
   const CreateAccountScreen({super.key});
 
   @override
-  State<CreateAccountScreen> createState() => _CreateAccountScreenState();
+  ConsumerState<CreateAccountScreen> createState() => _CreateAccountScreenState();
 }
 
-class _CreateAccountScreenState extends State<CreateAccountScreen> {
+class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -19,6 +20,18 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Listen for auth state changes to handle navigation and errors
+    ref.listen<AuthState>(authProvider, (previous, next) {
+      // Navigate to profile on successful authentication
+      if (next.status == AuthStatus.authenticated) {
+        AppRouter.navigateAndClearStack(context, AppRoutes.profile);
+      }
+      // Show error message if present
+      if (next.errorMessage != null && next.errorMessage != previous?.errorMessage) {
+        _showError(next.errorMessage!);
+      }
+    });
+
     return Scaffold(
       appBar: AppBar(title: const Text('Create Account')),
       body: Center(child: _buildForm()),
@@ -186,19 +199,13 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
 
     setState(() => _isLoading = true);
 
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final success = await authProvider.register(
+    await ref.read(authProvider.notifier).register(
       _emailController.text,
       _passwordController.text,
     );
 
-    setState(() => _isLoading = false);
-
-    if (success) {
-      // Clear navigation stack and go to profile
-      if (mounted) AppRouter.navigateAndClearStack(context, AppRoutes.profile);
-    } else if (authProvider.errorMessage != null) {
-      _showError(authProvider.errorMessage!);
+    if (mounted) {
+      setState(() => _isLoading = false);
     }
   }
 

@@ -1,71 +1,68 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:blablafront/core/providers/auth_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:blablafront/core/providers/auth_notifier.dart';
 import 'package:blablafront/core/models/user.dart';
 import 'package:blablafront/features/auth/presentation/screens/login_screen.dart';
 import 'package:blablafront/routes/app_router.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Consumer<AuthProvider>(
-      builder: (context, authProvider, _) {
-        final user = authProvider.currentUser;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authProvider);
+    final user = authState.currentUser;
 
-        if (user == null) {
-          return Scaffold(
-            appBar: AppBar(title: const Text('Profile')),
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.account_circle, size: 100, color: Colors.grey),
-                  const SizedBox(height: 16),
-                  const Text('Log in to see your profile'),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const LoginScreen()),
-                      );
-                    },
-                    child: const Text('Log In / Sign Up'),
-                  ),
-                ],
+    if (user == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Profile')),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.account_circle, size: 100, color: Colors.grey),
+              const SizedBox(height: 16),
+              const Text('Log in to see your profile'),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  );
+                },
+                child: const Text('Log In / Sign Up'),
               ),
-            ),
-          );
-        }
+            ],
+          ),
+        ),
+      );
+    }
 
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text('Profile'),
-            automaticallyImplyLeading: false,
-          ),
-          body: SingleChildScrollView(
-            child: Column(
-              children: [
-                const SizedBox(height: 32),
-                ProfileImage(pictureUrl: user.pictureUrl),
-                const SizedBox(height: 16),
-                ProfileDetails(user: user),
-                const SizedBox(height: 32),
-                ProfileActions(
-                  onLogout: () => _handleLogout(context, authProvider),
-                ),
-              ],
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Profile'),
+        automaticallyImplyLeading: false,
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(height: 32),
+            ProfileImage(pictureUrl: user.pictureUrl),
+            const SizedBox(height: 16),
+            ProfileDetails(user: user),
+            const SizedBox(height: 32),
+            ProfileActions(
+              onLogout: () => _handleLogout(context, ref),
             ),
-          ),
-        );
-      },
+          ],
+        ),
+      ),
     );
   }
 
-  Future<void> _handleLogout(BuildContext context, AuthProvider authProvider) async {
-    await authProvider.signOut();
+  Future<void> _handleLogout(BuildContext context, WidgetRef ref) async {
+    await ref.read(authProvider.notifier).signOut();
     if (context.mounted) {
       AppRouter.navigateAndClearStack(context, AppRoutes.home);
     }
