@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:blablafront/core/widgets/core_widgets.dart';
 
 import '../../../../utils/constants.dart';
 import '../../../../shared/widgets/city_autocomplete_field.dart';
@@ -148,17 +149,8 @@ class _SearchWidgetState extends State<SearchWidget> {
 
             const SizedBox(height: 24),
 
-            ElevatedButton(
+            PrimaryButton(
               onPressed: _canSearch ? _performSearch : null,
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                backgroundColor: theme.colorScheme.primary,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
               child: const Text('Search'),
             ),
           ],
@@ -168,6 +160,7 @@ class _SearchWidgetState extends State<SearchWidget> {
   }
 
   Widget _buildTimeSection(BuildContext context) {
+    final theme = Theme.of(context);
     return Row(
       children: [
         Expanded(
@@ -180,7 +173,7 @@ class _SearchWidgetState extends State<SearchWidget> {
             label: const Text('Any time'),
             style: ElevatedButton.styleFrom(
               backgroundColor: _anyTime
-                  ? Theme.of(context).primaryColor
+                  ? theme.colorScheme.primary
                   : Colors.grey.shade300,
               foregroundColor: _anyTime ? Colors.white : Colors.black87,
               padding: const EdgeInsets.symmetric(vertical: 16),

@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:blablafront/core/services/api_client.dart';
 import 'package:blablafront/core/utils/exceptions.dart';
+import 'package:blablafront/core/widgets/core_widgets.dart';
 import '../../../../shared/widgets/city_autocomplete_field.dart';
 
 class PostRideScreen extends StatefulWidget {
@@ -193,69 +194,6 @@ class _PostRideScreenState extends State<PostRideScreen> {
     }
   }
 
-  // This helper function is now only used for non-autocomplete fields
-  Widget _buildStyledTextField({
-    required TextEditingController controller,
-    required String labelText,
-    required BuildContext context,
-    IconData? prefixIcon,
-    TextInputType keyboardType = TextInputType.text,
-    bool isMultiline = false,
-    int minLines = 1,
-    int maxLines = 1,
-    String? Function(String?)? validator,
-    bool readOnly = false,
-    VoidCallback? onTap,
-    IconData? suffixIcon,
-    String? hintText,
-  }) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10.0),
-      child: TextFormField(
-        controller: controller,
-        keyboardType: keyboardType,
-        minLines: isMultiline ? minLines : null,
-        maxLines: isMultiline ? maxLines : null,
-        readOnly: readOnly,
-        onTap: onTap,
-        decoration: InputDecoration(
-          labelText: labelText,
-          labelStyle: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8)),
-          hintText: hintText ?? "Enter $labelText",
-          hintStyle: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5)),
-          prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: theme.colorScheme.primary, size: 22) : null,
-          suffixIcon: suffixIcon != null ? Icon(suffixIcon, color: theme.colorScheme.onSurfaceVariant.withOpacity(0.7), size: 22) : null,
-          filled: true,
-          fillColor: Colors.white.withOpacity(0.85),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0),
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0),
-            borderSide: BorderSide(color: theme.colorScheme.outline.withOpacity(0.4)),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0),
-            borderSide: BorderSide(color: theme.colorScheme.primary, width: 2.0),
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0),
-            borderSide: BorderSide(color: theme.colorScheme.error, width: 1.0),
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0),
-            borderSide: BorderSide(color: theme.colorScheme.error, width: 2.0),
-          ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
-        ),
-        style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.onSurface),
-        validator: validator,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
@@ -322,32 +260,27 @@ class _PostRideScreenState extends State<PostRideScreen> {
                     ),
                   ),
 
-                  _buildStyledTextField(
+                  AppTextField(
                     controller: _dateController,
-                    labelText: 'Date of Departure',
+                    label: 'Date of Departure',
                     prefixIcon: Icons.calendar_today_outlined,
                     suffixIcon: Icons.arrow_drop_down,
-                    readOnly: true,
-                    context: context,
                     onTap: () => _pickDate(context),
                     validator: (value) => (value == null || value.isEmpty) ? 'Please select a date.' : null,
                   ),
-                  _buildStyledTextField(
+                  AppTextField(
                     controller: _timeController,
-                    labelText: 'Time of Departure',
+                    label: 'Time of Departure',
                     prefixIcon: Icons.access_time_outlined,
                     suffixIcon: Icons.arrow_drop_down,
-                    readOnly: true,
-                    context: context,
                     onTap: () => _pickTime(context),
                     validator: (value) => (value == null || value.isEmpty) ? 'Please select a time.' : null,
                   ),
-                  _buildStyledTextField(
+                  AppTextField(
                     controller: _seatsController,
-                    labelText: 'Available Seats',
+                    label: 'Available Seats',
                     prefixIcon: Icons.event_seat_outlined,
                     keyboardType: TextInputType.number,
-                    context: context,
                     validator: (value) {
                       if (value == null || value.isEmpty) return 'Number of seats is required.';
                       final n = int.tryParse(value);
@@ -356,12 +289,11 @@ class _PostRideScreenState extends State<PostRideScreen> {
                       return null;
                     },
                   ),
-                  _buildStyledTextField(
+                  AppTextField(
                     controller: _priceController,
-                    labelText: 'Price per Seat (PLN)',
+                    label: 'Price per Seat (PLN)',
                     prefixIcon: Icons.payments_outlined,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    context: context,
+                    isCurrency: true,
                     validator: (value) {
                       if (value == null || value.isEmpty) return 'Price is required.';
                       final price = double.tryParse(value.replaceAll(',', '.'));
@@ -370,37 +302,18 @@ class _PostRideScreenState extends State<PostRideScreen> {
                       return null;
                     },
                   ),
-                  _buildStyledTextField(
+                  AppTextField(
                     controller: _descriptionController,
-                    labelText: 'Ride Description (Optional)',
+                    label: 'Ride Description (Optional)',
                     prefixIcon: Icons.notes_outlined,
-                    isMultiline: true,
-                    minLines: 2,
                     maxLines: 4,
-                    context: context,
+                    minLines: 2,
                   ),
                   const SizedBox(height: 28.0),
-                  ElevatedButton(
+                  PrimaryButton(
                     onPressed: _isLoading ? null : _submitRide,
-                    style: Theme.of(context).elevatedButtonTheme.style?.copyWith(
-                      padding: WidgetStateProperty.all(
-                          const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0)),
-                      foregroundColor: WidgetStateProperty.all(Colors.white),
-                      textStyle: WidgetStateProperty.resolveWith((states) {
-                        final originalStyle = Theme.of(context).elevatedButtonTheme.style?.textStyle?.resolve(states);
-                        return originalStyle?.copyWith(fontWeight: FontWeight.bold, fontSize: 18);
-                      }),
-                    ),
-                    child: _isLoading
-                        ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 3,
-                      ),
-                    )
-                        : const Text('Post Ride'),
+                    isLoading: _isLoading,
+                    child: const Text('Post Ride'),
                   ),
                 ],
               ),
