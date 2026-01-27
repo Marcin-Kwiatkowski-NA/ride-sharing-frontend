@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:blablafront/features/rides/data/dto/ride_response_dto.dart';
 import 'package:blablafront/features/rides/data/dto/city_dto.dart';
-import 'package:blablafront/features/rides/data/dto/driver_profile_dto.dart';
+import 'package:blablafront/features/rides/data/dto/contact_method_dto.dart';
+import 'package:blablafront/features/rides/data/dto/driver_dto.dart';
 import 'package:blablafront/features/rides/data/dto/ride_enums.dart';
 import 'package:blablafront/features/rides/domain/ride_presentation.dart';
+import 'package:blablafront/features/rides/domain/ride_ui_model.dart';
 
 void main() {
   group('RidePresentation', () {
@@ -14,10 +16,13 @@ void main() {
       RideSource source = RideSource.internal,
       double? pricePerSeat,
       int availableSeats = 3,
+      int seatsTaken = 0,
       RideStatus rideStatus = RideStatus.open,
-      String? phoneNumber,
-      String? sourceUrl,
+      List<ContactMethodDto>? contactMethods,
       String? driverName,
+      double? driverRating,
+      int? driverCompletedRides,
+      String? description,
     }) {
       return RideResponseDto(
         id: id,
@@ -27,14 +32,16 @@ void main() {
         isApproximate: isApproximate,
         source: source,
         availableSeats: availableSeats,
+        seatsTaken: seatsTaken,
         pricePerSeat: pricePerSeat,
         rideStatus: rideStatus,
-        driver: DriverProfileDto(
-          id: 1,
+        driver: DriverDto(
           name: driverName,
-          phoneNumber: phoneNumber,
+          rating: driverRating,
+          completedRides: driverCompletedRides,
         ),
-        sourceUrl: sourceUrl,
+        contactMethods: contactMethods ?? [],
+        description: description,
       );
     }
 
@@ -100,7 +107,12 @@ void main() {
       test('shows "Community listing" badge for FACEBOOK source', () {
         final dto = createTestRide(
           source: RideSource.facebook,
-          sourceUrl: 'https://facebook.com/post/123',
+          contactMethods: [
+            const ContactMethodDto(
+              type: ContactType.facebookLink,
+              value: 'https://facebook.com/post/123',
+            ),
+          ],
         );
 
         final uiModel = RidePresentation.toUiModel(dto);
@@ -112,65 +124,174 @@ void main() {
     });
 
     group('CTA logic', () {
-      test('sets CTA to "Call driver" when phone exists', () {
-        final dto = createTestRide(phoneNumber: '+48123456789');
+      test('sets CTA to "Call driver" when phone contact exists', () {
+        final dto = createTestRide(
+          contactMethods: [
+            const ContactMethodDto(
+              type: ContactType.phone,
+              value: '+48123456789',
+            ),
+          ],
+        );
 
         final uiModel = RidePresentation.toUiModel(dto);
 
         expect(uiModel.ctaText, 'Call driver');
         expect(uiModel.ctaEnabled, true);
+        expect(uiModel.ctaType, CtaType.phone);
         expect(uiModel.hasDriverPhone, true);
+        expect(uiModel.driverPhone, '+48123456789');
       });
 
-      test('sets CTA to "View original post" for Facebook ride with URL', () {
+      test('sets CTA to "View original post" for Facebook ride with link', () {
         final dto = createTestRide(
           source: RideSource.facebook,
-          sourceUrl: 'https://facebook.com/post/123',
+          contactMethods: [
+            const ContactMethodDto(
+              type: ContactType.facebookLink,
+              value: 'https://facebook.com/post/123',
+            ),
+          ],
         );
 
         final uiModel = RidePresentation.toUiModel(dto);
 
         expect(uiModel.ctaText, 'View original post');
         expect(uiModel.ctaEnabled, true);
+        expect(uiModel.ctaType, CtaType.link);
         expect(uiModel.hasExternalUrl, true);
+        expect(uiModel.sourceUrl, 'https://facebook.com/post/123');
       });
 
       test('prefers phone over external URL when both exist', () {
         final dto = createTestRide(
           source: RideSource.facebook,
-          phoneNumber: '+48123456789',
-          sourceUrl: 'https://facebook.com/post/123',
+          contactMethods: [
+            const ContactMethodDto(
+              type: ContactType.phone,
+              value: '+48123456789',
+            ),
+            const ContactMethodDto(
+              type: ContactType.facebookLink,
+              value: 'https://facebook.com/post/123',
+            ),
+          ],
         );
 
         final uiModel = RidePresentation.toUiModel(dto);
 
         expect(uiModel.ctaText, 'Call driver');
         expect(uiModel.ctaEnabled, true);
+        expect(uiModel.ctaType, CtaType.phone);
       });
 
       test('disables CTA for internal ride without phone', () {
         final dto = createTestRide(
           source: RideSource.internal,
-          phoneNumber: null,
+          contactMethods: [],
         );
 
         final uiModel = RidePresentation.toUiModel(dto);
 
         expect(uiModel.ctaText, 'No phone available');
         expect(uiModel.ctaEnabled, false);
+        expect(uiModel.ctaType, CtaType.disabled);
       });
 
-      test('disables CTA for Facebook ride without URL', () {
+      test('disables CTA for Facebook ride without contact methods', () {
         final dto = createTestRide(
           source: RideSource.facebook,
-          phoneNumber: null,
-          sourceUrl: null,
+          contactMethods: [],
         );
 
         final uiModel = RidePresentation.toUiModel(dto);
 
         expect(uiModel.ctaText, 'Link unavailable');
         expect(uiModel.ctaEnabled, false);
+        expect(uiModel.ctaType, CtaType.disabled);
+      });
+
+      test('CTA disabled when contactMethods is empty', () {
+        final dto = createTestRide(contactMethods: []);
+
+        final uiModel = RidePresentation.toUiModel(dto);
+
+        expect(uiModel.ctaEnabled, false);
+        expect(uiModel.ctaType, CtaType.disabled);
+      });
+    });
+
+    group('Driver rating', () {
+      test('showRating is false when completedRides is null', () {
+        final dto = createTestRide(
+          driverRating: 4.5,
+          driverCompletedRides: null,
+        );
+
+        final uiModel = RidePresentation.toUiModel(dto);
+
+        expect(uiModel.showRating, false);
+      });
+
+      test('showRating is false when completedRides is 0', () {
+        final dto = createTestRide(
+          driverRating: 4.5,
+          driverCompletedRides: 0,
+        );
+
+        final uiModel = RidePresentation.toUiModel(dto);
+
+        expect(uiModel.showRating, false);
+      });
+
+      test('showRating is false when rating is null', () {
+        final dto = createTestRide(
+          driverRating: null,
+          driverCompletedRides: 10,
+        );
+
+        final uiModel = RidePresentation.toUiModel(dto);
+
+        expect(uiModel.showRating, false);
+      });
+
+      test('showRating is true when completedRides > 0 and rating exists', () {
+        final dto = createTestRide(
+          driverRating: 4.5,
+          driverCompletedRides: 10,
+        );
+
+        final uiModel = RidePresentation.toUiModel(dto);
+
+        expect(uiModel.showRating, true);
+        expect(uiModel.driverRating, 4.5);
+        expect(uiModel.driverCompletedRides, 10);
+      });
+    });
+
+    group('New fields', () {
+      test('seatsTaken is passed through', () {
+        final dto = createTestRide(seatsTaken: 2);
+
+        final uiModel = RidePresentation.toUiModel(dto);
+
+        expect(uiModel.seatsTaken, 2);
+      });
+
+      test('description is passed through', () {
+        final dto = createTestRide(description: 'No smoking please');
+
+        final uiModel = RidePresentation.toUiModel(dto);
+
+        expect(uiModel.description, 'No smoking please');
+      });
+
+      test('description is null when not provided', () {
+        final dto = createTestRide(description: null);
+
+        final uiModel = RidePresentation.toUiModel(dto);
+
+        expect(uiModel.description, null);
       });
     });
 

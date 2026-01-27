@@ -6,11 +6,12 @@ part 'search_criteria_dto.freezed.dart';
 @freezed
 sealed class SearchCriteriaDto with _$SearchCriteriaDto {
   const factory SearchCriteriaDto({
-    String? origin,
-    String? destination,
+    String? originCityName,
+    String? destinationCityName,
     DateTime? departureDate,
+    DateTime? departureDateTo,
     TimeOfDay? departureTimeFrom,
-    @Default(1) int minSeats,
+    @Default(1) int minAvailableSeats,
     @Default(0) int page,
     @Default(10) int size,
   }) = _SearchCriteriaDto;

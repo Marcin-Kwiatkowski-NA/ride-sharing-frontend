@@ -155,7 +155,7 @@ class RideDetailsScreen extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(vertical: 16),
               foregroundColor: Colors.white,
             ),
-            icon: Icon(ride.hasDriverPhone ? Icons.phone : Icons.open_in_new),
+            icon: Icon(ride.ctaType == CtaType.phone ? Icons.phone : Icons.open_in_new),
             label: Text(ride.ctaText),
           ),
         ],
@@ -208,10 +208,13 @@ class RideDetailsScreen extends ConsumerWidget {
   }
 
   void _handleCtaAction(BuildContext context, RideUiModel ride) {
-    if (ride.hasDriverPhone) {
-      Launchers.makePhoneCall(ride.driverPhone!);
-    } else if (ride.hasExternalUrl) {
-      Launchers.openUrl(ride.sourceUrl!);
+    switch (ride.ctaType) {
+      case CtaType.phone:
+        Launchers.makePhoneCall(ride.driverPhone!);
+      case CtaType.link:
+        Launchers.openUrl(ride.sourceUrl!);
+      case CtaType.disabled:
+        break; // should not reach here if button is disabled
     }
   }
 }

@@ -25,3 +25,16 @@ enum RideStatus {
   const RideStatus(this.value);
   final String value;
 }
+
+@JsonEnum(valueField: 'value')
+enum ContactType {
+  @JsonValue('PHONE')
+  phone('PHONE'),
+  @JsonValue('FACEBOOK_LINK')
+  facebookLink('FACEBOOK_LINK'),
+  @JsonValue('EMAIL')
+  email('EMAIL');
+
+  const ContactType(this.value);
+  final String value;
+}

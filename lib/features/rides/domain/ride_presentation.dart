@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../data/dto/contact_method_dto.dart';
 import '../data/dto/ride_enums.dart';
 import '../data/dto/ride_response_dto.dart';
 import 'ride_ui_model.dart';
@@ -18,8 +19,13 @@ class RidePresentation {
   /// Convert DTO to UI model with all precomputed display values.
   static RideUiModel toUiModel(RideResponseDto dto) {
     final isInternal = dto.source == RideSource.internal;
-    final hasPhone = dto.driver?.phoneNumber?.isNotEmpty == true;
-    final hasExternal = dto.sourceUrl?.isNotEmpty == true;
+
+    // Extract contact methods
+    final phoneContact = _findContactByType(dto.contactMethods, ContactType.phone);
+    final facebookContact = _findContactByType(dto.contactMethods, ContactType.facebookLink);
+
+    final hasPhone = phoneContact != null;
+    final hasExternal = facebookContact != null;
 
     // Time formatting with approximate indicator
     final timeStr = _timeFormat.format(dto.departureTime);
@@ -49,26 +55,38 @@ class RidePresentation {
     final isBookable =
         dto.rideStatus == RideStatus.open && dto.availableSeats > 0;
 
-    // CTA (Call-to-Action)
+    // CTA (Call-to-Action) - phone takes priority over link
+    CtaType ctaType;
     String ctaText;
     bool ctaEnabled;
 
     if (hasPhone) {
+      ctaType = CtaType.phone;
       ctaText = 'Call driver';
       ctaEnabled = true;
     } else if (hasExternal) {
+      ctaType = CtaType.link;
       ctaText = 'View original post';
       ctaEnabled = true;
     } else if (isInternal) {
+      ctaType = CtaType.disabled;
       ctaText = 'No phone available';
       ctaEnabled = false;
     } else {
+      ctaType = CtaType.disabled;
       ctaText = 'Link unavailable';
       ctaEnabled = false;
     }
 
-    // Driver name
-    final driverName = dto.driver?.name ?? dto.driver?.username;
+    // Driver info
+    final driverName = dto.driver?.name;
+    final driverRating = dto.driver?.rating;
+    final driverCompletedRides = dto.driver?.completedRides;
+
+    // Show rating only if completedRides > 0 and rating is available
+    final showRating = driverCompletedRides != null &&
+        driverCompletedRides > 0 &&
+        driverRating != null;
 
     return RideUiModel(
       id: dto.id,
@@ -80,6 +98,7 @@ class RidePresentation {
       fullDateTimeDisplay: fullDateTime,
       isApproximate: dto.isApproximate,
       availableSeats: dto.availableSeats,
+      seatsTaken: dto.seatsTaken,
       seatsDisplay: seatsDisplay,
       priceDisplay: priceDisplay,
       hasPrice: hasPrice,
@@ -88,13 +107,18 @@ class RidePresentation {
       sourceBadgeColor: sourceBadgeColor,
       isInternal: isInternal,
       driverName: driverName,
-      driverPhone: dto.driver?.phoneNumber,
+      driverPhone: phoneContact?.value,
       hasDriverPhone: hasPhone,
-      sourceUrl: dto.sourceUrl,
+      driverRating: driverRating,
+      driverCompletedRides: driverCompletedRides,
+      showRating: showRating,
+      sourceUrl: facebookContact?.value,
       hasExternalUrl: hasExternal,
+      description: dto.description,
       status: dto.rideStatus,
       statusDisplay: statusDisplay,
       isBookable: isBookable,
+      ctaType: ctaType,
       ctaText: ctaText,
       ctaEnabled: ctaEnabled,
     );
@@ -103,6 +127,19 @@ class RidePresentation {
   /// Convert list of DTOs to UI models.
   static List<RideUiModel> toUiModels(List<RideResponseDto> dtos) {
     return dtos.map(toUiModel).toList();
+  }
+
+  /// Find contact method by type, returns null if not found.
+  static ContactMethodDto? _findContactByType(
+    List<ContactMethodDto> contacts,
+    ContactType type,
+  ) {
+    for (final contact in contacts) {
+      if (contact.type == type) {
+        return contact;
+      }
+    }
+    return null;
   }
 
   static String _formatStatus(RideStatus status) {

@@ -12,7 +12,7 @@ _RideResponseDto _$RideResponseDtoFromJson(
   id: (json['id'] as num).toInt(),
   driver: json['driver'] == null
       ? null
-      : DriverProfileDto.fromJson(json['driver'] as Map<String, dynamic>),
+      : DriverDto.fromJson(json['driver'] as Map<String, dynamic>),
   origin: CityDto.fromJson(json['origin'] as Map<String, dynamic>),
   destination: CityDto.fromJson(json['destination'] as Map<String, dynamic>),
   departureTime: DateTime.parse(json['departureTime'] as String),
@@ -21,6 +21,7 @@ _RideResponseDto _$RideResponseDtoFromJson(
       $enumDecodeNullable(_$RideSourceEnumMap, json['source']) ??
       RideSource.internal,
   availableSeats: (json['availableSeats'] as num).toInt(),
+  seatsTaken: (json['seatsTaken'] as num?)?.toInt() ?? 0,
   pricePerSeat: (json['pricePerSeat'] as num?)?.toDouble(),
   vehicle: json['vehicle'] == null
       ? null
@@ -28,15 +29,12 @@ _RideResponseDto _$RideResponseDtoFromJson(
   rideStatus:
       $enumDecodeNullable(_$RideStatusEnumMap, json['rideStatus']) ??
       RideStatus.open,
-  lastModified: json['lastModified'] == null
-      ? null
-      : DateTime.parse(json['lastModified'] as String),
-  passengers:
-      (json['passengers'] as List<dynamic>?)
-          ?.map((e) => DriverProfileDto.fromJson(e as Map<String, dynamic>))
+  description: json['description'] as String?,
+  contactMethods:
+      (json['contactMethods'] as List<dynamic>?)
+          ?.map((e) => ContactMethodDto.fromJson(e as Map<String, dynamic>))
           .toList() ??
       const [],
-  sourceUrl: json['sourceUrl'] as String?,
 );
 
 Map<String, dynamic> _$RideResponseDtoToJson(_RideResponseDto instance) =>
@@ -49,12 +47,12 @@ Map<String, dynamic> _$RideResponseDtoToJson(_RideResponseDto instance) =>
       'isApproximate': instance.isApproximate,
       'source': _$RideSourceEnumMap[instance.source]!,
       'availableSeats': instance.availableSeats,
+      'seatsTaken': instance.seatsTaken,
       'pricePerSeat': instance.pricePerSeat,
       'vehicle': instance.vehicle,
       'rideStatus': _$RideStatusEnumMap[instance.rideStatus]!,
-      'lastModified': instance.lastModified?.toIso8601String(),
-      'passengers': instance.passengers,
-      'sourceUrl': instance.sourceUrl,
+      'description': instance.description,
+      'contactMethods': instance.contactMethods,
     };
 
 const _$RideSourceEnumMap = {

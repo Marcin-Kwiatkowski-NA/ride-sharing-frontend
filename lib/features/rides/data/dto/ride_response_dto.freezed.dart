@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$RideResponseDto {
 
- int get id; DriverProfileDto? get driver; CityDto get origin; CityDto get destination; DateTime get departureTime; bool get isApproximate; RideSource get source; int get availableSeats; double? get pricePerSeat; VehicleResponseDto? get vehicle; RideStatus get rideStatus; DateTime? get lastModified; List<DriverProfileDto> get passengers; String? get sourceUrl;
+ int get id; DriverDto? get driver; CityDto get origin; CityDto get destination; DateTime get departureTime; bool get isApproximate; RideSource get source; int get availableSeats; int get seatsTaken; double? get pricePerSeat; VehicleResponseDto? get vehicle; RideStatus get rideStatus; String? get description; List<ContactMethodDto> get contactMethods;
 /// Create a copy of RideResponseDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $RideResponseDtoCopyWith<RideResponseDto> get copyWith => _$RideResponseDtoCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RideResponseDto&&(identical(other.id, id) || other.id == id)&&(identical(other.driver, driver) || other.driver == driver)&&(identical(other.origin, origin) || other.origin == origin)&&(identical(other.destination, destination) || other.destination == destination)&&(identical(other.departureTime, departureTime) || other.departureTime == departureTime)&&(identical(other.isApproximate, isApproximate) || other.isApproximate == isApproximate)&&(identical(other.source, source) || other.source == source)&&(identical(other.availableSeats, availableSeats) || other.availableSeats == availableSeats)&&(identical(other.pricePerSeat, pricePerSeat) || other.pricePerSeat == pricePerSeat)&&(identical(other.vehicle, vehicle) || other.vehicle == vehicle)&&(identical(other.rideStatus, rideStatus) || other.rideStatus == rideStatus)&&(identical(other.lastModified, lastModified) || other.lastModified == lastModified)&&const DeepCollectionEquality().equals(other.passengers, passengers)&&(identical(other.sourceUrl, sourceUrl) || other.sourceUrl == sourceUrl));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RideResponseDto&&(identical(other.id, id) || other.id == id)&&(identical(other.driver, driver) || other.driver == driver)&&(identical(other.origin, origin) || other.origin == origin)&&(identical(other.destination, destination) || other.destination == destination)&&(identical(other.departureTime, departureTime) || other.departureTime == departureTime)&&(identical(other.isApproximate, isApproximate) || other.isApproximate == isApproximate)&&(identical(other.source, source) || other.source == source)&&(identical(other.availableSeats, availableSeats) || other.availableSeats == availableSeats)&&(identical(other.seatsTaken, seatsTaken) || other.seatsTaken == seatsTaken)&&(identical(other.pricePerSeat, pricePerSeat) || other.pricePerSeat == pricePerSeat)&&(identical(other.vehicle, vehicle) || other.vehicle == vehicle)&&(identical(other.rideStatus, rideStatus) || other.rideStatus == rideStatus)&&(identical(other.description, description) || other.description == description)&&const DeepCollectionEquality().equals(other.contactMethods, contactMethods));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,driver,origin,destination,departureTime,isApproximate,source,availableSeats,pricePerSeat,vehicle,rideStatus,lastModified,const DeepCollectionEquality().hash(passengers),sourceUrl);
+int get hashCode => Object.hash(runtimeType,id,driver,origin,destination,departureTime,isApproximate,source,availableSeats,seatsTaken,pricePerSeat,vehicle,rideStatus,description,const DeepCollectionEquality().hash(contactMethods));
 
 @override
 String toString() {
-  return 'RideResponseDto(id: $id, driver: $driver, origin: $origin, destination: $destination, departureTime: $departureTime, isApproximate: $isApproximate, source: $source, availableSeats: $availableSeats, pricePerSeat: $pricePerSeat, vehicle: $vehicle, rideStatus: $rideStatus, lastModified: $lastModified, passengers: $passengers, sourceUrl: $sourceUrl)';
+  return 'RideResponseDto(id: $id, driver: $driver, origin: $origin, destination: $destination, departureTime: $departureTime, isApproximate: $isApproximate, source: $source, availableSeats: $availableSeats, seatsTaken: $seatsTaken, pricePerSeat: $pricePerSeat, vehicle: $vehicle, rideStatus: $rideStatus, description: $description, contactMethods: $contactMethods)';
 }
 
 
@@ -48,11 +48,11 @@ abstract mixin class $RideResponseDtoCopyWith<$Res>  {
   factory $RideResponseDtoCopyWith(RideResponseDto value, $Res Function(RideResponseDto) _then) = _$RideResponseDtoCopyWithImpl;
 @useResult
 $Res call({
- int id, DriverProfileDto? driver, CityDto origin, CityDto destination, DateTime departureTime, bool isApproximate, RideSource source, int availableSeats, double? pricePerSeat, VehicleResponseDto? vehicle, RideStatus rideStatus, DateTime? lastModified, List<DriverProfileDto> passengers, String? sourceUrl
+ int id, DriverDto? driver, CityDto origin, CityDto destination, DateTime departureTime, bool isApproximate, RideSource source, int availableSeats, int seatsTaken, double? pricePerSeat, VehicleResponseDto? vehicle, RideStatus rideStatus, String? description, List<ContactMethodDto> contactMethods
 });
 
 
-$DriverProfileDtoCopyWith<$Res>? get driver;$CityDtoCopyWith<$Res> get origin;$CityDtoCopyWith<$Res> get destination;$VehicleResponseDtoCopyWith<$Res>? get vehicle;
+$DriverDtoCopyWith<$Res>? get driver;$CityDtoCopyWith<$Res> get origin;$CityDtoCopyWith<$Res> get destination;$VehicleResponseDtoCopyWith<$Res>? get vehicle;
 
 }
 /// @nodoc
@@ -65,35 +65,35 @@ class _$RideResponseDtoCopyWithImpl<$Res>
 
 /// Create a copy of RideResponseDto
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? driver = freezed,Object? origin = null,Object? destination = null,Object? departureTime = null,Object? isApproximate = null,Object? source = null,Object? availableSeats = null,Object? pricePerSeat = freezed,Object? vehicle = freezed,Object? rideStatus = null,Object? lastModified = freezed,Object? passengers = null,Object? sourceUrl = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? driver = freezed,Object? origin = null,Object? destination = null,Object? departureTime = null,Object? isApproximate = null,Object? source = null,Object? availableSeats = null,Object? seatsTaken = null,Object? pricePerSeat = freezed,Object? vehicle = freezed,Object? rideStatus = null,Object? description = freezed,Object? contactMethods = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,driver: freezed == driver ? _self.driver : driver // ignore: cast_nullable_to_non_nullable
-as DriverProfileDto?,origin: null == origin ? _self.origin : origin // ignore: cast_nullable_to_non_nullable
+as DriverDto?,origin: null == origin ? _self.origin : origin // ignore: cast_nullable_to_non_nullable
 as CityDto,destination: null == destination ? _self.destination : destination // ignore: cast_nullable_to_non_nullable
 as CityDto,departureTime: null == departureTime ? _self.departureTime : departureTime // ignore: cast_nullable_to_non_nullable
 as DateTime,isApproximate: null == isApproximate ? _self.isApproximate : isApproximate // ignore: cast_nullable_to_non_nullable
 as bool,source: null == source ? _self.source : source // ignore: cast_nullable_to_non_nullable
 as RideSource,availableSeats: null == availableSeats ? _self.availableSeats : availableSeats // ignore: cast_nullable_to_non_nullable
+as int,seatsTaken: null == seatsTaken ? _self.seatsTaken : seatsTaken // ignore: cast_nullable_to_non_nullable
 as int,pricePerSeat: freezed == pricePerSeat ? _self.pricePerSeat : pricePerSeat // ignore: cast_nullable_to_non_nullable
 as double?,vehicle: freezed == vehicle ? _self.vehicle : vehicle // ignore: cast_nullable_to_non_nullable
 as VehicleResponseDto?,rideStatus: null == rideStatus ? _self.rideStatus : rideStatus // ignore: cast_nullable_to_non_nullable
-as RideStatus,lastModified: freezed == lastModified ? _self.lastModified : lastModified // ignore: cast_nullable_to_non_nullable
-as DateTime?,passengers: null == passengers ? _self.passengers : passengers // ignore: cast_nullable_to_non_nullable
-as List<DriverProfileDto>,sourceUrl: freezed == sourceUrl ? _self.sourceUrl : sourceUrl // ignore: cast_nullable_to_non_nullable
-as String?,
+as RideStatus,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as String?,contactMethods: null == contactMethods ? _self.contactMethods : contactMethods // ignore: cast_nullable_to_non_nullable
+as List<ContactMethodDto>,
   ));
 }
 /// Create a copy of RideResponseDto
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$DriverProfileDtoCopyWith<$Res>? get driver {
+$DriverDtoCopyWith<$Res>? get driver {
     if (_self.driver == null) {
     return null;
   }
 
-  return $DriverProfileDtoCopyWith<$Res>(_self.driver!, (value) {
+  return $DriverDtoCopyWith<$Res>(_self.driver!, (value) {
     return _then(_self.copyWith(driver: value));
   });
 }/// Create a copy of RideResponseDto
@@ -205,10 +205,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  DriverProfileDto? driver,  CityDto origin,  CityDto destination,  DateTime departureTime,  bool isApproximate,  RideSource source,  int availableSeats,  double? pricePerSeat,  VehicleResponseDto? vehicle,  RideStatus rideStatus,  DateTime? lastModified,  List<DriverProfileDto> passengers,  String? sourceUrl)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  DriverDto? driver,  CityDto origin,  CityDto destination,  DateTime departureTime,  bool isApproximate,  RideSource source,  int availableSeats,  int seatsTaken,  double? pricePerSeat,  VehicleResponseDto? vehicle,  RideStatus rideStatus,  String? description,  List<ContactMethodDto> contactMethods)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RideResponseDto() when $default != null:
-return $default(_that.id,_that.driver,_that.origin,_that.destination,_that.departureTime,_that.isApproximate,_that.source,_that.availableSeats,_that.pricePerSeat,_that.vehicle,_that.rideStatus,_that.lastModified,_that.passengers,_that.sourceUrl);case _:
+return $default(_that.id,_that.driver,_that.origin,_that.destination,_that.departureTime,_that.isApproximate,_that.source,_that.availableSeats,_that.seatsTaken,_that.pricePerSeat,_that.vehicle,_that.rideStatus,_that.description,_that.contactMethods);case _:
   return orElse();
 
 }
@@ -226,10 +226,10 @@ return $default(_that.id,_that.driver,_that.origin,_that.destination,_that.depar
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  DriverProfileDto? driver,  CityDto origin,  CityDto destination,  DateTime departureTime,  bool isApproximate,  RideSource source,  int availableSeats,  double? pricePerSeat,  VehicleResponseDto? vehicle,  RideStatus rideStatus,  DateTime? lastModified,  List<DriverProfileDto> passengers,  String? sourceUrl)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  DriverDto? driver,  CityDto origin,  CityDto destination,  DateTime departureTime,  bool isApproximate,  RideSource source,  int availableSeats,  int seatsTaken,  double? pricePerSeat,  VehicleResponseDto? vehicle,  RideStatus rideStatus,  String? description,  List<ContactMethodDto> contactMethods)  $default,) {final _that = this;
 switch (_that) {
 case _RideResponseDto():
-return $default(_that.id,_that.driver,_that.origin,_that.destination,_that.departureTime,_that.isApproximate,_that.source,_that.availableSeats,_that.pricePerSeat,_that.vehicle,_that.rideStatus,_that.lastModified,_that.passengers,_that.sourceUrl);}
+return $default(_that.id,_that.driver,_that.origin,_that.destination,_that.departureTime,_that.isApproximate,_that.source,_that.availableSeats,_that.seatsTaken,_that.pricePerSeat,_that.vehicle,_that.rideStatus,_that.description,_that.contactMethods);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -243,10 +243,10 @@ return $default(_that.id,_that.driver,_that.origin,_that.destination,_that.depar
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  DriverProfileDto? driver,  CityDto origin,  CityDto destination,  DateTime departureTime,  bool isApproximate,  RideSource source,  int availableSeats,  double? pricePerSeat,  VehicleResponseDto? vehicle,  RideStatus rideStatus,  DateTime? lastModified,  List<DriverProfileDto> passengers,  String? sourceUrl)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  DriverDto? driver,  CityDto origin,  CityDto destination,  DateTime departureTime,  bool isApproximate,  RideSource source,  int availableSeats,  int seatsTaken,  double? pricePerSeat,  VehicleResponseDto? vehicle,  RideStatus rideStatus,  String? description,  List<ContactMethodDto> contactMethods)?  $default,) {final _that = this;
 switch (_that) {
 case _RideResponseDto() when $default != null:
-return $default(_that.id,_that.driver,_that.origin,_that.destination,_that.departureTime,_that.isApproximate,_that.source,_that.availableSeats,_that.pricePerSeat,_that.vehicle,_that.rideStatus,_that.lastModified,_that.passengers,_that.sourceUrl);case _:
+return $default(_that.id,_that.driver,_that.origin,_that.destination,_that.departureTime,_that.isApproximate,_that.source,_that.availableSeats,_that.seatsTaken,_that.pricePerSeat,_that.vehicle,_that.rideStatus,_that.description,_that.contactMethods);case _:
   return null;
 
 }
@@ -258,29 +258,29 @@ return $default(_that.id,_that.driver,_that.origin,_that.destination,_that.depar
 @JsonSerializable()
 
 class _RideResponseDto implements RideResponseDto {
-  const _RideResponseDto({required this.id, this.driver, required this.origin, required this.destination, required this.departureTime, this.isApproximate = false, this.source = RideSource.internal, required this.availableSeats, this.pricePerSeat, this.vehicle, this.rideStatus = RideStatus.open, this.lastModified, final  List<DriverProfileDto> passengers = const [], this.sourceUrl}): _passengers = passengers;
+  const _RideResponseDto({required this.id, this.driver, required this.origin, required this.destination, required this.departureTime, this.isApproximate = false, this.source = RideSource.internal, required this.availableSeats, this.seatsTaken = 0, this.pricePerSeat, this.vehicle, this.rideStatus = RideStatus.open, this.description, final  List<ContactMethodDto> contactMethods = const []}): _contactMethods = contactMethods;
   factory _RideResponseDto.fromJson(Map<String, dynamic> json) => _$RideResponseDtoFromJson(json);
 
 @override final  int id;
-@override final  DriverProfileDto? driver;
+@override final  DriverDto? driver;
 @override final  CityDto origin;
 @override final  CityDto destination;
 @override final  DateTime departureTime;
 @override@JsonKey() final  bool isApproximate;
 @override@JsonKey() final  RideSource source;
 @override final  int availableSeats;
+@override@JsonKey() final  int seatsTaken;
 @override final  double? pricePerSeat;
 @override final  VehicleResponseDto? vehicle;
 @override@JsonKey() final  RideStatus rideStatus;
-@override final  DateTime? lastModified;
- final  List<DriverProfileDto> _passengers;
-@override@JsonKey() List<DriverProfileDto> get passengers {
-  if (_passengers is EqualUnmodifiableListView) return _passengers;
+@override final  String? description;
+ final  List<ContactMethodDto> _contactMethods;
+@override@JsonKey() List<ContactMethodDto> get contactMethods {
+  if (_contactMethods is EqualUnmodifiableListView) return _contactMethods;
   // ignore: implicit_dynamic_type
-  return EqualUnmodifiableListView(_passengers);
+  return EqualUnmodifiableListView(_contactMethods);
 }
 
-@override final  String? sourceUrl;
 
 /// Create a copy of RideResponseDto
 /// with the given fields replaced by the non-null parameter values.
@@ -295,16 +295,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RideResponseDto&&(identical(other.id, id) || other.id == id)&&(identical(other.driver, driver) || other.driver == driver)&&(identical(other.origin, origin) || other.origin == origin)&&(identical(other.destination, destination) || other.destination == destination)&&(identical(other.departureTime, departureTime) || other.departureTime == departureTime)&&(identical(other.isApproximate, isApproximate) || other.isApproximate == isApproximate)&&(identical(other.source, source) || other.source == source)&&(identical(other.availableSeats, availableSeats) || other.availableSeats == availableSeats)&&(identical(other.pricePerSeat, pricePerSeat) || other.pricePerSeat == pricePerSeat)&&(identical(other.vehicle, vehicle) || other.vehicle == vehicle)&&(identical(other.rideStatus, rideStatus) || other.rideStatus == rideStatus)&&(identical(other.lastModified, lastModified) || other.lastModified == lastModified)&&const DeepCollectionEquality().equals(other._passengers, _passengers)&&(identical(other.sourceUrl, sourceUrl) || other.sourceUrl == sourceUrl));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RideResponseDto&&(identical(other.id, id) || other.id == id)&&(identical(other.driver, driver) || other.driver == driver)&&(identical(other.origin, origin) || other.origin == origin)&&(identical(other.destination, destination) || other.destination == destination)&&(identical(other.departureTime, departureTime) || other.departureTime == departureTime)&&(identical(other.isApproximate, isApproximate) || other.isApproximate == isApproximate)&&(identical(other.source, source) || other.source == source)&&(identical(other.availableSeats, availableSeats) || other.availableSeats == availableSeats)&&(identical(other.seatsTaken, seatsTaken) || other.seatsTaken == seatsTaken)&&(identical(other.pricePerSeat, pricePerSeat) || other.pricePerSeat == pricePerSeat)&&(identical(other.vehicle, vehicle) || other.vehicle == vehicle)&&(identical(other.rideStatus, rideStatus) || other.rideStatus == rideStatus)&&(identical(other.description, description) || other.description == description)&&const DeepCollectionEquality().equals(other._contactMethods, _contactMethods));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,driver,origin,destination,departureTime,isApproximate,source,availableSeats,pricePerSeat,vehicle,rideStatus,lastModified,const DeepCollectionEquality().hash(_passengers),sourceUrl);
+int get hashCode => Object.hash(runtimeType,id,driver,origin,destination,departureTime,isApproximate,source,availableSeats,seatsTaken,pricePerSeat,vehicle,rideStatus,description,const DeepCollectionEquality().hash(_contactMethods));
 
 @override
 String toString() {
-  return 'RideResponseDto(id: $id, driver: $driver, origin: $origin, destination: $destination, departureTime: $departureTime, isApproximate: $isApproximate, source: $source, availableSeats: $availableSeats, pricePerSeat: $pricePerSeat, vehicle: $vehicle, rideStatus: $rideStatus, lastModified: $lastModified, passengers: $passengers, sourceUrl: $sourceUrl)';
+  return 'RideResponseDto(id: $id, driver: $driver, origin: $origin, destination: $destination, departureTime: $departureTime, isApproximate: $isApproximate, source: $source, availableSeats: $availableSeats, seatsTaken: $seatsTaken, pricePerSeat: $pricePerSeat, vehicle: $vehicle, rideStatus: $rideStatus, description: $description, contactMethods: $contactMethods)';
 }
 
 
@@ -315,11 +315,11 @@ abstract mixin class _$RideResponseDtoCopyWith<$Res> implements $RideResponseDto
   factory _$RideResponseDtoCopyWith(_RideResponseDto value, $Res Function(_RideResponseDto) _then) = __$RideResponseDtoCopyWithImpl;
 @override @useResult
 $Res call({
- int id, DriverProfileDto? driver, CityDto origin, CityDto destination, DateTime departureTime, bool isApproximate, RideSource source, int availableSeats, double? pricePerSeat, VehicleResponseDto? vehicle, RideStatus rideStatus, DateTime? lastModified, List<DriverProfileDto> passengers, String? sourceUrl
+ int id, DriverDto? driver, CityDto origin, CityDto destination, DateTime departureTime, bool isApproximate, RideSource source, int availableSeats, int seatsTaken, double? pricePerSeat, VehicleResponseDto? vehicle, RideStatus rideStatus, String? description, List<ContactMethodDto> contactMethods
 });
 
 
-@override $DriverProfileDtoCopyWith<$Res>? get driver;@override $CityDtoCopyWith<$Res> get origin;@override $CityDtoCopyWith<$Res> get destination;@override $VehicleResponseDtoCopyWith<$Res>? get vehicle;
+@override $DriverDtoCopyWith<$Res>? get driver;@override $CityDtoCopyWith<$Res> get origin;@override $CityDtoCopyWith<$Res> get destination;@override $VehicleResponseDtoCopyWith<$Res>? get vehicle;
 
 }
 /// @nodoc
@@ -332,23 +332,23 @@ class __$RideResponseDtoCopyWithImpl<$Res>
 
 /// Create a copy of RideResponseDto
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? driver = freezed,Object? origin = null,Object? destination = null,Object? departureTime = null,Object? isApproximate = null,Object? source = null,Object? availableSeats = null,Object? pricePerSeat = freezed,Object? vehicle = freezed,Object? rideStatus = null,Object? lastModified = freezed,Object? passengers = null,Object? sourceUrl = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? driver = freezed,Object? origin = null,Object? destination = null,Object? departureTime = null,Object? isApproximate = null,Object? source = null,Object? availableSeats = null,Object? seatsTaken = null,Object? pricePerSeat = freezed,Object? vehicle = freezed,Object? rideStatus = null,Object? description = freezed,Object? contactMethods = null,}) {
   return _then(_RideResponseDto(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,driver: freezed == driver ? _self.driver : driver // ignore: cast_nullable_to_non_nullable
-as DriverProfileDto?,origin: null == origin ? _self.origin : origin // ignore: cast_nullable_to_non_nullable
+as DriverDto?,origin: null == origin ? _self.origin : origin // ignore: cast_nullable_to_non_nullable
 as CityDto,destination: null == destination ? _self.destination : destination // ignore: cast_nullable_to_non_nullable
 as CityDto,departureTime: null == departureTime ? _self.departureTime : departureTime // ignore: cast_nullable_to_non_nullable
 as DateTime,isApproximate: null == isApproximate ? _self.isApproximate : isApproximate // ignore: cast_nullable_to_non_nullable
 as bool,source: null == source ? _self.source : source // ignore: cast_nullable_to_non_nullable
 as RideSource,availableSeats: null == availableSeats ? _self.availableSeats : availableSeats // ignore: cast_nullable_to_non_nullable
+as int,seatsTaken: null == seatsTaken ? _self.seatsTaken : seatsTaken // ignore: cast_nullable_to_non_nullable
 as int,pricePerSeat: freezed == pricePerSeat ? _self.pricePerSeat : pricePerSeat // ignore: cast_nullable_to_non_nullable
 as double?,vehicle: freezed == vehicle ? _self.vehicle : vehicle // ignore: cast_nullable_to_non_nullable
 as VehicleResponseDto?,rideStatus: null == rideStatus ? _self.rideStatus : rideStatus // ignore: cast_nullable_to_non_nullable
-as RideStatus,lastModified: freezed == lastModified ? _self.lastModified : lastModified // ignore: cast_nullable_to_non_nullable
-as DateTime?,passengers: null == passengers ? _self._passengers : passengers // ignore: cast_nullable_to_non_nullable
-as List<DriverProfileDto>,sourceUrl: freezed == sourceUrl ? _self.sourceUrl : sourceUrl // ignore: cast_nullable_to_non_nullable
-as String?,
+as RideStatus,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as String?,contactMethods: null == contactMethods ? _self._contactMethods : contactMethods // ignore: cast_nullable_to_non_nullable
+as List<ContactMethodDto>,
   ));
 }
 
@@ -356,12 +356,12 @@ as String?,
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$DriverProfileDtoCopyWith<$Res>? get driver {
+$DriverDtoCopyWith<$Res>? get driver {
     if (_self.driver == null) {
     return null;
   }
 
-  return $DriverProfileDtoCopyWith<$Res>(_self.driver!, (value) {
+  return $DriverDtoCopyWith<$Res>(_self.driver!, (value) {
     return _then(_self.copyWith(driver: value));
   });
 }/// Create a copy of RideResponseDto

@@ -175,10 +175,13 @@ class _RidesListScreenState extends ConsumerState<RidesListScreen> {
   }
 
   void _handleCtaAction(BuildContext context, RideUiModel ride) {
-    if (ride.hasDriverPhone) {
-      Launchers.makePhoneCall(ride.driverPhone!);
-    } else if (ride.hasExternalUrl) {
-      Launchers.openUrl(ride.sourceUrl!);
+    switch (ride.ctaType) {
+      case CtaType.phone:
+        Launchers.makePhoneCall(ride.driverPhone!);
+      case CtaType.link:
+        Launchers.openUrl(ride.sourceUrl!);
+      case CtaType.disabled:
+        break; // should not reach here if button is disabled
     }
   }
 }

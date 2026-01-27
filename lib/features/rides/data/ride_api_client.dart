@@ -20,18 +20,22 @@ class RideApiClient {
     final queryParams = <String, dynamic>{
       'page': criteria.page,
       'size': criteria.size,
-      'minSeats': criteria.minSeats,
+      'minAvailableSeats': criteria.minAvailableSeats,
     };
 
-    if (criteria.origin?.isNotEmpty == true) {
-      queryParams['origin'] = criteria.origin;
+    if (criteria.originCityName?.isNotEmpty == true) {
+      queryParams['originCityName'] = criteria.originCityName;
     }
-    if (criteria.destination?.isNotEmpty == true) {
-      queryParams['destination'] = criteria.destination;
+    if (criteria.destinationCityName?.isNotEmpty == true) {
+      queryParams['destinationCityName'] = criteria.destinationCityName;
     }
     if (criteria.departureDate != null) {
       queryParams['departureDate'] =
           criteria.departureDate!.toIso8601String().split('T')[0];
+    }
+    if (criteria.departureDateTo != null) {
+      queryParams['departureDateTo'] =
+          criteria.departureDateTo!.toIso8601String().split('T')[0];
     }
     if (criteria.departureTimeFrom != null) {
       final time = criteria.departureTimeFrom!;

@@ -91,27 +91,33 @@ class City {
 }
 
 class Driver {
-  final int id;
+  final int? id;
   final String? username;
   final String? name;
   final String? email;
   final String? phoneNumber;
+  final double? rating;
+  final int? completedRides;
 
   Driver({
-    required this.id,
+    this.id,
     this.username,
     this.name,
     this.email,
     this.phoneNumber,
+    this.rating,
+    this.completedRides,
   });
 
   factory Driver.fromJson(Map<String, dynamic> json) {
     return Driver(
-      id: json['id'] as int,
+      id: json['id'] as int?,
       username: json['username'] as String?,
       name: json['name'] as String?,
       email: json['email'] as String?,
       phoneNumber: json['phoneNumber'] as String?,
+      rating: (json['rating'] as num?)?.toDouble(),
+      completedRides: (json['completedRides'] as num?)?.toInt(),
     );
   }
 
@@ -121,11 +127,13 @@ class Driver {
         'name': name,
         'email': email,
         'phoneNumber': phoneNumber,
+        'rating': rating,
+        'completedRides': completedRides,
       };
 }
 
 class Vehicle {
-  final int id;
+  final int? id;
   final String? make;
   final String? model;
   final int? productionYear;
@@ -133,7 +141,7 @@ class Vehicle {
   final String? licensePlate;
 
   Vehicle({
-    required this.id,
+    this.id,
     this.make,
     this.model,
     this.productionYear,
@@ -143,10 +151,10 @@ class Vehicle {
 
   factory Vehicle.fromJson(Map<String, dynamic> json) {
     return Vehicle(
-      id: json['id'] as int,
+      id: json['id'] as int?,
       make: json['make'] as String?,
       model: json['model'] as String?,
-      productionYear: json['productionYear'] as int?,
+      productionYear: (json['productionYear'] as num?)?.toInt(),
       color: json['color'] as String?,
       licensePlate: json['licensePlate'] as String?,
     );

@@ -136,7 +136,7 @@ class RideCard extends StatelessWidget {
                 child: OutlinedButton.icon(
                   onPressed: ride.ctaEnabled ? onCtaTap : null,
                   icon: Icon(
-                    ride.hasDriverPhone ? Icons.phone : Icons.open_in_new,
+                    ride.ctaType == CtaType.phone ? Icons.phone : Icons.open_in_new,
                     size: 18,
                   ),
                   label: Text(ride.ctaText),

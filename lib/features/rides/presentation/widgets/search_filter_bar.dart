@@ -90,7 +90,7 @@ class _SearchFilterBarState extends ConsumerState<SearchFilterBar> {
               const SizedBox(width: 12),
               Expanded(
                 child: DropdownButtonFormField<int>(
-                  value: criteria.minSeats,
+                  value: criteria.minAvailableSeats,
                   decoration: const InputDecoration(
                     labelText: 'Min seats',
                     isDense: true,

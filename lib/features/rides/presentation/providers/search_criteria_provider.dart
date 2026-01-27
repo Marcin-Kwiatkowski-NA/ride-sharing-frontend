@@ -11,15 +11,19 @@ class SearchCriteriaNotifier extends Notifier<SearchCriteriaDto> {
   }
 
   void setOrigin(String? origin) {
-    state = state.copyWith(origin: origin);
+    state = state.copyWith(originCityName: origin);
   }
 
   void setDestination(String? destination) {
-    state = state.copyWith(destination: destination);
+    state = state.copyWith(destinationCityName: destination);
   }
 
   void setDepartureDate(DateTime? date) {
     state = state.copyWith(departureDate: date);
+  }
+
+  void setDepartureDateTo(DateTime? date) {
+    state = state.copyWith(departureDateTo: date);
   }
 
   void setDepartureTime(TimeOfDay? time) {
@@ -27,7 +31,7 @@ class SearchCriteriaNotifier extends Notifier<SearchCriteriaDto> {
   }
 
   void setMinSeats(int seats) {
-    state = state.copyWith(minSeats: seats);
+    state = state.copyWith(minAvailableSeats: seats);
   }
 
   void nextPage() {
