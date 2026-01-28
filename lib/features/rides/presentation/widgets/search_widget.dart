@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:blablafront/core/widgets/core_widgets.dart';
 
@@ -6,27 +7,24 @@ import '../../../../utils/constants.dart';
 import '../../../../shared/widgets/city_autocomplete_field.dart';
 import '../../../../shared/widgets/date_search_field.dart';
 import '../../../../shared/widgets/time_search_field.dart';
-import '../screens/search_results_screen.dart';
+import '../providers/search_criteria_provider.dart';
+import '../screens/rides_list_screen.dart';
 
-class SearchWidget extends StatefulWidget {
+class SearchWidget extends ConsumerStatefulWidget {
   final String title;
 
   const SearchWidget({super.key, this.title = 'Where to?'});
 
   @override
-  State<SearchWidget> createState() => _SearchWidgetState();
+  ConsumerState<SearchWidget> createState() => _SearchWidgetState();
 }
 
-class _SearchWidgetState extends State<SearchWidget> {
+class _SearchWidgetState extends ConsumerState<SearchWidget> {
   final _fromController = TextEditingController();
   final _toController = TextEditingController();
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
   bool _anyTime = true;
-
-  // Store the selected city IDs
-  int? _originCityOsmId;
-  int? _destinationCityOsmId;
 
   @override
   void dispose() {
@@ -38,7 +36,6 @@ class _SearchWidgetState extends State<SearchWidget> {
   void _onDateSelected(DateTime? date) {
     setState(() {
       _selectedDate = date;
-      // Reset time selection when date changes
       _anyTime = true;
       _selectedTime = null;
     });
@@ -59,22 +56,33 @@ class _SearchWidgetState extends State<SearchWidget> {
   }
 
   void _performSearch() {
+    // Update search criteria via Riverpod
+    final notifier = ref.read(searchCriteriaProvider.notifier);
+    notifier.clear();
+
+    final origin = _fromController.text.trim();
+    final destination = _toController.text.trim();
+
+    if (origin.isNotEmpty) {
+      notifier.setOrigin(origin);
+    }
+    if (destination.isNotEmpty) {
+      notifier.setDestination(destination);
+    }
+    if (_selectedDate != null) {
+      notifier.setDepartureDate(_selectedDate);
+    }
+    if (!_anyTime && _selectedTime != null) {
+      notifier.setDepartureTime(_selectedTime);
+    }
+
+    // Navigate to rides list screen
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => SearchResultsScreen(
-          origin: _fromController.text.trim(),
-          destination: _toController.text.trim(),
-          departureDate: _selectedDate,
-          departureTimeFrom: _anyTime ? null : _selectedTime,
-        ),
+        builder: (context) => const RidesListScreen(),
       ),
     );
-  }
-
-  bool get _canSearch {
-    // Allow search with no criteria to browse all available rides
-    return true;
   }
 
   @override
@@ -98,11 +106,11 @@ class _SearchWidgetState extends State<SearchWidget> {
                 child: Text(
                   widget.title,
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.abel(fontSize: 40, color: theme.colorScheme.primary),
+                  style: GoogleFonts.abel(
+                      fontSize: 40, color: theme.colorScheme.primary),
                 ),
               ),
 
-            // Autocomplete Widget for 'From'
             CityAutocompleteField(
               controller: _fromController,
               labelText: 'From',
@@ -110,18 +118,12 @@ class _SearchWidgetState extends State<SearchWidget> {
               onCitySelected: (city) {
                 setState(() {
                   _fromController.text = city.name;
-                  _originCityOsmId = city.osmId;
                 });
               },
-              onCityCleared: () {
-                setState(() {
-                  _originCityOsmId = null;
-                });
-              },
+              onCityCleared: () {},
             ),
             const SizedBox(height: 16),
 
-            // Autocomplete Widget for 'To'
             CityAutocompleteField(
               controller: _toController,
               labelText: 'To',
@@ -129,14 +131,9 @@ class _SearchWidgetState extends State<SearchWidget> {
               onCitySelected: (city) {
                 setState(() {
                   _toController.text = city.name;
-                  _destinationCityOsmId = city.osmId;
                 });
               },
-              onCityCleared: () {
-                setState(() {
-                  _destinationCityOsmId = null;
-                });
-              },
+              onCityCleared: () {},
             ),
             const SizedBox(height: 16),
 
@@ -150,7 +147,7 @@ class _SearchWidgetState extends State<SearchWidget> {
             const SizedBox(height: 24),
 
             PrimaryButton(
-              onPressed: _canSearch ? _performSearch : null,
+              onPressed: _performSearch,
               child: const Text('Search'),
             ),
           ],
@@ -172,9 +169,8 @@ class _SearchWidgetState extends State<SearchWidget> {
             ),
             label: const Text('Any time'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: _anyTime
-                  ? theme.colorScheme.primary
-                  : Colors.grey.shade300,
+              backgroundColor:
+                  _anyTime ? theme.colorScheme.primary : Colors.grey.shade300,
               foregroundColor: _anyTime ? Colors.white : Colors.black87,
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),

@@ -1,9 +1,25 @@
 import 'package:flutter/material.dart';
 
 import '../data/dto/ride_enums.dart';
+import 'part_of_day.dart';
 
-/// CTA button type based on available contact methods.
-enum CtaType { phone, link, disabled }
+/// UI representation of a contact method for display in bottom sheet.
+@immutable
+class ContactMethodUi {
+  final ContactType type;
+  final String value;
+  final String label;
+  final String preview;
+  final IconData icon;
+
+  const ContactMethodUi({
+    required this.type,
+    required this.value,
+    required this.label,
+    required this.preview,
+    required this.icon,
+  });
+}
 
 /// Precomputed UI model for ride display.
 ///
@@ -23,9 +39,10 @@ class RideUiModel {
 
   // Time
   final String dateDisplay;
-  final String timeDisplay;
-  final String fullDateTimeDisplay;
-  final bool isApproximate;
+  final String? exactTimeDisplay;
+  final PartOfDay partOfDay;
+  final String partOfDayDisplay;
+  final bool isTimeUndefined;
 
   // Seats & Price
   final int availableSeats;
@@ -42,15 +59,11 @@ class RideUiModel {
 
   // Driver
   final String? driverName;
-  final String? driverPhone;
-  final bool hasDriverPhone;
   final double? driverRating;
   final int? driverCompletedRides;
   final bool showRating;
 
-  // External / Description
-  final String? sourceUrl;
-  final bool hasExternalUrl;
+  // Description
   final String? description;
 
   // Status
@@ -58,10 +71,9 @@ class RideUiModel {
   final String statusDisplay;
   final bool isBookable;
 
-  // CTA
-  final CtaType ctaType;
-  final String ctaText;
-  final bool ctaEnabled;
+  // Contact methods
+  final List<ContactMethodUi> contactMethods;
+  final bool hasAnyContactMethod;
 
   const RideUiModel({
     required this.id,
@@ -69,9 +81,10 @@ class RideUiModel {
     required this.destinationName,
     required this.routeDisplay,
     required this.dateDisplay,
-    required this.timeDisplay,
-    required this.fullDateTimeDisplay,
-    required this.isApproximate,
+    required this.exactTimeDisplay,
+    required this.partOfDay,
+    required this.partOfDayDisplay,
+    required this.isTimeUndefined,
     required this.availableSeats,
     required this.seatsTaken,
     required this.seatsDisplay,
@@ -82,19 +95,14 @@ class RideUiModel {
     required this.sourceBadgeColor,
     required this.isInternal,
     required this.driverName,
-    required this.driverPhone,
-    required this.hasDriverPhone,
     required this.driverRating,
     required this.driverCompletedRides,
     required this.showRating,
-    required this.sourceUrl,
-    required this.hasExternalUrl,
     required this.description,
     required this.status,
     required this.statusDisplay,
     required this.isBookable,
-    required this.ctaType,
-    required this.ctaText,
-    required this.ctaEnabled,
+    required this.contactMethods,
+    required this.hasAnyContactMethod,
   });
 }

@@ -49,4 +49,26 @@ class Launchers {
     }
     return false;
   }
+
+  /// Send email.
+  static Future<bool> sendEmail(
+    String email, {
+    String? subject,
+    String? body,
+  }) async {
+    final queryParams = <String, String>{};
+    if (subject != null) queryParams['subject'] = subject;
+    if (body != null) queryParams['body'] = body;
+
+    final uri = Uri(
+      scheme: 'mailto',
+      path: email,
+      queryParameters: queryParams.isNotEmpty ? queryParams : null,
+    );
+
+    if (await canLaunchUrl(uri)) {
+      return launchUrl(uri);
+    }
+    return false;
+  }
 }

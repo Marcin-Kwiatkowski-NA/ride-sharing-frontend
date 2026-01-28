@@ -5,13 +5,14 @@ import 'package:blablafront/features/rides/data/dto/city_dto.dart';
 import 'package:blablafront/features/rides/data/dto/contact_method_dto.dart';
 import 'package:blablafront/features/rides/data/dto/driver_dto.dart';
 import 'package:blablafront/features/rides/data/dto/ride_enums.dart';
+import 'package:blablafront/features/rides/domain/part_of_day.dart';
 import 'package:blablafront/features/rides/domain/ride_presentation.dart';
-import 'package:blablafront/features/rides/domain/ride_ui_model.dart';
 
 void main() {
   group('RidePresentation', () {
     RideResponseDto createTestRide({
       int id = 1,
+      DateTime? departureTime,
       bool isApproximate = false,
       RideSource source = RideSource.internal,
       double? pricePerSeat,
@@ -28,7 +29,7 @@ void main() {
         id: id,
         origin: const CityDto(name: 'Krakow'),
         destination: const CityDto(name: 'Warsaw'),
-        departureTime: DateTime(2025, 1, 15, 14, 30),
+        departureTime: departureTime ?? DateTime(2025, 1, 15, 14, 30),
         isApproximate: isApproximate,
         source: source,
         availableSeats: availableSeats,
@@ -45,23 +46,82 @@ void main() {
       );
     }
 
-    group('Time formatting', () {
-      test('formats exact time without tilde', () {
-        final dto = createTestRide(isApproximate: false);
+    group('Time formatting with part-of-day', () {
+      test('shows exact time and part-of-day for non-approximate', () {
+        final dto = createTestRide(
+          departureTime: DateTime(2025, 1, 15, 14, 30),
+          isApproximate: false,
+        );
 
         final uiModel = RidePresentation.toUiModel(dto);
 
-        expect(uiModel.timeDisplay, '14:30');
-        expect(uiModel.isApproximate, false);
+        expect(uiModel.exactTimeDisplay, '14:30');
+        expect(uiModel.partOfDay, PartOfDay.afternoon);
+        expect(uiModel.partOfDayDisplay, 'Afternoon');
+        expect(uiModel.isTimeUndefined, false);
       });
 
-      test('formats approximate time with tilde', () {
-        final dto = createTestRide(isApproximate: true);
+      test('shows only part-of-day for approximate time', () {
+        final dto = createTestRide(
+          departureTime: DateTime(2025, 1, 15, 14, 30),
+          isApproximate: true,
+        );
 
         final uiModel = RidePresentation.toUiModel(dto);
 
-        expect(uiModel.timeDisplay, '~14:30');
-        expect(uiModel.isApproximate, true);
+        expect(uiModel.exactTimeDisplay, null);
+        expect(uiModel.partOfDay, PartOfDay.afternoon);
+        expect(uiModel.partOfDayDisplay, 'Afternoon');
+        expect(uiModel.isTimeUndefined, false);
+      });
+
+      test('shows "Ask driver" for 23:57 + approximate', () {
+        final dto = createTestRide(
+          departureTime: DateTime(2025, 1, 15, 23, 57),
+          isApproximate: true,
+        );
+
+        final uiModel = RidePresentation.toUiModel(dto);
+
+        expect(uiModel.exactTimeDisplay, null);
+        expect(uiModel.partOfDayDisplay, 'Ask driver');
+        expect(uiModel.isTimeUndefined, true);
+      });
+
+      test('classifies morning correctly (05:00-11:59)', () {
+        final dto = createTestRide(
+          departureTime: DateTime(2025, 1, 15, 8, 0),
+          isApproximate: false,
+        );
+
+        final uiModel = RidePresentation.toUiModel(dto);
+
+        expect(uiModel.partOfDay, PartOfDay.morning);
+        expect(uiModel.partOfDayDisplay, 'Morning');
+      });
+
+      test('classifies evening correctly (17:00-21:59)', () {
+        final dto = createTestRide(
+          departureTime: DateTime(2025, 1, 15, 19, 0),
+          isApproximate: false,
+        );
+
+        final uiModel = RidePresentation.toUiModel(dto);
+
+        expect(uiModel.partOfDay, PartOfDay.evening);
+        expect(uiModel.partOfDayDisplay, 'Evening');
+      });
+
+      test('classifies night correctly (22:00-04:59)', () {
+        final dto = createTestRide(
+          departureTime: DateTime(2025, 1, 15, 2, 0),
+          isApproximate: false,
+        );
+
+        final uiModel = RidePresentation.toUiModel(dto);
+
+        expect(uiModel.partOfDay, PartOfDay.night);
+        expect(uiModel.partOfDayDisplay, 'Night');
       });
     });
 
@@ -75,21 +135,21 @@ void main() {
         expect(uiModel.hasPrice, false);
       });
 
-      test('formats price with PLN currency', () {
+      test('formats price with PLN currency (no decimals)', () {
         final dto = createTestRide(pricePerSeat: 25.50);
 
         final uiModel = RidePresentation.toUiModel(dto);
 
-        expect(uiModel.priceDisplay, '25.50 PLN');
+        expect(uiModel.priceDisplay, '26 PLN');
         expect(uiModel.hasPrice, true);
       });
 
-      test('formats price with two decimal places', () {
+      test('formats whole number price', () {
         final dto = createTestRide(pricePerSeat: 30.0);
 
         final uiModel = RidePresentation.toUiModel(dto);
 
-        expect(uiModel.priceDisplay, '30.00 PLN');
+        expect(uiModel.priceDisplay, '30 PLN');
       });
     });
 
@@ -123,50 +183,14 @@ void main() {
       });
     });
 
-    group('CTA logic', () {
-      test('sets CTA to "Call driver" when phone contact exists', () {
+    group('Contact methods', () {
+      test('builds contact methods list with correct order', () {
         final dto = createTestRide(
           contactMethods: [
             const ContactMethodDto(
-              type: ContactType.phone,
-              value: '+48123456789',
+              type: ContactType.email,
+              value: 'test@example.com',
             ),
-          ],
-        );
-
-        final uiModel = RidePresentation.toUiModel(dto);
-
-        expect(uiModel.ctaText, 'Call driver');
-        expect(uiModel.ctaEnabled, true);
-        expect(uiModel.ctaType, CtaType.phone);
-        expect(uiModel.hasDriverPhone, true);
-        expect(uiModel.driverPhone, '+48123456789');
-      });
-
-      test('sets CTA to "View original post" for Facebook ride with link', () {
-        final dto = createTestRide(
-          source: RideSource.facebook,
-          contactMethods: [
-            const ContactMethodDto(
-              type: ContactType.facebookLink,
-              value: 'https://facebook.com/post/123',
-            ),
-          ],
-        );
-
-        final uiModel = RidePresentation.toUiModel(dto);
-
-        expect(uiModel.ctaText, 'View original post');
-        expect(uiModel.ctaEnabled, true);
-        expect(uiModel.ctaType, CtaType.link);
-        expect(uiModel.hasExternalUrl, true);
-        expect(uiModel.sourceUrl, 'https://facebook.com/post/123');
-      });
-
-      test('prefers phone over external URL when both exist', () {
-        final dto = createTestRide(
-          source: RideSource.facebook,
-          contactMethods: [
             const ContactMethodDto(
               type: ContactType.phone,
               value: '+48123456789',
@@ -180,44 +204,70 @@ void main() {
 
         final uiModel = RidePresentation.toUiModel(dto);
 
-        expect(uiModel.ctaText, 'Call driver');
-        expect(uiModel.ctaEnabled, true);
-        expect(uiModel.ctaType, CtaType.phone);
+        expect(uiModel.contactMethods.length, 3);
+        expect(uiModel.contactMethods[0].type, ContactType.phone);
+        expect(uiModel.contactMethods[1].type, ContactType.facebookLink);
+        expect(uiModel.contactMethods[2].type, ContactType.email);
+        expect(uiModel.hasAnyContactMethod, true);
       });
 
-      test('disables CTA for internal ride without phone', () {
+      test('phone contact has correct properties', () {
         final dto = createTestRide(
-          source: RideSource.internal,
-          contactMethods: [],
+          contactMethods: [
+            const ContactMethodDto(
+              type: ContactType.phone,
+              value: '+48123456789',
+            ),
+          ],
         );
 
         final uiModel = RidePresentation.toUiModel(dto);
 
-        expect(uiModel.ctaText, 'No phone available');
-        expect(uiModel.ctaEnabled, false);
-        expect(uiModel.ctaType, CtaType.disabled);
+        expect(uiModel.contactMethods[0].label, 'Call');
+        expect(uiModel.contactMethods[0].preview, '+48123456789');
+        expect(uiModel.contactMethods[0].icon, Icons.phone_outlined);
       });
 
-      test('disables CTA for Facebook ride without contact methods', () {
+      test('facebook link contact has correct properties', () {
         final dto = createTestRide(
-          source: RideSource.facebook,
-          contactMethods: [],
+          contactMethods: [
+            const ContactMethodDto(
+              type: ContactType.facebookLink,
+              value: 'https://facebook.com/post/123',
+            ),
+          ],
         );
 
         final uiModel = RidePresentation.toUiModel(dto);
 
-        expect(uiModel.ctaText, 'Link unavailable');
-        expect(uiModel.ctaEnabled, false);
-        expect(uiModel.ctaType, CtaType.disabled);
+        expect(uiModel.contactMethods[0].label, 'Open Facebook post');
+        expect(uiModel.contactMethods[0].icon, Icons.open_in_new);
       });
 
-      test('CTA disabled when contactMethods is empty', () {
+      test('email contact has correct properties', () {
+        final dto = createTestRide(
+          contactMethods: [
+            const ContactMethodDto(
+              type: ContactType.email,
+              value: 'driver@example.com',
+            ),
+          ],
+        );
+
+        final uiModel = RidePresentation.toUiModel(dto);
+
+        expect(uiModel.contactMethods[0].label, 'Send email');
+        expect(uiModel.contactMethods[0].preview, 'driver@example.com');
+        expect(uiModel.contactMethods[0].icon, Icons.email_outlined);
+      });
+
+      test('hasAnyContactMethod is false when no contacts', () {
         final dto = createTestRide(contactMethods: []);
 
         final uiModel = RidePresentation.toUiModel(dto);
 
-        expect(uiModel.ctaEnabled, false);
-        expect(uiModel.ctaType, CtaType.disabled);
+        expect(uiModel.contactMethods, isEmpty);
+        expect(uiModel.hasAnyContactMethod, false);
       });
     });
 
@@ -359,7 +409,7 @@ void main() {
 
         final uiModel = RidePresentation.toUiModel(dto);
 
-        expect(uiModel.routeDisplay, 'Krakow → Warsaw');
+        expect(uiModel.routeDisplay, 'Krakow -> Warsaw');
         expect(uiModel.originName, 'Krakow');
         expect(uiModel.destinationName, 'Warsaw');
       });

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/utils/launchers.dart';
+import '../../data/dto/ride_enums.dart';
+import '../../domain/part_of_day.dart' show partOfDayIcon;
 import '../../domain/ride_ui_model.dart';
 import '../providers/rides_providers.dart';
+import '../widgets/contact_driver_button.dart';
 import '../widgets/source_badge.dart';
 
 /// Screen displaying detailed ride information.
-///
-/// Pure Riverpod - uses ConsumerWidget, no old Provider dependencies.
 class RideDetailsScreen extends ConsumerWidget {
   final int rideId;
 
@@ -24,197 +24,479 @@ class RideDetailsScreen extends ConsumerWidget {
       ),
       body: rideAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error_outline, size: 64, color: Colors.red),
-              const SizedBox(height: 16),
-              Text('Error: $error'),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () => ref.invalidate(rideDetailProvider(rideId)),
-                child: const Text('Retry'),
-              ),
-            ],
-          ),
+        error: (error, stack) => _ErrorView(
+          error: error,
+          onRetry: () => ref.invalidate(rideDetailProvider(rideId)),
         ),
-        data: (ride) => _buildDetails(context, ride),
+        data: (ride) => _RideDetailsBody(ride: ride),
+      ),
+      bottomNavigationBar: rideAsync.whenOrNull(
+        data: (ride) => _BottomBar(ride: ride),
       ),
     );
   }
+}
 
-  Widget _buildDetails(BuildContext context, RideUiModel ride) {
-    final theme = Theme.of(context);
+class _ErrorView extends StatelessWidget {
+  final Object error;
+  final VoidCallback onRetry;
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+  const _ErrorView({required this.error, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Source Badge
-          Center(
-            child: SourceBadge(
-              text: ride.sourceBadgeText,
-              color: ride.sourceBadgeColor,
-            ),
-          ),
+          const Icon(Icons.error_outline, size: 64, color: Colors.red),
           const SizedBox(height: 16),
-
-          // Route Card
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                children: [
-                  _buildRouteRow(
-                    icon: Icons.trip_origin,
-                    label: 'From',
-                    value: ride.originName,
-                    color: theme.colorScheme.primary,
-                  ),
-                  const SizedBox(height: 16),
-                  _buildRouteRow(
-                    icon: Icons.flag,
-                    label: 'To',
-                    value: ride.destinationName,
-                    color: theme.colorScheme.secondary,
-                  ),
-                ],
-              ),
-            ),
-          ),
+          Text('Error: $error'),
           const SizedBox(height: 16),
-
-          // Time and Date Card
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                children: [
-                  _buildInfoRow(Icons.calendar_today, 'Date', ride.dateDisplay),
-                  const Divider(height: 24),
-                  _buildInfoRow(
-                    Icons.access_time,
-                    'Time',
-                    ride.timeDisplay,
-                    subtitle: ride.isApproximate ? '(approximate)' : null,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // Details Card
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                children: [
-                  _buildInfoRow(
-                      Icons.event_seat, 'Available Seats', ride.seatsDisplay),
-                  const Divider(height: 24),
-                  _buildInfoRow(
-                      Icons.payments, 'Price per Seat', ride.priceDisplay),
-                  const Divider(height: 24),
-                  _buildInfoRow(Icons.info_outline, 'Status', ride.statusDisplay),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // Driver Info Card
-          if (ride.driverName != null)
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Driver', style: theme.textTheme.titleMedium),
-                    const SizedBox(height: 12),
-                    _buildInfoRow(Icons.person, 'Name', ride.driverName!),
-                    if (ride.hasDriverPhone) ...[
-                      const Divider(height: 24),
-                      _buildInfoRow(Icons.phone, 'Phone', ride.driverPhone!),
-                    ],
-                  ],
-                ),
-              ),
-            ),
-          const SizedBox(height: 24),
-
-          // CTA Button
-          ElevatedButton.icon(
-            onPressed: ride.ctaEnabled
-                ? () => _handleCtaAction(context, ride)
-                : null,
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              foregroundColor: Colors.white,
-            ),
-            icon: Icon(ride.ctaType == CtaType.phone ? Icons.phone : Icons.open_in_new),
-            label: Text(ride.ctaText),
+          FilledButton.icon(
+            onPressed: onRetry,
+            icon: const Icon(Icons.refresh),
+            label: const Text('Retry'),
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildRouteRow({
-    required IconData icon,
-    required String label,
-    required String value,
-    required Color color,
-  }) {
-    return Row(
+class _RideDetailsBody extends StatelessWidget {
+  final RideUiModel ride;
+
+  const _RideDetailsBody({required this.ride});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _RouteHeader(ride: ride),
+          const SizedBox(height: 24),
+          _WhenSection(ride: ride),
+          const SizedBox(height: 24),
+          _CostSeatsSection(ride: ride),
+          if (ride.description != null && ride.description!.isNotEmpty) ...[
+            const SizedBox(height: 24),
+            _DescriptionSection(description: ride.description!),
+          ],
+          const SizedBox(height: 24),
+          _DriverSection(ride: ride),
+          const SizedBox(height: 100), // Space for bottom bar
+        ],
+      ),
+    );
+  }
+}
+
+class _RouteHeader extends StatelessWidget {
+  final RideUiModel ride;
+
+  const _RouteHeader({required this.ride});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, color: color, size: 28),
-        const SizedBox(width: 16),
-        Column(
+        // Route
+        Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
-            Text(value,
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Icon(Icons.trip_origin, color: colorScheme.primary),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                ride.originName,
+                style: theme.textTheme.headlineSmall,
+              ),
+            ),
           ],
         ),
-      ],
-    );
-  }
-
-  Widget _buildInfoRow(IconData icon, String label, String value,
-      {String? subtitle}) {
-    return Row(
-      children: [
-        Icon(icon, size: 20, color: Colors.grey[600]),
-        const SizedBox(width: 12),
-        Text(label, style: TextStyle(color: Colors.grey[600])),
-        const Spacer(),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
+        Padding(
+          padding: const EdgeInsets.only(left: 11),
+          child: Container(
+            width: 2,
+            height: 24,
+            color: colorScheme.outlineVariant,
+          ),
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(value, style: const TextStyle(fontWeight: FontWeight.w500)),
-            if (subtitle != null)
-              Text(subtitle,
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+            Icon(Icons.location_on, color: colorScheme.secondary),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                ride.destinationName,
+                style: theme.textTheme.headlineSmall,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+
+        // Date
+        Text(
+          ride.dateDisplay,
+          style: theme.textTheme.bodyLarge?.copyWith(
+            color: colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // Chips: Source + Status
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            SourceBadge(
+              text: ride.sourceBadgeText,
+              color: ride.sourceBadgeColor,
+            ),
+            _StatusChip(status: ride.status, label: ride.statusDisplay),
           ],
         ),
       ],
     );
   }
+}
 
-  void _handleCtaAction(BuildContext context, RideUiModel ride) {
-    switch (ride.ctaType) {
-      case CtaType.phone:
-        Launchers.makePhoneCall(ride.driverPhone!);
-      case CtaType.link:
-        Launchers.openUrl(ride.sourceUrl!);
-      case CtaType.disabled:
-        break; // should not reach here if button is disabled
+class _StatusChip extends StatelessWidget {
+  final RideStatus status;
+  final String label;
+
+  const _StatusChip({required this.status, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final (color, icon) = switch (status) {
+      RideStatus.open => (Colors.green, Icons.check_circle_outline),
+      RideStatus.full => (Colors.orange, Icons.block),
+      RideStatus.completed => (Colors.blue, Icons.done_all),
+      RideStatus.cancelled => (Colors.red, Icons.cancel_outlined),
+    };
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _WhenSection extends StatelessWidget {
+  final RideUiModel ride;
+
+  const _WhenSection({required this.ride});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return _Section(
+      title: 'WHEN',
+      child: Row(
+        children: [
+          // Part-of-day chip
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: colorScheme.primaryContainer,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (!ride.isTimeUndefined)
+                  Icon(
+                    partOfDayIcon(ride.partOfDay),
+                    size: 18,
+                    color: colorScheme.onPrimaryContainer,
+                  ),
+                if (!ride.isTimeUndefined) const SizedBox(width: 6),
+                Text(
+                  ride.partOfDayDisplay,
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: colorScheme.onPrimaryContainer,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Exact time (if available)
+          if (ride.exactTimeDisplay != null) ...[
+            const SizedBox(width: 16),
+            Text(
+              ride.exactTimeDisplay!,
+              style: theme.textTheme.headlineMedium,
+            ),
+          ] else if (!ride.isTimeUndefined) ...[
+            const SizedBox(width: 16),
+            Text(
+              '(approximate)',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _CostSeatsSection extends StatelessWidget {
+  final RideUiModel ride;
+
+  const _CostSeatsSection({required this.ride});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return _Section(
+      title: 'COST & SEATS',
+      child: Row(
+        children: [
+          Expanded(
+            child: _InfoTile(
+              icon: Icons.payments_outlined,
+              label: 'Price per seat',
+              value: ride.priceDisplay,
+              valueColor: ride.hasPrice ? colorScheme.primary : null,
+            ),
+          ),
+          Container(
+            width: 1,
+            height: 48,
+            color: colorScheme.outlineVariant,
+          ),
+          Expanded(
+            child: _InfoTile(
+              icon: Icons.event_seat_outlined,
+              label: 'Available',
+              value: ride.seatsDisplay,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InfoTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color? valueColor;
+
+  const _InfoTile({
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.valueColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        children: [
+          Icon(icon, color: colorScheme.onSurfaceVariant),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            value,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: valueColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DescriptionSection extends StatelessWidget {
+  final String description;
+
+  const _DescriptionSection({required this.description});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return _Section(
+      title: 'DESCRIPTION',
+      child: Text(
+        description,
+        style: theme.textTheme.bodyLarge,
+      ),
+    );
+  }
+}
+
+class _DriverSection extends StatelessWidget {
+  final RideUiModel ride;
+
+  const _DriverSection({required this.ride});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    if (ride.driverName == null) {
+      return const SizedBox.shrink();
     }
+
+    return _Section(
+      title: 'DRIVER',
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 24,
+            backgroundColor: colorScheme.primaryContainer,
+            child: Icon(
+              Icons.person,
+              color: colorScheme.onPrimaryContainer,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  ride.driverName!,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                if (ride.showRating) ...[
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.star,
+                        size: 16,
+                        color: Colors.amber.shade700,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${ride.driverRating!.toStringAsFixed(1)} (${ride.driverCompletedRides} rides)',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Section extends StatelessWidget {
+  final String title;
+  final Widget child;
+
+  const _Section({required this.title, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: theme.textTheme.labelMedium?.copyWith(
+            color: colorScheme.onSurfaceVariant,
+            letterSpacing: 1.2,
+          ),
+        ),
+        const SizedBox(height: 12),
+        child,
+      ],
+    );
+  }
+}
+
+class _BottomBar extends StatelessWidget {
+  final RideUiModel ride;
+
+  const _BottomBar({required this.ride});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 12,
+        bottom: 12 + MediaQuery.paddingOf(context).bottom,
+      ),
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        border: Border(
+          top: BorderSide(color: colorScheme.outlineVariant),
+        ),
+      ),
+      child: SizedBox(
+        width: double.infinity,
+        child: ContactDriverButton(ride: ride),
+      ),
+    );
   }
 }

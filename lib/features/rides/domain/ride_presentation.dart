@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../data/dto/contact_method_dto.dart';
 import '../data/dto/ride_enums.dart';
 import '../data/dto/ride_response_dto.dart';
+import 'part_of_day.dart';
 import 'ride_ui_model.dart';
 
 /// Pure function mapper: RideResponseDto -> RideUiModel.
@@ -11,34 +12,44 @@ import 'ride_ui_model.dart';
 /// Stateless, no side effects, easily testable.
 /// All formatting logic is centralized here.
 class RidePresentation {
-  // Date formatters
   static final _shortDateFormat = DateFormat('EEE, MMM d');
-  static final _fullDateFormat = DateFormat('EEEE, MMMM d, yyyy');
   static final _timeFormat = DateFormat('HH:mm');
 
   /// Convert DTO to UI model with all precomputed display values.
   static RideUiModel toUiModel(RideResponseDto dto) {
     final isInternal = dto.source == RideSource.internal;
 
-    // Extract contact methods
-    final phoneContact = _findContactByType(dto.contactMethods, ContactType.phone);
-    final facebookContact = _findContactByType(dto.contactMethods, ContactType.facebookLink);
+    // Build contact methods list (ordered: PHONE, FACEBOOK_LINK, EMAIL)
+    final contactMethods = <ContactMethodUi>[];
+    for (final type in [
+      ContactType.phone,
+      ContactType.facebookLink,
+      ContactType.email
+    ]) {
+      final contact = _findContactByType(dto.contactMethods, type);
+      if (contact != null) {
+        contactMethods.add(_buildContactMethodUi(contact));
+      }
+    }
 
-    final hasPhone = phoneContact != null;
-    final hasExternal = facebookContact != null;
+    // Time formatting with part-of-day
+    final timeUndefined = isTimeUndefined(dto.departureTime, dto.isApproximate);
+    final partOfDay = getPartOfDay(dto.departureTime);
+    final partOfDayDisplay =
+        timeUndefined ? 'Ask driver' : partOfDayLabel(partOfDay);
 
-    // Time formatting with approximate indicator
-    final timeStr = _timeFormat.format(dto.departureTime);
-    final timeDisplay = dto.isApproximate ? '~$timeStr' : timeStr;
-
-    // Full date-time for details screen
-    final fullDateTime =
-        '${_fullDateFormat.format(dto.departureTime)} at $timeDisplay';
+    // Exact time display (null if approximate or undefined)
+    final String? exactTimeDisplay;
+    if (timeUndefined || dto.isApproximate) {
+      exactTimeDisplay = null;
+    } else {
+      exactTimeDisplay = _timeFormat.format(dto.departureTime);
+    }
 
     // Price formatting
     final hasPrice = dto.pricePerSeat != null;
     final priceDisplay =
-        hasPrice ? '${dto.pricePerSeat!.toStringAsFixed(2)} PLN' : 'Ask driver';
+        hasPrice ? '${dto.pricePerSeat!.toStringAsFixed(0)} PLN' : 'Ask driver';
 
     // Seats formatting
     final seatsDisplay =
@@ -55,29 +66,6 @@ class RidePresentation {
     final isBookable =
         dto.rideStatus == RideStatus.open && dto.availableSeats > 0;
 
-    // CTA (Call-to-Action) - phone takes priority over link
-    CtaType ctaType;
-    String ctaText;
-    bool ctaEnabled;
-
-    if (hasPhone) {
-      ctaType = CtaType.phone;
-      ctaText = 'Call driver';
-      ctaEnabled = true;
-    } else if (hasExternal) {
-      ctaType = CtaType.link;
-      ctaText = 'View original post';
-      ctaEnabled = true;
-    } else if (isInternal) {
-      ctaType = CtaType.disabled;
-      ctaText = 'No phone available';
-      ctaEnabled = false;
-    } else {
-      ctaType = CtaType.disabled;
-      ctaText = 'Link unavailable';
-      ctaEnabled = false;
-    }
-
     // Driver info
     final driverName = dto.driver?.name;
     final driverRating = dto.driver?.rating;
@@ -92,11 +80,12 @@ class RidePresentation {
       id: dto.id,
       originName: dto.origin.name,
       destinationName: dto.destination.name,
-      routeDisplay: '${dto.origin.name} → ${dto.destination.name}',
+      routeDisplay: '${dto.origin.name} -> ${dto.destination.name}',
       dateDisplay: _shortDateFormat.format(dto.departureTime),
-      timeDisplay: timeDisplay,
-      fullDateTimeDisplay: fullDateTime,
-      isApproximate: dto.isApproximate,
+      exactTimeDisplay: exactTimeDisplay,
+      partOfDay: partOfDay,
+      partOfDayDisplay: partOfDayDisplay,
+      isTimeUndefined: timeUndefined,
       availableSeats: dto.availableSeats,
       seatsTaken: dto.seatsTaken,
       seatsDisplay: seatsDisplay,
@@ -107,20 +96,15 @@ class RidePresentation {
       sourceBadgeColor: sourceBadgeColor,
       isInternal: isInternal,
       driverName: driverName,
-      driverPhone: phoneContact?.value,
-      hasDriverPhone: hasPhone,
       driverRating: driverRating,
       driverCompletedRides: driverCompletedRides,
       showRating: showRating,
-      sourceUrl: facebookContact?.value,
-      hasExternalUrl: hasExternal,
       description: dto.description,
       status: dto.rideStatus,
       statusDisplay: statusDisplay,
       isBookable: isBookable,
-      ctaType: ctaType,
-      ctaText: ctaText,
-      ctaEnabled: ctaEnabled,
+      contactMethods: contactMethods,
+      hasAnyContactMethod: contactMethods.isNotEmpty,
     );
   }
 
@@ -129,7 +113,6 @@ class RidePresentation {
     return dtos.map(toUiModel).toList();
   }
 
-  /// Find contact method by type, returns null if not found.
   static ContactMethodDto? _findContactByType(
     List<ContactMethodDto> contacts,
     ContactType type,
@@ -140,6 +123,44 @@ class RidePresentation {
       }
     }
     return null;
+  }
+
+  static ContactMethodUi _buildContactMethodUi(ContactMethodDto dto) {
+    switch (dto.type) {
+      case ContactType.phone:
+        return ContactMethodUi(
+          type: dto.type,
+          value: dto.value,
+          label: 'Call',
+          preview: dto.value,
+          icon: Icons.phone_outlined,
+        );
+      case ContactType.facebookLink:
+        return ContactMethodUi(
+          type: dto.type,
+          value: dto.value,
+          label: 'Open Facebook post',
+          preview: _truncateUrl(dto.value),
+          icon: Icons.open_in_new,
+        );
+      case ContactType.email:
+        return ContactMethodUi(
+          type: dto.type,
+          value: dto.value,
+          label: 'Send email',
+          preview: dto.value,
+          icon: Icons.email_outlined,
+        );
+    }
+  }
+
+  static String _truncateUrl(String url) {
+    var display = url.replaceFirst(RegExp(r'^https?://'), '');
+    display = display.replaceFirst(RegExp(r'^www\.'), '');
+    if (display.length > 30) {
+      display = '${display.substring(0, 27)}...';
+    }
+    return display;
   }
 
   static String _formatStatus(RideStatus status) {

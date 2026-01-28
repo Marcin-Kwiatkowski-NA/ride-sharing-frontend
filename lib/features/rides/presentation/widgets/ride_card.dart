@@ -5,146 +5,140 @@ import 'source_badge.dart';
 
 /// Card widget displaying ride information.
 ///
-/// Consumes [RideUiModel] for all display values - no formatting logic here.
+/// Layout:
+/// - Route + price (top row)
+/// - Date + part-of-day + time (second row)
+/// - Chips: seats, source (bottom row)
 class RideCard extends StatelessWidget {
   final RideUiModel ride;
   final VoidCallback? onTap;
-  final VoidCallback? onCtaTap;
 
   const RideCard({
     super.key,
     required this.ride,
     this.onTap,
-    this.onCtaTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      elevation: 2,
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Source badge row
+              // Route + Price row
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Expanded(
+                    child: Text(
+                      ride.routeDisplay,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    ride.priceDisplay,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: ride.hasPrice ? colorScheme.primary : null,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+
+              // Date + Part-of-day + Time row
+              Row(
+                children: [
+                  Text(
+                    ride.dateDisplay,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    '|',
+                    style: TextStyle(color: colorScheme.outlineVariant),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    ride.partOfDayDisplay,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  if (ride.exactTimeDisplay != null) ...[
+                    const Spacer(),
+                    Text(
+                      ride.exactTimeDisplay!,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              // Chips row: seats + source
+              Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                children: [
+                  _buildChip(
+                    context,
+                    Icons.event_seat_outlined,
+                    ride.seatsDisplay,
+                  ),
                   SourceBadge(
                     text: ride.sourceBadgeText,
                     color: ride.sourceBadgeColor,
                   ),
-                  if (ride.isApproximate)
-                    Tooltip(
-                      message: 'Approximate departure time',
-                      child: Icon(
-                        Icons.schedule,
-                        size: 16,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
                 ],
-              ),
-              const SizedBox(height: 12),
-
-              // Route
-              Row(
-                children: [
-                  Icon(Icons.trip_origin, color: theme.colorScheme.primary),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      ride.originName,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Icon(Icons.flag, color: theme.colorScheme.secondary),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      ride.destinationName,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ],
-              ),
-
-              const Divider(height: 24),
-
-              // Date, time, seats
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.calendar_today, size: 16),
-                      const SizedBox(width: 4),
-                      Text(ride.dateDisplay),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      const Icon(Icons.access_time, size: 16),
-                      const SizedBox(width: 4),
-                      Text(ride.timeDisplay),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-
-              // Seats and price
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.event_seat, size: 16),
-                      const SizedBox(width: 4),
-                      Text(ride.seatsDisplay),
-                    ],
-                  ),
-                  Text(
-                    ride.priceDisplay,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color:
-                          ride.hasPrice ? theme.colorScheme.primary : Colors.grey,
-                      fontSize: 16,
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 12),
-
-              // CTA Button
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: ride.ctaEnabled ? onCtaTap : null,
-                  icon: Icon(
-                    ride.ctaType == CtaType.phone ? Icons.phone : Icons.open_in_new,
-                    size: 18,
-                  ),
-                  label: Text(ride.ctaText),
-                ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildChip(BuildContext context, IconData icon, String label) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: colorScheme.onSurfaceVariant),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
       ),
     );
   }
