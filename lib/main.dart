@@ -26,10 +26,10 @@ class _MyAppState extends ConsumerState<MyApp> {
   }
 
   Future<void> _initializeToken() async {
-    // Load token from secure storage and sync to Riverpod
-    final token = await loadTokenFromStorage();
+    // Load token pair from secure storage and sync to Riverpod
+    final tokenPair = await loadTokensFromStorage();
     if (mounted) {
-      ref.read(authTokenProvider.notifier).setToken(token);
+      ref.read(authTokenProvider.notifier).setTokenPair(tokenPair);
       setState(() => _tokenInitialized = true);
     }
   }

@@ -38,8 +38,9 @@ class Auth extends _$Auth {
         if (token != null && JwtDecoder.isTokenValid(token)) {
           // Token is valid, restore user session
           final user = await _authService.getCurrentUser();
-          // Sync token to authTokenProvider
-          ref.read(authTokenProvider.notifier).setToken(token);
+          // Sync token pair to authTokenProvider
+          final tokenPair = await _authService.getTokenPair();
+          ref.read(authTokenProvider.notifier).setTokenPair(tokenPair);
 
           if (!ref.mounted) return;
           state = AuthState(
@@ -48,8 +49,8 @@ class Auth extends _$Auth {
           );
         } else {
           // Token expired, clean up
-          await _authService.signOut();
-          ref.read(authTokenProvider.notifier).setToken(null);
+          await _authService.clearAuthStorage();
+          ref.read(authTokenProvider.notifier).clear();
 
           if (!ref.mounted) return;
           state = const AuthState(
@@ -83,9 +84,9 @@ class Auth extends _$Auth {
       if (!ref.mounted) return false;
 
       if (result.success && result.user != null) {
-        // Sync token to authTokenProvider
-        final token = await _authService.getAccessToken();
-        ref.read(authTokenProvider.notifier).setToken(token);
+        // Sync token pair to authTokenProvider
+        final tokenPair = await _authService.getTokenPair();
+        ref.read(authTokenProvider.notifier).setTokenPair(tokenPair);
 
         state = AuthState(
           status: AuthStatus.authenticated,
@@ -120,9 +121,9 @@ class Auth extends _$Auth {
       if (!ref.mounted) return false;
 
       if (result.success && result.user != null) {
-        // Sync token to authTokenProvider
-        final token = await _authService.getAccessToken();
-        ref.read(authTokenProvider.notifier).setToken(token);
+        // Sync token pair to authTokenProvider
+        final tokenPair = await _authService.getTokenPair();
+        ref.read(authTokenProvider.notifier).setTokenPair(tokenPair);
 
         state = AuthState(
           status: AuthStatus.authenticated,
@@ -158,9 +159,9 @@ class Auth extends _$Auth {
       if (!ref.mounted) return false;
 
       if (result.success && result.user != null) {
-        // Sync token to authTokenProvider
-        final token = await _authService.getAccessToken();
-        ref.read(authTokenProvider.notifier).setToken(token);
+        // Sync token pair to authTokenProvider
+        final tokenPair = await _authService.getTokenPair();
+        ref.read(authTokenProvider.notifier).setTokenPair(tokenPair);
 
         state = AuthState(
           status: AuthStatus.authenticated,
@@ -197,7 +198,7 @@ class Auth extends _$Auth {
     }
 
     // Clear token from memory
-    ref.read(authTokenProvider.notifier).setToken(null);
+    ref.read(authTokenProvider.notifier).clear();
 
     if (!ref.mounted) return;
     state = const AuthState(
@@ -207,17 +208,17 @@ class Auth extends _$Auth {
 
   /// Handle token expiration
   ///
-  /// Called when API client detects an expired token (401 response).
+  /// Called when API client detects an expired token after refresh failure.
   /// Clears authentication state and notifies user.
   Future<void> handleTokenExpiration() async {
     try {
-      await _authService.signOut();
+      await _authService.clearAuthStorage();
     } catch (e) {
       debugPrint('Error cleaning up expired session: $e');
     }
 
     // Clear token from memory
-    ref.read(authTokenProvider.notifier).setToken(null);
+    ref.read(authTokenProvider.notifier).clear();
 
     if (!ref.mounted) return;
     state = const AuthState(

@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../config/environment_config.dart';
+import '../../services/auth_service.dart';
 import '../providers/auth_notifier.dart';
 import 'auth_interceptor.dart';
 
@@ -11,11 +12,13 @@ part 'dio_provider.g.dart';
 ///
 /// Includes:
 /// - Base URL from EnvironmentConfig
-/// - Auth interceptor (reads token from memory)
+/// - Auth interceptor with token refresh support
 /// - Token expiration handling (calls authProvider.handleTokenExpiration)
 /// - Logging in development mode
 @Riverpod(keepAlive: true)
 Dio dio(Ref ref) {
+  final authService = AuthService();
+
   final dio = Dio(
     BaseOptions(
       baseUrl: EnvironmentConfig.apiBaseUrl,
@@ -28,10 +31,11 @@ Dio dio(Ref ref) {
     ),
   );
 
-  // Add auth interceptor with token expiration handling
+  // Add auth interceptor with token refresh and expiration handling
   dio.interceptors.add(AuthInterceptor(
     ref,
-    onTokenExpired: () {
+    refreshTokens: authService.refreshTokens,
+    onAuthFailure: () {
       ref.read(authProvider.notifier).handleTokenExpiration();
     },
   ));
