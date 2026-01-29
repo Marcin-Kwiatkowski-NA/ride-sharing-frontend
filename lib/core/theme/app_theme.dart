@@ -10,7 +10,7 @@ class AppTheme {
   // Color Palette
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static const Color _primaryColor = Color(0xFF009688); // Teal 500
+  static const Color _primaryColor = Color(0xFF009688); // Teal 500a
   static const Color _secondaryColor = Color(0xFFFFC107); // Amber 500
   static const Color _surfaceColor = Colors.white;
   static const Color _backgroundColor = Color(0xFFF5F7FA);

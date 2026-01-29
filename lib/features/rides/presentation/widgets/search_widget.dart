@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:blablafront/core/widgets/core_widgets.dart';
 
 import '../../../../utils/constants.dart';
-import '../../../../shared/widgets/city_autocomplete_field.dart';
+import '../../../../core/cities/widgets/city_autocomplete_field.dart';
 import '../../../../shared/widgets/date_search_field.dart';
 import '../../../../shared/widgets/time_search_field.dart';
 import '../providers/search_criteria_provider.dart';

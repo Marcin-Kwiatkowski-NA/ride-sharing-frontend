@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:blablafront/core/network/dio_provider.dart';
 import 'package:blablafront/core/widgets/core_widgets.dart';
-import '../../../../shared/widgets/city_autocomplete_field.dart';
+import '../../../../core/cities/widgets/city_autocomplete_field.dart';
 
 class PostRideScreen extends ConsumerStatefulWidget {
   const PostRideScreen({super.key});
@@ -26,8 +26,8 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
   final _seatsController = TextEditingController();
 
   // --- STATE TO HOLD SELECTED CITY IDs ---
-  int? _originCityOsmId;
-  int? _destinationCityOsmId;
+  int? _originCityPlaceId;
+  int? _destinationCityPlaceId;
 
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
@@ -59,7 +59,7 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
       return;
     }
     // New validation: ensure user selected a city from the list, not just typed a name
-    if (_originCityOsmId == null || _destinationCityOsmId == null) {
+    if (_originCityPlaceId == null || _destinationCityPlaceId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: const Text('Please select origin and destination from the suggestions.'), backgroundColor: Theme.of(context).colorScheme.error),
       );
@@ -82,11 +82,11 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
     final rideData = {
       'driverId': _driverId,
       'origin': {
-        'osmId': _originCityOsmId,
+        'osmId': _originCityPlaceId, // Keep old key name for backend compatibility
         'name': _originController.text,
       },
       'destination': {
-        'osmId': _destinationCityOsmId,
+        'osmId': _destinationCityPlaceId, // Keep old key name for backend compatibility
         'name': _destinationController.text,
       },
       'departureTime': formattedDepartureTime,
@@ -118,8 +118,8 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
         setState(() {
           _selectedDate = null;
           _selectedTime = null;
-          _originCityOsmId = null;
-          _destinationCityOsmId = null;
+          _originCityPlaceId = null;
+          _destinationCityPlaceId = null;
         });
       }
     } on DioException catch (e) {
@@ -237,15 +237,15 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
                       controller: _originController,
                       labelText: 'Origin City',
                       prefixIcon: Icons.trip_origin,
-                      onCitySelected: (city) { // 'city' is the City object from your autocomplete
+                      onCitySelected: (city) {
                         setState(() {
                           _originController.text = city.name;
-                          _originCityOsmId = city.osmId; // STORE THE OSM_ID
+                          _originCityPlaceId = city.placeId;
                         });
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) return 'Origin City is required.';
-                        if (_originCityOsmId == null) return 'Please select a city from the list.';
+                        if (_originCityPlaceId == null) return 'Please select a city from the list.';
                         return null;
                       },
                     ),
@@ -257,15 +257,15 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
                       controller: _destinationController,
                       labelText: 'Destination City',
                       prefixIcon: Icons.flag_outlined,
-                      onCitySelected: (city) { // 'city' is the City object from your autocomplete
+                      onCitySelected: (city) {
                         setState(() {
                           _destinationController.text = city.name;
-                          _destinationCityOsmId = city.osmId; // STORE THE OSM_ID
+                          _destinationCityPlaceId = city.placeId;
                         });
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) return 'Destination City is required.';
-                        if (_destinationCityOsmId == null) return 'Please select a city from the list.';
+                        if (_destinationCityPlaceId == null) return 'Please select a city from the list.';
                         return null;
                       },
                     ),
