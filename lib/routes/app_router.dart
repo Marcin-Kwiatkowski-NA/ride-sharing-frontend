@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:blablafront/features/auth/presentation/screens/login_screen.dart';
 import 'package:blablafront/features/auth/presentation/screens/create_account_screen.dart';
-import 'package:blablafront/features/rides/presentation/screens/post_ride_screen.dart';
+import 'package:blablafront/features/rides/create/presentation/post_ride_screen.dart';
 import 'package:blablafront/features/profile/presentation/screens/profile_screen.dart';
 import 'package:blablafront/features/navigation/main_layout.dart';
 import 'package:blablafront/core/utils/route_guards.dart';

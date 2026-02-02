@@ -5,7 +5,7 @@ import 'providers/navigation_provider.dart';
 import '../rides/presentation/screens/search_ride_screen.dart';
 import '../passengers/presentation/screens/search_passenger_screen.dart';
 import '../profile/presentation/screens/profile_screen.dart';
-import '../rides/presentation/screens/post_ride_screen.dart';
+import '../../routes/app_router.dart';
 
 /// Main layout with persistent bottom navigation
 /// Uses IndexedStack to keep tab screens alive and preserve state
@@ -52,10 +52,7 @@ class MainLayout extends ConsumerWidget {
       floatingActionButton: currentIndex == 0
           ? FloatingActionButton.extended(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const PostRideScreen()),
-                );
+                AppRouter.navigateTo(context, AppRoutes.postRide);
               },
               label: const Text('POST RIDE'),
               icon: const Icon(Icons.add_circle_outline_rounded),
