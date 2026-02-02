@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/utils/error_mapper.dart';
 import '../../data/dto/ride_enums.dart';
 import '../../domain/part_of_day.dart' show partOfDayIcon;
 import '../../domain/ride_ui_model.dart';
@@ -45,13 +46,14 @@ class _ErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final failure = ErrorMapper.map(error);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Icon(Icons.error_outline, size: 64, color: Colors.red),
           const SizedBox(height: 16),
-          Text('Error: $error'),
+          Text(failure.message),
           const SizedBox(height: 16),
           FilledButton.icon(
             onPressed: onRetry,

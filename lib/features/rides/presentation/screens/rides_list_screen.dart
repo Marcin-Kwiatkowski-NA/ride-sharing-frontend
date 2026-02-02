@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/utils/error_mapper.dart';
 import '../../data/dto/search_criteria_dto.dart';
 import '../providers/paginated_rides_provider.dart';
 import '../providers/search_criteria_provider.dart';
@@ -140,6 +141,7 @@ class _RidesListScreenState extends ConsumerState<RidesListScreen> {
   }
 
   Widget _buildErrorWidget(BuildContext context, Object error) {
+    final failure = ErrorMapper.map(error);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -154,7 +156,7 @@ class _RidesListScreenState extends ConsumerState<RidesListScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              error.toString(),
+              failure.message,
               style: const TextStyle(color: Colors.red),
               textAlign: TextAlign.center,
             ),
