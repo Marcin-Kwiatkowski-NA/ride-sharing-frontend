@@ -19,7 +19,7 @@ class ContactDriverButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!ride.hasAnyContactMethod) {
+    if (!ride.hasAnyContactAction) {
       return FilledButton.icon(
         onPressed: null,
         icon: const Icon(Icons.phone_disabled),

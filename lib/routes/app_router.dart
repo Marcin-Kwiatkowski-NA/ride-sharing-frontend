@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:blablafront/features/auth/presentation/screens/login_screen.dart';
 import 'package:blablafront/features/auth/presentation/screens/create_account_screen.dart';
+import 'package:blablafront/features/chat/presentation/navigation/chat_arguments.dart';
+import 'package:blablafront/features/chat/presentation/screens/chat_screen.dart';
 import 'package:blablafront/features/rides/create/presentation/post_ride_screen.dart';
 import 'package:blablafront/features/profile/presentation/screens/profile_screen.dart';
 import 'package:blablafront/features/navigation/main_layout.dart';
@@ -18,6 +20,7 @@ class AppRoutes {
   static const String profile = '/profile';
   static const String rides = '/rides';
   static const String rideDetails = '/rides/details';
+  static const String chat = '/chat';
 
   // Prevent instantiation
   AppRoutes._();
@@ -72,6 +75,14 @@ class AppRouter {
         final rideId = settings.arguments as int;
         return MaterialPageRoute(
           builder: (_) => AuthGuard(child: RideDetailsScreen(rideId: rideId)),
+          settings: settings,
+        );
+
+      case AppRoutes.chat:
+        final args = settings.arguments as ChatArguments;
+        return MaterialPageRoute(
+          builder: (_) =>
+              AuthGuard(child: ChatScreen(conversationId: args.conversationId)),
           settings: settings,
         );
 

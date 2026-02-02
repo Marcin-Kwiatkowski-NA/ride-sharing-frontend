@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/utils/launchers.dart';
+import '../../../../routes/app_router.dart';
+import '../../../chat/data/chat_repository.dart';
+import '../../../chat/presentation/navigation/chat_arguments.dart';
 import '../../data/dto/ride_enums.dart';
 import '../../domain/ride_ui_model.dart';
 
@@ -13,35 +17,202 @@ Future<void> showContactMethodsSheet(
     context: context,
     useSafeArea: true,
     showDragHandle: true,
-    isScrollControlled: true,
-    builder: (context) => ContactMethodsBottomSheet(
-      contactMethods: ride.contactMethods,
-      onLaunchError: (error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(error ?? 'Could not open contact method'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      },
-    ),
+    builder: (context) => _SourceAwareContactSheet(ride: ride),
   );
 }
 
-/// Modal bottom sheet displaying all available contact methods.
-class ContactMethodsBottomSheet extends StatelessWidget {
-  final List<ContactMethodUi> contactMethods;
-  final void Function(String? error) onLaunchError;
+/// Modal bottom sheet displaying source-aware contact options.
+///
+/// INTERNAL rides show: "Message in app" (if eligible), Call, Email
+/// EXTERNAL rides show: Facebook, Call, Email
+class _SourceAwareContactSheet extends ConsumerStatefulWidget {
+  final RideUiModel ride;
 
-  const ContactMethodsBottomSheet({
-    super.key,
-    required this.contactMethods,
-    required this.onLaunchError,
-  });
+  const _SourceAwareContactSheet({required this.ride});
+
+  @override
+  ConsumerState<_SourceAwareContactSheet> createState() =>
+      _SourceAwareContactSheetState();
+}
+
+class _SourceAwareContactSheetState
+    extends ConsumerState<_SourceAwareContactSheet> {
+  bool _isLoading = false;
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  Future<void> _openInAppChat() async {
+    if (_isLoading) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      final conversation =
+          await ref.read(chatRepositoryProvider).getOrCreateConversation(
+                rideId: widget.ride.id,
+                driverId: widget.ride.driverId!,
+                driverName: widget.ride.driverDisplayName,
+              );
+
+      if (!mounted) return;
+      Navigator.pop(context);
+      AppRouter.navigateTo(
+        context,
+        AppRoutes.chat,
+        arguments: ChatArguments(conversationId: conversation.id),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      _showError('Could not start conversation');
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _launchContactMethod(ContactMethodUi method) async {
+    Navigator.pop(context);
+
+    final success = await _launch(method);
+    if (!success && mounted) {
+      _showError(_getErrorMessage(method.type));
+    }
+  }
+
+  Future<bool> _launch(ContactMethodUi method) async {
+    switch (method.type) {
+      case ContactType.phone:
+        return Launchers.makePhoneCall(method.value);
+      case ContactType.facebookLink:
+        return Launchers.openUrl(method.value);
+      case ContactType.email:
+        return Launchers.sendEmail(method.value);
+    }
+  }
+
+  String _getErrorMessage(ContactType type) {
+    switch (type) {
+      case ContactType.phone:
+        return 'Could not make phone call';
+      case ContactType.facebookLink:
+        return 'Could not open link';
+      case ContactType.email:
+        return 'Could not open email client';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final ride = widget.ride;
+
+    // Build list of contact options based on ride source
+    final options = <Widget>[];
+
+    if (ride.isInternal) {
+      // INTERNAL rides
+      if (ride.canUseInAppChat) {
+        options.add(
+          ListTile(
+            leading: _isLoading
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.chat_outlined),
+            title: const Text('Message in app'),
+            subtitle: Text('Chat with ${ride.driverDisplayName}'),
+            enabled: !_isLoading,
+            onTap: _openInAppChat,
+          ),
+        );
+      }
+
+      // Phone option
+      final phoneContact = ride.contactMethods
+          .where((c) => c.type == ContactType.phone)
+          .firstOrNull;
+      if (phoneContact != null) {
+        options.add(
+          ListTile(
+            leading: Icon(phoneContact.icon),
+            title: Text(phoneContact.label),
+            subtitle: Text(phoneContact.preview),
+            onTap: () => _launchContactMethod(phoneContact),
+          ),
+        );
+      }
+
+      // Email option
+      final emailContact = ride.contactMethods
+          .where((c) => c.type == ContactType.email)
+          .firstOrNull;
+      if (emailContact != null) {
+        options.add(
+          ListTile(
+            leading: Icon(emailContact.icon),
+            title: Text(emailContact.label),
+            subtitle: Text(emailContact.preview),
+            onTap: () => _launchContactMethod(emailContact),
+          ),
+        );
+      }
+    } else {
+      // EXTERNAL rides
+      // Facebook option first
+      final facebookContact = ride.contactMethods
+          .where((c) => c.type == ContactType.facebookLink)
+          .firstOrNull;
+      if (facebookContact != null) {
+        options.add(
+          ListTile(
+            leading: Icon(facebookContact.icon),
+            title: Text(facebookContact.label),
+            subtitle: Text(facebookContact.preview),
+            onTap: () => _launchContactMethod(facebookContact),
+          ),
+        );
+      }
+
+      // Phone option
+      final phoneContact = ride.contactMethods
+          .where((c) => c.type == ContactType.phone)
+          .firstOrNull;
+      if (phoneContact != null) {
+        options.add(
+          ListTile(
+            leading: Icon(phoneContact.icon),
+            title: Text(phoneContact.label),
+            subtitle: Text(phoneContact.preview),
+            onTap: () => _launchContactMethod(phoneContact),
+          ),
+        );
+      }
+
+      // Email option
+      final emailContact = ride.contactMethods
+          .where((c) => c.type == ContactType.email)
+          .firstOrNull;
+      if (emailContact != null) {
+        options.add(
+          ListTile(
+            leading: Icon(emailContact.icon),
+            title: Text(emailContact.label),
+            subtitle: Text(emailContact.preview),
+            onTap: () => _launchContactMethod(emailContact),
+          ),
+        );
+      }
+    }
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -65,73 +236,26 @@ class ContactMethodsBottomSheet extends StatelessWidget {
           ),
           const SizedBox(height: 8),
 
-          // Contact methods list
-          ...contactMethods.map(
-            (method) => _ContactMethodTile(
-              method: method,
-              onLaunchError: onLaunchError,
-            ),
-          ),
+          // Contact options
+          if (options.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Center(
+                child: Text(
+                  'No contact options available',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.outline,
+                  ),
+                ),
+              ),
+            )
+          else
+            ...options,
 
           // Bottom padding for safe area
           SizedBox(height: MediaQuery.viewPaddingOf(context).bottom),
         ],
       ),
     );
-  }
-}
-
-class _ContactMethodTile extends StatelessWidget {
-  final ContactMethodUi method;
-  final void Function(String? error) onLaunchError;
-
-  const _ContactMethodTile({
-    required this.method,
-    required this.onLaunchError,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(method.icon),
-      title: Text(method.label),
-      subtitle: Text(
-        method.preview,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-      onTap: () => _handleTap(context),
-    );
-  }
-
-  Future<void> _handleTap(BuildContext context) async {
-    Navigator.pop(context);
-
-    final success = await _launchContactMethod();
-    if (!success) {
-      onLaunchError(_getErrorMessage());
-    }
-  }
-
-  Future<bool> _launchContactMethod() async {
-    switch (method.type) {
-      case ContactType.phone:
-        return Launchers.makePhoneCall(method.value);
-      case ContactType.facebookLink:
-        return Launchers.openUrl(method.value);
-      case ContactType.email:
-        return Launchers.sendEmail(method.value);
-    }
-  }
-
-  String _getErrorMessage() {
-    switch (method.type) {
-      case ContactType.phone:
-        return 'Could not make phone call';
-      case ContactType.facebookLink:
-        return 'Could not open link';
-      case ContactType.email:
-        return 'Could not open email client';
-    }
   }
 }

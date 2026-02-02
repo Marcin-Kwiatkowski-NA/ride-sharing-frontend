@@ -62,6 +62,9 @@ class RideUiModel {
   final double? driverRating;
   final int? driverCompletedRides;
   final bool showRating;
+  final int? driverId;
+  final String driverDisplayName;
+  final bool canUseInAppChat;
 
   // Description
   final String? description;
@@ -73,7 +76,15 @@ class RideUiModel {
 
   // Contact methods
   final List<ContactMethodUi> contactMethods;
-  final bool hasAnyContactMethod;
+
+  // Contact type getters (derived from contactMethods)
+  bool get hasPhoneContact =>
+      contactMethods.any((c) => c.type == ContactType.phone);
+  bool get hasFacebookLink =>
+      contactMethods.any((c) => c.type == ContactType.facebookLink);
+  bool get hasEmailContact =>
+      contactMethods.any((c) => c.type == ContactType.email);
+  bool get hasAnyContactAction => canUseInAppChat || contactMethods.isNotEmpty;
 
   const RideUiModel({
     required this.id,
@@ -98,11 +109,13 @@ class RideUiModel {
     required this.driverRating,
     required this.driverCompletedRides,
     required this.showRating,
+    required this.driverId,
+    required this.driverDisplayName,
+    required this.canUseInAppChat,
     required this.description,
     required this.status,
     required this.statusDisplay,
     required this.isBookable,
     required this.contactMethods,
-    required this.hasAnyContactMethod,
   });
 }

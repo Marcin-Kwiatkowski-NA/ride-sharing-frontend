@@ -20,6 +20,7 @@ void main() {
       int seatsTaken = 0,
       RideStatus rideStatus = RideStatus.open,
       List<ContactMethodDto>? contactMethods,
+      int? driverId = 1,
       String? driverName,
       double? driverRating,
       int? driverCompletedRides,
@@ -37,6 +38,7 @@ void main() {
         pricePerSeat: pricePerSeat,
         rideStatus: rideStatus,
         driver: DriverDto(
+          id: driverId,
           name: driverName,
           rating: driverRating,
           completedRides: driverCompletedRides,
@@ -208,7 +210,7 @@ void main() {
         expect(uiModel.contactMethods[0].type, ContactType.phone);
         expect(uiModel.contactMethods[1].type, ContactType.facebookLink);
         expect(uiModel.contactMethods[2].type, ContactType.email);
-        expect(uiModel.hasAnyContactMethod, true);
+        expect(uiModel.hasAnyContactAction, true);
       });
 
       test('phone contact has correct properties', () {
@@ -261,13 +263,13 @@ void main() {
         expect(uiModel.contactMethods[0].icon, Icons.email_outlined);
       });
 
-      test('hasAnyContactMethod is false when no contacts', () {
-        final dto = createTestRide(contactMethods: []);
+      test('hasAnyContactAction is false when no contacts and no chat', () {
+        final dto = createTestRide(contactMethods: [], driverId: null);
 
         final uiModel = RidePresentation.toUiModel(dto);
 
         expect(uiModel.contactMethods, isEmpty);
-        expect(uiModel.hasAnyContactMethod, false);
+        expect(uiModel.hasAnyContactAction, false);
       });
     });
 

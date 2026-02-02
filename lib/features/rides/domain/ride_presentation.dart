@@ -76,6 +76,12 @@ class RidePresentation {
         driverCompletedRides > 0 &&
         driverRating != null;
 
+    // Chat-related fields
+    final driverId = dto.driver?.id;
+    final driverDisplayName =
+        _hasContent(driverName) ? driverName! : 'Driver';
+    final canUseInAppChat = isInternal && driverId != null;
+
     return RideUiModel(
       id: dto.id,
       originName: dto.origin.name,
@@ -99,12 +105,14 @@ class RidePresentation {
       driverRating: driverRating,
       driverCompletedRides: driverCompletedRides,
       showRating: showRating,
+      driverId: driverId,
+      driverDisplayName: driverDisplayName,
+      canUseInAppChat: canUseInAppChat,
       description: dto.description,
       status: dto.rideStatus,
       statusDisplay: statusDisplay,
       isBookable: isBookable,
       contactMethods: contactMethods,
-      hasAnyContactMethod: contactMethods.isNotEmpty,
     );
   }
 
@@ -175,4 +183,7 @@ class RidePresentation {
         return 'Cancelled';
     }
   }
+
+  /// Check if string has meaningful content (not null, not empty, not whitespace-only).
+  static bool _hasContent(String? s) => s != null && s.trim().isNotEmpty;
 }

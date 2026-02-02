@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'providers/navigation_provider.dart';
+import '../chat/presentation/tabs/messages_tab.dart';
 import '../rides/presentation/screens/search_ride_screen.dart';
 import '../passengers/presentation/screens/search_passenger_screen.dart';
 import '../profile/presentation/screens/profile_screen.dart';
@@ -23,6 +24,7 @@ class MainLayout extends ConsumerWidget {
           SearchRideScreen(),
           SearchPassengerScreen(),
           ProfileScreen(),
+          MessagesTab(),
         ],
       ),
       bottomNavigationBar: NavigationBar(
@@ -45,6 +47,11 @@ class MainLayout extends ConsumerWidget {
             icon: Icon(Icons.person_outline),
             selectedIcon: Icon(Icons.person),
             label: 'Profile',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.chat_outlined),
+            selectedIcon: Icon(Icons.chat),
+            label: 'Messages',
           ),
         ],
       ),

@@ -6,6 +6,7 @@ part 'driver_dto.g.dart';
 @freezed
 sealed class DriverDto with _$DriverDto {
   const factory DriverDto({
+    int? id,
     String? name,
     double? rating,
     int? completedRides,
