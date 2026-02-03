@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -48,6 +49,16 @@ class _SourceAwareContactSheetState
     );
   }
 
+  String _extractErrorMessage(Object error) {
+    if (error is DioException) {
+      final data = error.response?.data;
+      if (data is Map<String, dynamic>) {
+        return data['detail'] as String? ?? 'Could not start conversation';
+      }
+    }
+    return 'Could not start conversation';
+  }
+
   Future<void> _openInAppChat() async {
     if (_isLoading) return;
 
@@ -69,7 +80,16 @@ class _SourceAwareContactSheetState
       );
     } catch (e) {
       if (!mounted) return;
-      _showError('Could not start conversation');
+      // Get messenger before popping (context becomes invalid after pop)
+      final messenger = ScaffoldMessenger.of(context);
+      Navigator.pop(context);
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(_extractErrorMessage(e)),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
