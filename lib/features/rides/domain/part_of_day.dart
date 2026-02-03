@@ -7,12 +7,7 @@ import 'package:flutter/material.dart';
 /// - Afternoon: 12:00 - 16:59
 /// - Evening: 17:00 - 21:59
 /// - Night: 22:00 - 04:59
-enum PartOfDay {
-  morning,
-  afternoon,
-  evening,
-  night,
-}
+enum PartOfDay { morning, afternoon, evening, night }
 
 /// Get part-of-day classification for a given time.
 PartOfDay getPartOfDay(DateTime time) {

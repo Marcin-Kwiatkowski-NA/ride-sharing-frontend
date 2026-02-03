@@ -21,10 +21,7 @@ class PartOfDaySelector extends StatelessWidget {
       children: PartOfDay.values.map((pod) {
         return ChoiceChip(
           label: Text(partOfDayLabel(pod)),
-          avatar: Icon(
-            partOfDayIcon(pod),
-            size: 18,
-          ),
+          avatar: Icon(partOfDayIcon(pod), size: 18),
           selected: selected == pod,
           onSelected: (_) => onSelected(pod),
         );

@@ -20,9 +20,7 @@ class RideDetailsScreen extends ConsumerWidget {
     final rideAsync = ref.watch(rideDetailProvider(rideId));
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Ride Details'),
-      ),
+      appBar: AppBar(title: const Text('Ride Details')),
       body: rideAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => _ErrorView(
@@ -257,10 +255,7 @@ class _WhenSection extends StatelessWidget {
           // Exact time (if available)
           if (ride.exactTimeDisplay != null) ...[
             const SizedBox(width: 16),
-            Text(
-              ride.exactTimeDisplay!,
-              style: theme.textTheme.headlineMedium,
-            ),
+            Text(ride.exactTimeDisplay!, style: theme.textTheme.headlineMedium),
           ] else if (!ride.isTimeUndefined) ...[
             const SizedBox(width: 16),
             Text(
@@ -299,11 +294,7 @@ class _CostSeatsSection extends StatelessWidget {
               valueColor: ride.hasPrice ? colorScheme.primary : null,
             ),
           ),
-          Container(
-            width: 1,
-            height: 48,
-            color: colorScheme.outlineVariant,
-          ),
+          Container(width: 1, height: 48, color: colorScheme.outlineVariant),
           Expanded(
             child: _InfoTile(
               icon: Icons.event_seat_outlined,
@@ -372,10 +363,7 @@ class _DescriptionSection extends StatelessWidget {
 
     return _Section(
       title: 'DESCRIPTION',
-      child: Text(
-        description,
-        style: theme.textTheme.bodyLarge,
-      ),
+      child: Text(description, style: theme.textTheme.bodyLarge),
     );
   }
 }
@@ -401,10 +389,7 @@ class _DriverSection extends StatelessWidget {
           CircleAvatar(
             radius: 24,
             backgroundColor: colorScheme.primaryContainer,
-            child: Icon(
-              Icons.person,
-              color: colorScheme.onPrimaryContainer,
-            ),
+            child: Icon(Icons.person, color: colorScheme.onPrimaryContainer),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -421,11 +406,7 @@ class _DriverSection extends StatelessWidget {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      Icon(
-                        Icons.star,
-                        size: 16,
-                        color: Colors.amber.shade700,
-                      ),
+                      Icon(Icons.star, size: 16, color: Colors.amber.shade700),
                       const SizedBox(width: 4),
                       Text(
                         '${ride.driverRating!.toStringAsFixed(1)} (${ride.driverCompletedRides} rides)',
@@ -491,9 +472,7 @@ class _BottomBar extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: colorScheme.surface,
-        border: Border(
-          top: BorderSide(color: colorScheme.outlineVariant),
-        ),
+        border: Border(top: BorderSide(color: colorScheme.outlineVariant)),
       ),
       child: SizedBox(
         width: double.infinity,

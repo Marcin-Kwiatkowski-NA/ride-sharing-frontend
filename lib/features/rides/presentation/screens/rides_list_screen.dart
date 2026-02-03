@@ -52,15 +52,11 @@ class _RidesListScreenState extends ConsumerState<RidesListScreen> {
     final criteria = ref.watch(searchCriteriaProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_buildTitle(criteria)),
-      ),
+      appBar: AppBar(title: Text(_buildTitle(criteria))),
       body: Column(
         children: [
           const DaySwitcher(),
-          Expanded(
-            child: _buildBody(context, ridesState),
-          ),
+          Expanded(child: _buildBody(context, ridesState)),
         ],
       ),
     );

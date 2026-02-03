@@ -24,7 +24,7 @@ class RidePresentation {
     for (final type in [
       ContactType.phone,
       ContactType.facebookLink,
-      ContactType.email
+      ContactType.email,
     ]) {
       final contact = _findContactByType(dto.contactMethods, type);
       if (contact != null) {
@@ -35,8 +35,9 @@ class RidePresentation {
     // Time formatting with part-of-day
     final timeUndefined = isTimeUndefined(dto.departureTime, dto.isApproximate);
     final partOfDay = getPartOfDay(dto.departureTime);
-    final partOfDayDisplay =
-        timeUndefined ? 'Ask driver' : partOfDayLabel(partOfDay);
+    final partOfDayDisplay = timeUndefined
+        ? 'Ask driver'
+        : partOfDayLabel(partOfDay);
 
     // Exact time display (null if approximate or undefined)
     final String? exactTimeDisplay;
@@ -48,18 +49,22 @@ class RidePresentation {
 
     // Price formatting
     final hasPrice = dto.pricePerSeat != null;
-    final priceDisplay =
-        hasPrice ? '${dto.pricePerSeat!.toStringAsFixed(0)} PLN' : 'Ask driver';
+    final priceDisplay = hasPrice
+        ? '${dto.pricePerSeat!.toStringAsFixed(0)} PLN'
+        : 'Ask driver';
 
     // Seats formatting
-    final seatsDisplay =
-        dto.availableSeats == 1 ? '1 seat' : '${dto.availableSeats} seats';
+    final seatsDisplay = dto.availableSeats == 1
+        ? '1 seat'
+        : '${dto.availableSeats} seats';
 
     // Source badge
-    final sourceBadgeText =
-        isInternal ? 'Verified member' : 'Community listing';
-    final sourceBadgeColor =
-        isInternal ? Colors.green.shade700 : Colors.orange.shade700;
+    final sourceBadgeText = isInternal
+        ? 'Verified member'
+        : 'Community listing';
+    final sourceBadgeColor = isInternal
+        ? Colors.green.shade700
+        : Colors.orange.shade700;
 
     // Status
     final statusDisplay = _formatStatus(dto.rideStatus);
@@ -72,14 +77,14 @@ class RidePresentation {
     final driverCompletedRides = dto.driver?.completedRides;
 
     // Show rating only if completedRides > 0 and rating is available
-    final showRating = driverCompletedRides != null &&
+    final showRating =
+        driverCompletedRides != null &&
         driverCompletedRides > 0 &&
         driverRating != null;
 
     // Chat-related fields
     final driverId = dto.driver?.id;
-    final driverDisplayName =
-        _hasContent(driverName) ? driverName! : 'Driver';
+    final driverDisplayName = _hasContent(driverName) ? driverName! : 'Driver';
     final canUseInAppChat = isInternal && driverId != null;
 
     return RideUiModel(

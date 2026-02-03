@@ -30,7 +30,7 @@ class MainLayout extends ConsumerWidget {
       bottomNavigationBar: NavigationBar(
         selectedIndex: currentIndex,
         onDestinationSelected: (index) {
-          ref.read(navigationIndexProvider.notifier).state = index;
+          ref.read(navigationIndexProvider.notifier).setIndex(index);
         },
         destinations: const [
           NavigationDestination(

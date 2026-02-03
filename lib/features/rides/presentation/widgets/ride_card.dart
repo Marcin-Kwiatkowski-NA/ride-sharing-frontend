@@ -13,11 +13,7 @@ class RideCard extends StatelessWidget {
   final RideUiModel ride;
   final VoidCallback? onTap;
 
-  const RideCard({
-    super.key,
-    required this.ride,
-    this.onTap,
-  });
+  const RideCard({super.key, required this.ride, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -133,10 +129,7 @@ class RideCard extends StatelessWidget {
           const SizedBox(width: 4),
           Text(
             label,
-            style: TextStyle(
-              fontSize: 12,
-              color: colorScheme.onSurfaceVariant,
-            ),
+            style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
           ),
         ],
       ),

@@ -208,8 +208,9 @@ class PostRideController extends _$PostRideController {
 
     try {
       final departureDateTime = state.computedDepartureDateTime!;
-      final formattedDepartureTime =
-          DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(departureDateTime);
+      final formattedDepartureTime = DateFormat(
+        "yyyy-MM-dd'T'HH:mm:ss",
+      ).format(departureDateTime);
 
       final dto = RideCreationRequestDto(
         driverId: driverId,
@@ -230,10 +231,7 @@ class PostRideController extends _$PostRideController {
         final responseData = response.data as Map<String, dynamic>;
         final rideId = responseData['id'] as int;
 
-        state = state.copyWith(
-          isSubmitting: false,
-          createdRideId: rideId,
-        );
+        state = state.copyWith(isSubmitting: false, createdRideId: rideId);
       } else {
         state = state.copyWith(
           isSubmitting: false,
@@ -248,14 +246,12 @@ class PostRideController extends _$PostRideController {
           e.type == DioExceptionType.connectionTimeout) {
         errorMessage = 'Network error. Check your connection.';
       } else {
-        errorMessage = e.response?.data?['message']?.toString() ??
+        errorMessage =
+            e.response?.data?['message']?.toString() ??
             e.message ??
             'Failed to create ride';
       }
-      state = state.copyWith(
-        isSubmitting: false,
-        errorMessage: errorMessage,
-      );
+      state = state.copyWith(isSubmitting: false, errorMessage: errorMessage);
     } catch (e) {
       state = state.copyWith(
         isSubmitting: false,

@@ -1,10 +1,12 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../data/dto/search_criteria_dto.dart';
 import '../../data/ride_repository.dart';
 import '../../domain/ride_presentation.dart';
 import '../../domain/ride_ui_model.dart';
 import 'search_criteria_provider.dart';
+
+part 'paginated_rides_provider.g.dart';
 
 /// State for paginated rides list.
 class PaginatedRidesState {
@@ -40,7 +42,10 @@ class PaginatedRidesState {
 }
 
 /// Notifier for paginated rides with infinite scroll support.
-class PaginatedRidesNotifier extends Notifier<PaginatedRidesState> {
+///
+/// Uses keepAlive to preserve loaded rides across navigation.
+@Riverpod(keepAlive: true)
+class PaginatedRides extends _$PaginatedRides {
   @override
   PaginatedRidesState build() {
     // Watch search criteria - reset when it changes
@@ -69,11 +74,7 @@ class PaginatedRidesNotifier extends Notifier<PaginatedRidesState> {
         currentPage: 0,
       );
     } catch (e) {
-      state = PaginatedRidesState(
-        isLoading: false,
-        hasMore: false,
-        error: e,
-      );
+      state = PaginatedRidesState(isLoading: false, hasMore: false, error: e);
     }
   }
 
@@ -100,10 +101,7 @@ class PaginatedRidesNotifier extends Notifier<PaginatedRidesState> {
         currentPage: nextPage,
       );
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: e,
-      );
+      state = state.copyWith(isLoading: false, error: e);
     }
   }
 
@@ -113,9 +111,3 @@ class PaginatedRidesNotifier extends Notifier<PaginatedRidesState> {
     await _loadInitial(criteria);
   }
 }
-
-/// Provider for paginated rides.
-final paginatedRidesProvider =
-    NotifierProvider<PaginatedRidesNotifier, PaginatedRidesState>(
-  PaginatedRidesNotifier.new,
-);

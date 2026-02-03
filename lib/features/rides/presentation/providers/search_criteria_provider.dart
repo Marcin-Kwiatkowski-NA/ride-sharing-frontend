@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../data/dto/search_criteria_dto.dart';
 
+part 'search_criteria_provider.g.dart';
+
 /// Notifier for managing search criteria state.
-class SearchCriteriaNotifier extends Notifier<SearchCriteriaDto> {
+///
+/// Uses keepAlive to preserve search criteria across navigation.
+@Riverpod(keepAlive: true)
+class SearchCriteria extends _$SearchCriteria {
   @override
   SearchCriteriaDto build() {
     return const SearchCriteriaDto();
@@ -46,9 +51,3 @@ class SearchCriteriaNotifier extends Notifier<SearchCriteriaDto> {
     state = const SearchCriteriaDto();
   }
 }
-
-/// Provider for search criteria state.
-final searchCriteriaProvider =
-    NotifierProvider<SearchCriteriaNotifier, SearchCriteriaDto>(
-  SearchCriteriaNotifier.new,
-);

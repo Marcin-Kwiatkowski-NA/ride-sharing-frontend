@@ -79,9 +79,7 @@ class _SearchWidgetState extends ConsumerState<SearchWidget> {
     // Navigate to rides list screen
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => const RidesListScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const RidesListScreen()),
     );
   }
 
@@ -107,7 +105,9 @@ class _SearchWidgetState extends ConsumerState<SearchWidget> {
                   widget.title,
                   textAlign: TextAlign.center,
                   style: GoogleFonts.abel(
-                      fontSize: 40, color: theme.colorScheme.primary),
+                    fontSize: 40,
+                    color: theme.colorScheme.primary,
+                  ),
                 ),
               ),
 
@@ -169,8 +169,9 @@ class _SearchWidgetState extends ConsumerState<SearchWidget> {
             ),
             label: const Text('Any time'),
             style: ElevatedButton.styleFrom(
-              backgroundColor:
-                  _anyTime ? theme.colorScheme.primary : Colors.grey.shade300,
+              backgroundColor: _anyTime
+                  ? theme.colorScheme.primary
+                  : Colors.grey.shade300,
               foregroundColor: _anyTime ? Colors.white : Colors.black87,
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),

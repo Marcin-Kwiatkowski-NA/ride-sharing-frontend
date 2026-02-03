@@ -1,6 +1,17 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-/// Provider for the current navigation tab index
+part 'navigation_provider.g.dart';
+
+/// Provider for the current navigation tab index.
 /// 0 = Rides, 1 = Passengers, 2 = Profile
-final navigationIndexProvider = StateProvider<int>((ref) => 0);
+///
+/// Uses keepAlive to persist navigation state across the app lifecycle.
+@Riverpod(keepAlive: true)
+class NavigationIndex extends _$NavigationIndex {
+  @override
+  int build() => 0;
+
+  void setIndex(int index) {
+    state = index;
+  }
+}

@@ -1,9 +1,11 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'dto/paginated_response.dart';
 import 'dto/ride_response_dto.dart';
 import 'dto/search_criteria_dto.dart';
 import 'ride_api_client.dart';
+
+part 'ride_repository.g.dart';
 
 /// Repository layer for rides.
 ///
@@ -16,7 +18,8 @@ class RideRepository {
 
   /// Search rides with criteria.
   Future<PaginatedResponse<RideResponseDto>> searchRides(
-      SearchCriteriaDto criteria) {
+    SearchCriteriaDto criteria,
+  ) {
     return _apiClient.searchRides(criteria);
   }
 
@@ -32,7 +35,10 @@ class RideRepository {
 }
 
 /// Provider for RideRepository.
-final rideRepositoryProvider = Provider<RideRepository>((ref) {
+///
+/// Uses keepAlive since this is a service that should persist.
+@Riverpod(keepAlive: true)
+RideRepository rideRepository(Ref ref) {
   final apiClient = ref.watch(rideApiClientProvider);
   return RideRepository(apiClient);
-});
+}

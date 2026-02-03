@@ -10,10 +10,7 @@ import '../../data/dto/ride_enums.dart';
 import '../../domain/ride_ui_model.dart';
 
 /// Shows the contact methods bottom sheet.
-Future<void> showContactMethodsSheet(
-  BuildContext context,
-  RideUiModel ride,
-) {
+Future<void> showContactMethodsSheet(BuildContext context, RideUiModel ride) {
   return showModalBottomSheet(
     context: context,
     useSafeArea: true,
@@ -42,10 +39,7 @@ class _SourceAwareContactSheetState
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        behavior: SnackBarBehavior.floating,
-      ),
+      SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
     );
   }
 
@@ -65,11 +59,12 @@ class _SourceAwareContactSheetState
     setState(() => _isLoading = true);
 
     try {
-      final conversation =
-          await ref.read(chatRepositoryProvider).getOrCreateConversation(
-                rideId: widget.ride.id,
-                driverId: widget.ride.driverId!,
-              );
+      final conversation = await ref
+          .read(chatRepositoryProvider)
+          .getOrCreateConversation(
+            rideId: widget.ride.id,
+            driverId: widget.ride.driverId!,
+          );
 
       if (!mounted) return;
       Navigator.pop(context);
@@ -243,10 +238,7 @@ class _SourceAwareContactSheetState
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Contact driver',
-                style: theme.textTheme.titleLarge,
-              ),
+              Text('Contact driver', style: theme.textTheme.titleLarge),
               IconButton(
                 onPressed: () => Navigator.pop(context),
                 icon: const Icon(Icons.close),
