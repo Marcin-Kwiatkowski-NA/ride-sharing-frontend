@@ -11,9 +11,9 @@ class ChatPresentation {
 
   /// Convert ConversationDto to UI model.
   static ConversationUiModel toConversationUiModel(ConversationDto dto) {
-    final lastMessagePreview = dto.lastMessageText ?? 'No messages yet';
+    final lastMessagePreview = dto.lastMessage?.body ?? 'No messages yet';
     final timeAgo =
-        dto.lastMessageAt != null ? _formatTimeAgo(dto.lastMessageAt!) : '';
+        dto.updatedAt != null ? _formatTimeAgo(dto.updatedAt!) : '';
 
     return ConversationUiModel(
       id: dto.id,
@@ -23,7 +23,7 @@ class ChatPresentation {
       lastMessagePreview: lastMessagePreview,
       timeAgo: timeAgo,
       unreadCount: dto.unreadCount,
-      hasMessages: dto.lastMessageText != null,
+      hasMessages: dto.lastMessage != null,
     );
   }
 
@@ -38,9 +38,9 @@ class ChatPresentation {
   static MessageUiModel toMessageUiModel(MessageDto dto) {
     return MessageUiModel(
       id: dto.id,
-      text: dto.text,
-      timeDisplay: _timeFormat.format(dto.sentAt),
-      isFromCurrentUser: dto.isFromCurrentUser,
+      text: dto.body,
+      timeDisplay: _timeFormat.format(dto.createdAt),
+      isFromCurrentUser: dto.isMine,
     );
   }
 

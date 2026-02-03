@@ -53,7 +53,7 @@ class ChatThread extends _$ChatThread {
       final repository = ref.read(chatRepositoryProvider);
       final message = await repository.sendMessage(
         conversationId: conversationId,
-        text: trimmedText,
+        body: trimmedText,
       );
 
       // Append new message to state

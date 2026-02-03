@@ -15,14 +15,22 @@ class FakeChatRepository implements ChatRepository {
   static const int _currentUserId = 1;
 
   @override
-  Future<List<ConversationDto>> getConversations() async {
+  Future<List<ConversationDto>> getConversations({DateTime? since}) async {
     await _simulateLatency();
 
-    final conversations = _conversations.values.toList();
-    // Sort by lastMessageAt descending (most recent first)
+    var conversations = _conversations.values.toList();
+
+    // Filter by since if provided
+    if (since != null) {
+      conversations = conversations
+          .where((c) => c.updatedAt != null && c.updatedAt!.isAfter(since))
+          .toList();
+    }
+
+    // Sort by updatedAt descending (most recent first)
     conversations.sort((a, b) {
-      final aTime = a.lastMessageAt;
-      final bTime = b.lastMessageAt;
+      final aTime = a.updatedAt;
+      final bTime = b.updatedAt;
       if (aTime == null && bTime == null) return 0;
       if (aTime == null) return 1;
       if (bTime == null) return -1;
@@ -33,10 +41,9 @@ class FakeChatRepository implements ChatRepository {
   }
 
   @override
-  Future<ConversationDto> getOrCreateConversation({
+  Future<ConversationDto> initConversation({
     required int rideId,
     required int driverId,
-    required String driverName,
   }) async {
     await _simulateLatency();
 
@@ -50,7 +57,11 @@ class FakeChatRepository implements ChatRepository {
       id: id,
       rideId: rideId,
       driverId: driverId,
-      driverName: driverName,
+      driverName: 'Driver $driverId',
+      passengerId: _currentUserId,
+      passengerName: 'Current User',
+      originName: 'Origin',
+      destinationName: 'Destination',
     );
 
     _conversations[id] = conversation;
@@ -60,26 +71,47 @@ class FakeChatRepository implements ChatRepository {
   }
 
   @override
-  Future<List<MessageDto>> getMessages(String conversationId) async {
+  Future<List<MessageDto>> getMessages(
+    String conversationId, {
+    DateTime? before,
+    DateTime? since,
+    int limit = 50,
+  }) async {
     await _simulateLatency();
 
-    return List.from(_messages[conversationId] ?? []);
+    var messages = List<MessageDto>.from(_messages[conversationId] ?? []);
+
+    // Filter by before/since if provided
+    if (before != null) {
+      messages = messages.where((m) => m.createdAt.isBefore(before)).toList();
+    }
+    if (since != null) {
+      messages = messages.where((m) => m.createdAt.isAfter(since)).toList();
+    }
+
+    // Apply limit
+    if (messages.length > limit) {
+      messages = messages.sublist(messages.length - limit);
+    }
+
+    return messages;
   }
 
   @override
   Future<MessageDto> sendMessage({
     required String conversationId,
-    required String text,
+    required String body,
   }) async {
     await _simulateLatency();
 
+    final now = DateTime.now();
     final message = MessageDto(
       id: 'msg_${++_messageIdCounter}',
       conversationId: conversationId,
       senderId: _currentUserId,
-      text: text,
-      sentAt: DateTime.now(),
-      isFromCurrentUser: true,
+      body: body,
+      createdAt: now,
+      isMine: true,
     );
 
     _messages.putIfAbsent(conversationId, () => []);
@@ -89,8 +121,8 @@ class FakeChatRepository implements ChatRepository {
     final conversation = _conversations[conversationId];
     if (conversation != null) {
       _conversations[conversationId] = conversation.copyWith(
-        lastMessageText: text,
-        lastMessageAt: message.sentAt,
+        lastMessage: message,
+        updatedAt: now,
       );
     }
 

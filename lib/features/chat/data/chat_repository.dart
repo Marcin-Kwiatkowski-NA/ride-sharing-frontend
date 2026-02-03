@@ -1,34 +1,43 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import 'package:blablafront/core/network/dio_provider.dart';
+import 'api_chat_repository.dart';
 import 'dto/conversation_dto.dart';
 import 'dto/message_dto.dart';
-import 'fake_chat_repository.dart';
 
 part 'chat_repository.g.dart';
 
 /// Repository interface for chat operations.
 abstract interface class ChatRepository {
   /// Get all conversations for the current user, sorted by most recent.
-  Future<List<ConversationDto>> getConversations();
+  Future<List<ConversationDto>> getConversations({DateTime? since});
 
-  /// Get or create a conversation for a ride with a driver.
-  Future<ConversationDto> getOrCreateConversation({
+  /// Initialize or retrieve a conversation for a ride with a driver.
+  /// POST /conversations/init
+  Future<ConversationDto> initConversation({
     required int rideId,
     required int driverId,
-    required String driverName,
   });
 
-  /// Get all messages for a conversation.
-  Future<List<MessageDto>> getMessages(String conversationId);
+  /// Get messages for a conversation with optional cursor-based pagination.
+  /// GET /conversations/{conversationId}/messages
+  Future<List<MessageDto>> getMessages(
+    String conversationId, {
+    DateTime? before,
+    DateTime? since,
+    int limit = 50,
+  });
 
   /// Send a message in a conversation.
+  /// POST /conversations/{conversationId}/messages
   Future<MessageDto> sendMessage({
     required String conversationId,
-    required String text,
+    required String body,
   });
 }
 
 @Riverpod(keepAlive: true)
 ChatRepository chatRepository(Ref ref) {
-  return FakeChatRepository();
+  final dio = ref.watch(dioProvider);
+  return ApiChatRepository(dio);
 }

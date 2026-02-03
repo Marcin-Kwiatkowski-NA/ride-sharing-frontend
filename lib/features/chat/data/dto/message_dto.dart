@@ -9,9 +9,9 @@ sealed class MessageDto with _$MessageDto {
     required String id,
     required String conversationId,
     required int senderId,
-    required String text,
-    required DateTime sentAt,
-    required bool isFromCurrentUser,
+    required String body,
+    required DateTime createdAt,
+    required bool isMine,
   }) = _MessageDto;
 
   factory MessageDto.fromJson(Map<String, dynamic> json) =>
