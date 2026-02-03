@@ -12,9 +12,9 @@ abstract interface class ChatRepository {
   /// Get all conversations for the current user, sorted by most recent.
   Future<List<ConversationDto>> getConversations({DateTime? since});
 
-  /// Initialize or retrieve a conversation for a ride with a driver.
+  /// Get existing conversation or create a new one for a ride with a driver.
   /// POST /conversations/init
-  Future<ConversationDto> initConversation({
+  Future<ConversationDto> getOrCreateConversation({
     required int rideId,
     required int driverId,
   });

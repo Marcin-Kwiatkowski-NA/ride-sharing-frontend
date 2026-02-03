@@ -58,7 +58,6 @@ class _SourceAwareContactSheetState
           await ref.read(chatRepositoryProvider).getOrCreateConversation(
                 rideId: widget.ride.id,
                 driverId: widget.ride.driverId!,
-                driverName: widget.ride.driverDisplayName,
               );
 
       if (!mounted) return;

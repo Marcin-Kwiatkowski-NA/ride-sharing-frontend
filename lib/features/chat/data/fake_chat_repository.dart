@@ -41,7 +41,7 @@ class FakeChatRepository implements ChatRepository {
   }
 
   @override
-  Future<ConversationDto> initConversation({
+  Future<ConversationDto> getOrCreateConversation({
     required int rideId,
     required int driverId,
   }) async {
