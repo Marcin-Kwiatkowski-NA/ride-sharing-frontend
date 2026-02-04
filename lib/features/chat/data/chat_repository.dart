@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:blablafront/core/network/dio_provider.dart';
@@ -10,7 +11,10 @@ part 'chat_repository.g.dart';
 /// Repository interface for chat operations.
 abstract interface class ChatRepository {
   /// Get all conversations for the current user, sorted by most recent.
-  Future<List<ConversationDto>> getConversations({DateTime? since});
+  Future<List<ConversationDto>> getConversations({
+    DateTime? since,
+    CancelToken? cancelToken,
+  });
 
   /// Get existing conversation or create a new one for a ride with a driver.
   /// POST /conversations/init

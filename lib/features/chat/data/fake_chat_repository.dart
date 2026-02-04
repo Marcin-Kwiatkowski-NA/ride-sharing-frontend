@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'dto/conversation_dto.dart';
 import 'dto/message_dto.dart';
 import 'chat_repository.dart';
@@ -15,7 +16,10 @@ class FakeChatRepository implements ChatRepository {
   static const int _currentUserId = 1;
 
   @override
-  Future<List<ConversationDto>> getConversations({DateTime? since}) async {
+  Future<List<ConversationDto>> getConversations({
+    DateTime? since,
+    CancelToken? cancelToken,
+  }) async {
     await _simulateLatency();
 
     var conversations = _conversations.values.toList();

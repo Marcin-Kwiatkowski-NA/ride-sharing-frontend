@@ -11,7 +11,10 @@ class ApiChatRepository implements ChatRepository {
   ApiChatRepository(this._dio);
 
   @override
-  Future<List<ConversationDto>> getConversations({DateTime? since}) async {
+  Future<List<ConversationDto>> getConversations({
+    DateTime? since,
+    CancelToken? cancelToken,
+  }) async {
     final queryParams = <String, dynamic>{};
     if (since != null) {
       queryParams['since'] = since.toUtc().toIso8601String();
@@ -20,6 +23,7 @@ class ApiChatRepository implements ChatRepository {
     final response = await _dio.get<List<dynamic>>(
       '/conversations',
       queryParameters: queryParams.isNotEmpty ? queryParams : null,
+      cancelToken: cancelToken,
     );
 
     return (response.data ?? [])
