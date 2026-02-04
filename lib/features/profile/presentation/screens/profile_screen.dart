@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:blablafront/core/providers/auth_notifier.dart';
-import 'package:blablafront/core/models/user.dart';
+import 'package:blablafront/core/models/user_profile.dart';
+import 'package:blablafront/core/widgets/core_widgets.dart';
 import 'package:blablafront/features/auth/presentation/screens/login_screen.dart';
+import 'package:blablafront/features/profile/presentation/widgets.dart';
 import 'package:blablafront/routes/app_router.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -39,25 +41,232 @@ class ProfileScreen extends ConsumerWidget {
       );
     }
 
+    return _ProfileDashboard(user: user);
+  }
+}
+
+class _ProfileDashboard extends ConsumerWidget {
+  final UserProfile user;
+
+  const _ProfileDashboard({required this.user});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profile'),
-        automaticallyImplyLeading: false,
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            const SizedBox(height: 32),
-            ProfileImage(pictureUrl: user.pictureUrl),
-            const SizedBox(height: 16),
-            ProfileDetails(user: user),
-            const SizedBox(height: 32),
-            ProfileActions(
-              onLogout: () => _handleLogout(context, ref),
+      body: CustomScrollView(
+        slivers: [
+          // SliverAppBar with gradient background
+          SliverAppBar(
+            expandedHeight: 200,
+            pinned: true,
+            automaticallyImplyLeading: false,
+            flexibleSpace: FlexibleSpaceBar(
+              background: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      theme.colorScheme.primary,
+                      theme.colorScheme.primary.withValues(alpha: 0.7),
+                    ],
+                  ),
+                ),
+                child: SafeArea(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 16),
+                      AvatarCircle(
+                        imageUrl: user.avatarUrl,
+                        displayName: user.displayName,
+                        radius: 50,
+                        backgroundColor: theme.colorScheme.primaryContainer,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        user.displayName,
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        user.email,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: Colors.white.withValues(alpha: 0.9),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
-          ],
-        ),
+          ),
+
+          // Trust badges section
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Trust & Verification',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      VerificationBadge(
+                        label: 'Email',
+                        isVerified: user.isEmailVerified,
+                        onTap: user.isEmailVerified
+                            ? null
+                            : () => _showComingSoon(context, 'Email verification'),
+                      ),
+                      VerificationBadge(
+                        label: 'Phone',
+                        isVerified: user.isPhoneVerified,
+                        onTap: user.isPhoneVerified
+                            ? null
+                            : () => _showComingSoon(context, 'Phone verification'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Profile completeness card
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: ProfileCompletenessCard(
+                user: user,
+                onCompleteProfile: () {
+                  Navigator.pushNamed(context, AppRoutes.editProfile);
+                },
+              ),
+            ),
+          ),
+
+          // Stats section
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Statistics',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: StatsCard(
+                          icon: Icons.directions_car,
+                          value: user.stats.ridesGiven.toString(),
+                          label: 'Rides Given',
+                          accentColor: theme.colorScheme.primary,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: StatsCard(
+                          icon: Icons.airline_seat_recline_normal,
+                          value: user.stats.ridesTaken.toString(),
+                          label: 'Rides Taken',
+                          accentColor: theme.colorScheme.secondary,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: StatsCard(
+                          icon: Icons.star,
+                          value: user.stats.ratingCount > 0
+                              ? user.stats.ratingAvg.toStringAsFixed(1)
+                              : '-',
+                          label: 'Rating',
+                          accentColor: Colors.amber,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Actions card
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Card(
+                child: Column(
+                  children: [
+                    ProfileActionTile(
+                      icon: Icons.edit,
+                      title: 'Edit Profile',
+                      subtitle: 'Update your personal information',
+                      onTap: () {
+                        Navigator.pushNamed(context, AppRoutes.editProfile);
+                      },
+                    ),
+                    const Divider(height: 1),
+                    ProfileActionTile(
+                      icon: Icons.history,
+                      title: 'My Rides',
+                      subtitle: 'View your ride history',
+                      onTap: () => _showComingSoon(context, 'My Rides'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          // Logout button
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () => _handleLogout(context, ref),
+                  icon: const Icon(Icons.logout),
+                  label: const Text('Logout'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red.shade400,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          // Bottom spacing
+          const SliverPadding(padding: EdgeInsets.only(bottom: 32)),
+        ],
       ),
+    );
+  }
+
+  void _showComingSoon(BuildContext context, String feature) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('$feature coming soon!')),
     );
   }
 
@@ -66,109 +275,5 @@ class ProfileScreen extends ConsumerWidget {
     if (context.mounted) {
       AppRouter.navigateAndClearStack(context, AppRoutes.home);
     }
-  }
-}
-
-class ProfileImage extends StatelessWidget {
-  final String? pictureUrl;
-
-  const ProfileImage({super.key, this.pictureUrl});
-
-  @override
-  Widget build(BuildContext context) {
-    return CircleAvatar(
-      radius: 60,
-      backgroundColor: Colors.teal.shade100,
-      backgroundImage: pictureUrl != null ? NetworkImage(pictureUrl!) : null,
-      onBackgroundImageError: pictureUrl != null
-          ? (exception, stackTrace) {}
-          : null,
-      child: pictureUrl == null
-          ? Icon(Icons.person, size: 60, color: Colors.teal.shade700)
-          : null,
-    );
-  }
-}
-
-class ProfileDetails extends StatelessWidget {
-  final User user;
-
-  const ProfileDetails({super.key, required this.user});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-      child: Column(
-        children: [
-          Text(
-            user.displayName,
-            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          _buildInfoRow(Icons.email, user.email),
-          if (user.phoneNumber != null)
-            _buildInfoRow(Icons.phone, user.phoneNumber!),
-          if (user.isDriver)
-            _buildInfoRow(Icons.directions_car, 'Driver'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoRow(IconData icon, String text) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 18, color: Colors.grey.shade600),
-          const SizedBox(width: 8),
-          Text(text, style: TextStyle(color: Colors.grey.shade700, fontSize: 16)),
-        ],
-      ),
-    );
-  }
-}
-
-class ProfileActions extends StatelessWidget {
-  final VoidCallback onLogout;
-
-  const ProfileActions({super.key, required this.onLogout});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-      child: Column(
-        children: [
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('My rides coming soon!')),
-                );
-              },
-              icon: const Icon(Icons.history),
-              label: const Text('My Rides'),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: onLogout,
-              icon: const Icon(Icons.logout),
-              label: const Text('Logout'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red.shade400,
-                foregroundColor: Colors.white,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

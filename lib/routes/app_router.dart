@@ -5,6 +5,7 @@ import 'package:blablafront/features/chat/presentation/navigation/chat_arguments
 import 'package:blablafront/features/chat/presentation/screens/chat_screen.dart';
 import 'package:blablafront/features/rides/create/presentation/post_ride_screen.dart';
 import 'package:blablafront/features/profile/presentation/screens/profile_screen.dart';
+import 'package:blablafront/features/profile/presentation/screens/edit_profile_screen.dart';
 import 'package:blablafront/features/navigation/main_layout.dart';
 import 'package:blablafront/core/utils/route_guards.dart';
 import 'package:blablafront/features/rides/presentation/screens/rides_list_screen.dart';
@@ -18,6 +19,7 @@ class AppRoutes {
   static const String search = '/search';
   static const String postRide = '/post-ride';
   static const String profile = '/profile';
+  static const String editProfile = '/edit-profile';
   static const String rides = '/rides';
   static const String rideDetails = '/rides/details';
   static const String chat = '/chat';
@@ -62,6 +64,12 @@ class AppRouter {
       case AppRoutes.profile:
         return MaterialPageRoute(
           builder: (_) => const AuthGuard(child: ProfileScreen()),
+          settings: settings,
+        );
+
+      case AppRoutes.editProfile:
+        return MaterialPageRoute(
+          builder: (_) => const AuthGuard(child: EditProfileScreen()),
           settings: settings,
         );
 

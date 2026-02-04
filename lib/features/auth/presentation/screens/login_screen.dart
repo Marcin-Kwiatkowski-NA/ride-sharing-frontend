@@ -12,7 +12,7 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  final _usernameController = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
@@ -47,7 +47,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   void dispose() {
-    _usernameController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -60,16 +60,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Username field
+            // Email field
             TextFormField(
-              controller: _usernameController,
+              controller: _emailController,
+              keyboardType: TextInputType.emailAddress,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               decoration: const InputDecoration(
-                labelText: 'Username',
-                prefixIcon: Icon(Icons.person),
+                labelText: 'Email',
+                prefixIcon: Icon(Icons.email),
               ),
-              validator: (text) =>
-                  text!.isEmpty ? 'Enter your username' : null,
+              validator: (text) {
+                if (text == null || text.isEmpty) {
+                  return 'Enter your email';
+                }
+                if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(text)) {
+                  return 'Enter a valid email';
+                }
+                return null;
+              },
             ),
             const SizedBox(height: 16),
 
@@ -167,8 +175,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     setState(() => _isLoading = true);
 
-    await ref.read(authProvider.notifier).signInWithCredentials(
-      _usernameController.text,
+    await ref.read(authProvider.notifier).signInWithEmail(
+      _emailController.text,
       _passwordController.text,
     );
 

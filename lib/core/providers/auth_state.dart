@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:blablafront/core/models/user.dart';
+import 'package:blablafront/core/models/user_profile.dart';
 
 part 'auth_state.freezed.dart';
 
@@ -23,7 +23,7 @@ sealed class AuthState with _$AuthState {
 
   const factory AuthState({
     @Default(AuthStatus.uninitialized) AuthStatus status,
-    User? currentUser,
+    UserProfile? currentUser,
     String? errorMessage,
   }) = _AuthState;
 

@@ -12,6 +12,7 @@ class CreateAccountScreen extends ConsumerStatefulWidget {
 }
 
 class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
+  final _displayNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -40,6 +41,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
 
   @override
   void dispose() {
+    _displayNameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -55,6 +57,27 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const SizedBox(height: 20),
+
+            // Display Name field
+            TextFormField(
+              controller: _displayNameController,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              decoration: const InputDecoration(
+                labelText: 'Display Name',
+                prefixIcon: Icon(Icons.person),
+                helperText: 'This is the name other users will see.',
+              ),
+              validator: (text) {
+                if (text == null || text.isEmpty) {
+                  return 'Enter a display name';
+                }
+                if (text.length < 2) {
+                  return 'Display name must be at least 2 characters';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
 
             // Email field
             TextFormField(
@@ -202,6 +225,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
     await ref.read(authProvider.notifier).register(
       _emailController.text,
       _passwordController.text,
+      _displayNameController.text,
     );
 
     if (mounted) {

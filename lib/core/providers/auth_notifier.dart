@@ -1,8 +1,15 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:blablafront/services/auth_service.dart';
 import 'package:blablafront/core/utils/jwt_decoder.dart';
 import 'package:blablafront/core/network/auth_token_provider.dart';
+import 'package:blablafront/core/models/token_pair.dart';
+import 'package:blablafront/features/auth/data/auth_repository.dart';
+import 'package:blablafront/features/auth/data/dtos/login_request.dart';
+import 'package:blablafront/features/auth/data/dtos/register_request.dart';
+import 'package:blablafront/features/profile/data/profile_repository.dart';
+import 'package:blablafront/features/profile/data/dtos/update_profile_request.dart';
 import 'auth_state.dart';
 
 part 'auth_notifier.g.dart';
@@ -14,10 +21,14 @@ part 'auth_notifier.g.dart';
 @Riverpod(keepAlive: true)
 class Auth extends _$Auth {
   late final AuthService _authService;
+  late final IAuthRepository _authRepository;
+  late final IProfileRepository _profileRepository;
 
   @override
   AuthState build() {
-    _authService = AuthService();
+    _authService = ref.watch(authServiceProvider);
+    _authRepository = ref.watch(authRepositoryProvider);
+    _profileRepository = ref.watch(profileRepositoryProvider);
     // Initialize auth state asynchronously
     Future.microtask(() => _initialize());
     return const AuthState();
@@ -26,164 +37,157 @@ class Auth extends _$Auth {
   /// Initialize authentication state
   ///
   /// Called on app startup to check if user is already logged in.
-  /// Validates stored token and updates state accordingly.
+  /// Validates stored token and hydrates user profile from API.
   Future<void> _initialize() async {
     try {
-      // Check if token exists
       final isLoggedIn = await _authService.isLoggedIn();
-
-      if (isLoggedIn) {
-        // Validate token expiration
-        final token = await _authService.getAccessToken();
-        if (token != null && JwtDecoder.isTokenValid(token)) {
-          // Token is valid, restore user session
-          final user = await _authService.getCurrentUser();
-          // Sync token pair to authTokenProvider
-          final tokenPair = await _authService.getTokenPair();
-          ref.read(authTokenProvider.notifier).setTokenPair(tokenPair);
-
-          if (!ref.mounted) return;
-          state = AuthState(
-            status: AuthStatus.authenticated,
-            currentUser: user,
-          );
-        } else {
-          // Token expired, clean up
-          await _authService.clearAuthStorage();
-          ref.read(authTokenProvider.notifier).clear();
-
-          if (!ref.mounted) return;
-          state = const AuthState(
-            status: AuthStatus.unauthenticated,
-            errorMessage: 'Your session has expired. Please log in again.',
-          );
-        }
-      } else {
+      if (!isLoggedIn) {
         if (!ref.mounted) return;
         state = const AuthState(status: AuthStatus.unauthenticated);
+        return;
+      }
+
+      final token = await _authService.getAccessToken();
+      if (token == null || !JwtDecoder.isTokenValid(token)) {
+        // Token expired locally
+        await _authService.clearAuthStorage();
+        ref.read(authTokenProvider.notifier).clear();
+        if (!ref.mounted) return;
+        state = const AuthState(
+          status: AuthStatus.unauthenticated,
+          errorMessage: 'Your session has expired. Please log in again.',
+        );
+        return;
+      }
+
+      // Token valid locally - sync to memory
+      final tokenPair = await _authService.getTokenPair();
+      ref.read(authTokenProvider.notifier).setTokenPair(tokenPair);
+
+      // Hydrate user from API
+      try {
+        final userProfile = await _authRepository.me();
+        if (!ref.mounted) return;
+        state = AuthState(
+          status: AuthStatus.authenticated,
+          currentUser: userProfile,
+        );
+      } on DioException catch (e) {
+        if (!ref.mounted) return;
+        if (e.response?.statusCode == 401 || e.response?.statusCode == 403) {
+          // Session invalid on server - clear everything
+          await _authService.clearAuthStorage();
+          ref.read(authTokenProvider.notifier).clear();
+          state = const AuthState(
+            status: AuthStatus.unauthenticated,
+            errorMessage: 'Your session is invalid. Please log in again.',
+          );
+        } else {
+          // Network/other error - stay unauthenticated but keep tokens for retry
+          state = const AuthState(
+            status: AuthStatus.unauthenticated,
+            errorMessage: 'Could not load profile. Please try again.',
+          );
+        }
       }
     } catch (e) {
       if (!ref.mounted) return;
       state = AuthState(
         status: AuthStatus.unauthenticated,
-        errorMessage: 'Failed to initialize authentication: ${e.toString()}',
+        errorMessage: 'Failed to initialize: ${e.toString()}',
       );
     }
   }
 
-  /// Sign in with username and password
+  /// Sign in with email and password
   ///
   /// Returns true if sign-in was successful, false otherwise.
-  Future<bool> signInWithCredentials(String username, String password) async {
+  Future<bool> signInWithEmail(String email, String password) async {
     // Clear previous error
     state = state.copyWith(errorMessage: null);
 
     try {
-      final result = await _authService.signInWithCredentials(username, password);
+      final request = LoginRequest(email: email, password: password);
+      final response = await _authRepository.login(request);
+
+      final tokenPair = TokenPair(
+        accessToken: response.accessToken,
+        refreshToken: response.refreshToken,
+      );
+      await _authService.storeTokenPair(tokenPair);
+      ref.read(authTokenProvider.notifier).setTokenPair(tokenPair);
 
       if (!ref.mounted) return false;
-
-      if (result.success && result.user != null) {
-        // Sync token pair to authTokenProvider
-        final tokenPair = await _authService.getTokenPair();
-        ref.read(authTokenProvider.notifier).setTokenPair(tokenPair);
-
-        state = AuthState(
-          status: AuthStatus.authenticated,
-          currentUser: result.user,
-        );
-        return true;
-      } else {
-        state = state.copyWith(
-          errorMessage: result.error ?? 'Login failed',
-        );
-        return false;
-      }
+      state = AuthState(
+        status: AuthStatus.authenticated,
+        currentUser: response.user,
+      );
+      return true;
+    } on DioException catch (e) {
+      if (!ref.mounted) return false;
+      final message = _extractErrorMessage(e, 'Invalid credentials');
+      state = state.copyWith(errorMessage: message);
+      return false;
     } catch (e) {
       if (!ref.mounted) return false;
-      state = state.copyWith(
-        errorMessage: 'An error occurred: ${e.toString()}',
-      );
+      state = state.copyWith(errorMessage: 'An error occurred: ${e.toString()}');
       return false;
     }
   }
 
-  /// Register with email and password
+  /// Register with email, password, and display name
   ///
   /// Returns true if registration was successful, false otherwise.
-  Future<bool> register(String email, String password) async {
+  Future<bool> register(String email, String password, String displayName) async {
     // Clear previous error
     state = state.copyWith(errorMessage: null);
 
     try {
-      final result = await _authService.register(email, password);
+      final request = RegisterRequest(
+        email: email,
+        password: password,
+        displayName: displayName,
+      );
+      final response = await _authRepository.register(request);
+
+      final tokenPair = TokenPair(
+        accessToken: response.accessToken,
+        refreshToken: response.refreshToken,
+      );
+      await _authService.storeTokenPair(tokenPair);
+      ref.read(authTokenProvider.notifier).setTokenPair(tokenPair);
 
       if (!ref.mounted) return false;
-
-      if (result.success && result.user != null) {
-        // Sync token pair to authTokenProvider
-        final tokenPair = await _authService.getTokenPair();
-        ref.read(authTokenProvider.notifier).setTokenPair(tokenPair);
-
-        state = AuthState(
-          status: AuthStatus.authenticated,
-          currentUser: result.user,
-        );
-        return true;
+      state = AuthState(
+        status: AuthStatus.authenticated,
+        currentUser: response.user,
+      );
+      return true;
+    } on DioException catch (e) {
+      if (!ref.mounted) return false;
+      String message = 'Registration failed';
+      if (e.response?.statusCode == 409) {
+        message = 'An account with this email already exists';
       } else {
-        state = state.copyWith(
-          errorMessage: result.error ?? 'Registration failed',
-        );
-        return false;
+        message = _extractErrorMessage(e, message);
       }
+      state = state.copyWith(errorMessage: message);
+      return false;
     } catch (e) {
       if (!ref.mounted) return false;
-      state = state.copyWith(
-        errorMessage: 'An error occurred: ${e.toString()}',
-      );
+      state = state.copyWith(errorMessage: 'An error occurred: ${e.toString()}');
       return false;
     }
   }
 
-  /// Sign in with Google
+  /// Google Sign-In - NOT IMPLEMENTED in Stage 2
   ///
-  /// Returns true if sign-in was successful, false otherwise.
-  /// Handles cancellation and errors appropriately.
+  /// Returns false and shows "not available" message.
   Future<bool> signInWithGoogle() async {
-    // Clear previous error
-    state = state.copyWith(errorMessage: null);
-
-    try {
-      final result = await _authService.signInWithGoogle();
-
-      if (!ref.mounted) return false;
-
-      if (result.success && result.user != null) {
-        // Sync token pair to authTokenProvider
-        final tokenPair = await _authService.getTokenPair();
-        ref.read(authTokenProvider.notifier).setTokenPair(tokenPair);
-
-        state = AuthState(
-          status: AuthStatus.authenticated,
-          currentUser: result.user,
-        );
-        return true;
-      } else if (result.cancelled) {
-        // User cancelled sign-in, don't show error
-        return false;
-      } else {
-        state = state.copyWith(
-          errorMessage: result.error ?? 'Google sign-in failed',
-        );
-        return false;
-      }
-    } catch (e) {
-      if (!ref.mounted) return false;
-      state = state.copyWith(
-        errorMessage: 'An error occurred: ${e.toString()}',
-      );
-      return false;
-    }
+    state = state.copyWith(
+      errorMessage: 'Google Sign-In is not available yet.',
+    );
+    return false;
   }
 
   /// Sign out current user
@@ -227,23 +231,65 @@ class Auth extends _$Auth {
     );
   }
 
-  /// Refresh user data from storage
+  /// Refresh user data from API
   ///
   /// Useful after updating user profile.
   Future<void> refreshUser() async {
     if (state.status == AuthStatus.authenticated) {
       try {
-        final user = await _authService.getCurrentUser();
+        final userProfile = await _authRepository.me();
         if (!ref.mounted) return;
-        state = state.copyWith(currentUser: user);
+        state = state.copyWith(currentUser: userProfile);
       } catch (e) {
         debugPrint('Error refreshing user: $e');
       }
     }
   }
 
+  /// Update user profile
+  ///
+  /// Returns true if update was successful, false otherwise.
+  Future<bool> updateProfile({
+    String? displayName,
+    String? bio,
+    String? phoneNumber,
+  }) async {
+    state = state.copyWith(errorMessage: null);
+
+    try {
+      final request = UpdateProfileRequest(
+        displayName: displayName,
+        bio: bio,
+        phoneNumber: phoneNumber,
+      );
+      final updatedUser = await _profileRepository.updateProfile(request);
+
+      if (!ref.mounted) return false;
+      state = state.copyWith(currentUser: updatedUser);
+      return true;
+    } on DioException catch (e) {
+      if (!ref.mounted) return false;
+      final message = _extractErrorMessage(e, 'Failed to update profile');
+      state = state.copyWith(errorMessage: message);
+      return false;
+    } catch (e) {
+      if (!ref.mounted) return false;
+      state = state.copyWith(errorMessage: 'An error occurred: ${e.toString()}');
+      return false;
+    }
+  }
+
   /// Clear error message
   void clearError() {
     state = state.copyWith(errorMessage: null);
+  }
+
+  /// Extract error message from DioException
+  String _extractErrorMessage(DioException e, String defaultMessage) {
+    final data = e.response?.data;
+    if (data is Map<String, dynamic> && data.containsKey('message')) {
+      return data['message'] as String;
+    }
+    return defaultMessage;
   }
 }

@@ -173,7 +173,7 @@ class AppTheme {
         backgroundColor: _surfaceColor,
         elevation: 3,
         height: 70,
-        indicatorColor: _primaryColor.withOpacity(0.15),
+        indicatorColor: _primaryColor.withValues(alpha: 0.15),
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
             return GoogleFonts.roboto(
@@ -222,7 +222,7 @@ class AppTheme {
       // ─────────────────────────────────────────────────────────────────────────
       chipTheme: ChipThemeData(
         backgroundColor: Colors.grey.shade100,
-        selectedColor: _primaryColor.withOpacity(0.2),
+        selectedColor: _primaryColor.withValues(alpha: 0.2),
         labelStyle: GoogleFonts.roboto(fontSize: 13),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         shape: RoundedRectangleBorder(
