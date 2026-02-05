@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../../../core/cities/domain/city.dart';
+
 part 'search_criteria_dto.freezed.dart';
 
 @freezed
 sealed class SearchCriteriaDto with _$SearchCriteriaDto {
   const factory SearchCriteriaDto({
-    String? originCityName,
-    String? destinationCityName,
+    City? origin,
+    City? destination,
     DateTime? departureDate,
     DateTime? departureDateTo,
     TimeOfDay? departureTimeFrom,

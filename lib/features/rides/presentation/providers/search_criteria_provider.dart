@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../../core/cities/domain/city.dart';
 import '../../data/dto/search_criteria_dto.dart';
 
 part 'search_criteria_provider.g.dart';
@@ -15,12 +16,12 @@ class SearchCriteria extends _$SearchCriteria {
     return const SearchCriteriaDto();
   }
 
-  void setOrigin(String? origin) {
-    state = state.copyWith(originCityName: origin);
+  void setOrigin(City? city) {
+    state = state.copyWith(origin: city);
   }
 
-  void setDestination(String? destination) {
-    state = state.copyWith(destinationCityName: destination);
+  void setDestination(City? city) {
+    state = state.copyWith(destination: city);
   }
 
   void setDepartureDate(DateTime? date) {

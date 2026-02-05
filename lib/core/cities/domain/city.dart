@@ -33,14 +33,6 @@ sealed class City with _$City {
         population: json['population'] as int?,
       );
 
-  /// Migration from old storage format (v1 with osmId)
-  factory City.fromLegacyStorageJson(Map<String, dynamic> json) => City(
-        name: json['name'] as String,
-        placeId: json['osmId'] as int,
-        countryCode: null,
-        population: null,
-      );
-
   /// Serialize for local storage
   Map<String, dynamic> toStorageJson() => {
         'name': name,

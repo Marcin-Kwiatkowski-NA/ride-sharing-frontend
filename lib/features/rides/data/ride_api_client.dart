@@ -26,11 +26,11 @@ class RideApiClient {
       'minAvailableSeats': criteria.minAvailableSeats,
     };
 
-    if (criteria.originCityName?.isNotEmpty == true) {
-      queryParams['originCityName'] = criteria.originCityName;
+    if (criteria.origin != null) {
+      queryParams['originPlaceId'] = criteria.origin!.placeId;
     }
-    if (criteria.destinationCityName?.isNotEmpty == true) {
-      queryParams['destinationCityName'] = criteria.destinationCityName;
+    if (criteria.destination != null) {
+      queryParams['destinationPlaceId'] = criteria.destination!.placeId;
     }
     if (criteria.departureDate != null) {
       queryParams['departureDate'] = criteria.departureDate!

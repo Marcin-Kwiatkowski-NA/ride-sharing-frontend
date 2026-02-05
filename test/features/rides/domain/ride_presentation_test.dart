@@ -28,8 +28,8 @@ void main() {
     }) {
       return RideResponseDto(
         id: id,
-        origin: const CityDto(name: 'Krakow'),
-        destination: const CityDto(name: 'Warsaw'),
+        origin: const CityDto(placeId: 3094802, name: 'Krakow'),
+        destination: const CityDto(placeId: 756135, name: 'Warsaw'),
         departureTime: departureTime ?? DateTime(2025, 1, 15, 14, 30),
         isApproximate: isApproximate,
         source: source,

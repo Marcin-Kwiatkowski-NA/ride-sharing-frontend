@@ -65,15 +65,15 @@ class _RidesListScreenState extends ConsumerState<RidesListScreen> {
   }
 
   String _buildTitle(SearchCriteriaDto criteria) {
-    final origin = criteria.originCityName;
-    final dest = criteria.destinationCityName;
+    final originName = criteria.origin?.name;
+    final destName = criteria.destination?.name;
 
-    if (origin?.isNotEmpty == true && dest?.isNotEmpty == true) {
-      return '$origin -> $dest';
-    } else if (origin?.isNotEmpty == true) {
-      return 'From $origin';
-    } else if (dest?.isNotEmpty == true) {
-      return 'To $dest';
+    if (originName != null && destName != null) {
+      return '$originName -> $destName';
+    } else if (originName != null) {
+      return 'From $originName';
+    } else if (destName != null) {
+      return 'To $destName';
     }
     return 'All rides';
   }

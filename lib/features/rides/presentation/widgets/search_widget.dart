@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:blablafront/core/widgets/core_widgets.dart';
 
 import '../../../../utils/constants.dart';
+import '../../../../core/cities/domain/city.dart';
 import '../../../../core/cities/widgets/city_autocomplete_field.dart';
 import '../../../../shared/widgets/date_search_field.dart';
 import '../../../../shared/widgets/time_search_field.dart';
@@ -22,6 +23,8 @@ class SearchWidget extends ConsumerStatefulWidget {
 class _SearchWidgetState extends ConsumerState<SearchWidget> {
   final _fromController = TextEditingController();
   final _toController = TextEditingController();
+  City? _selectedOrigin;
+  City? _selectedDestination;
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
   bool _anyTime = true;
@@ -60,14 +63,11 @@ class _SearchWidgetState extends ConsumerState<SearchWidget> {
     final notifier = ref.read(searchCriteriaProvider.notifier);
     notifier.clear();
 
-    final origin = _fromController.text.trim();
-    final destination = _toController.text.trim();
-
-    if (origin.isNotEmpty) {
-      notifier.setOrigin(origin);
+    if (_selectedOrigin != null) {
+      notifier.setOrigin(_selectedOrigin);
     }
-    if (destination.isNotEmpty) {
-      notifier.setDestination(destination);
+    if (_selectedDestination != null) {
+      notifier.setDestination(_selectedDestination);
     }
     if (_selectedDate != null) {
       notifier.setDepartureDate(_selectedDate);
@@ -117,10 +117,15 @@ class _SearchWidgetState extends ConsumerState<SearchWidget> {
               prefixIcon: Icons.trip_origin,
               onCitySelected: (city) {
                 setState(() {
+                  _selectedOrigin = city;
                   _fromController.text = city.name;
                 });
               },
-              onCityCleared: () {},
+              onCityCleared: () {
+                setState(() {
+                  _selectedOrigin = null;
+                });
+              },
             ),
             const SizedBox(height: 16),
 
@@ -130,10 +135,15 @@ class _SearchWidgetState extends ConsumerState<SearchWidget> {
               prefixIcon: Icons.location_on,
               onCitySelected: (city) {
                 setState(() {
+                  _selectedDestination = city;
                   _toController.text = city.name;
                 });
               },
-              onCityCleared: () {},
+              onCityCleared: () {
+                setState(() {
+                  _selectedDestination = null;
+                });
+              },
             ),
             const SizedBox(height: 16),
 

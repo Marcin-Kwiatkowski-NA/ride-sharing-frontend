@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$CityDto {
 
- int? get osmId; String get name;
+ int get placeId; String get name; String? get countryCode; int? get population;
 /// Create a copy of CityDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $CityDtoCopyWith<CityDto> get copyWith => _$CityDtoCopyWithImpl<CityDto>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CityDto&&(identical(other.osmId, osmId) || other.osmId == osmId)&&(identical(other.name, name) || other.name == name));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CityDto&&(identical(other.placeId, placeId) || other.placeId == placeId)&&(identical(other.name, name) || other.name == name)&&(identical(other.countryCode, countryCode) || other.countryCode == countryCode)&&(identical(other.population, population) || other.population == population));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,osmId,name);
+int get hashCode => Object.hash(runtimeType,placeId,name,countryCode,population);
 
 @override
 String toString() {
-  return 'CityDto(osmId: $osmId, name: $name)';
+  return 'CityDto(placeId: $placeId, name: $name, countryCode: $countryCode, population: $population)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $CityDtoCopyWith<$Res>  {
   factory $CityDtoCopyWith(CityDto value, $Res Function(CityDto) _then) = _$CityDtoCopyWithImpl;
 @useResult
 $Res call({
- int? osmId, String name
+ int placeId, String name, String? countryCode, int? population
 });
 
 
@@ -65,11 +65,13 @@ class _$CityDtoCopyWithImpl<$Res>
 
 /// Create a copy of CityDto
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? osmId = freezed,Object? name = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? placeId = null,Object? name = null,Object? countryCode = freezed,Object? population = freezed,}) {
   return _then(_self.copyWith(
-osmId: freezed == osmId ? _self.osmId : osmId // ignore: cast_nullable_to_non_nullable
-as int?,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
-as String,
+placeId: null == placeId ? _self.placeId : placeId // ignore: cast_nullable_to_non_nullable
+as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,countryCode: freezed == countryCode ? _self.countryCode : countryCode // ignore: cast_nullable_to_non_nullable
+as String?,population: freezed == population ? _self.population : population // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 
@@ -151,10 +153,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? osmId,  String name)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int placeId,  String name,  String? countryCode,  int? population)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CityDto() when $default != null:
-return $default(_that.osmId,_that.name);case _:
+return $default(_that.placeId,_that.name,_that.countryCode,_that.population);case _:
   return orElse();
 
 }
@@ -172,10 +174,10 @@ return $default(_that.osmId,_that.name);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? osmId,  String name)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int placeId,  String name,  String? countryCode,  int? population)  $default,) {final _that = this;
 switch (_that) {
 case _CityDto():
-return $default(_that.osmId,_that.name);}
+return $default(_that.placeId,_that.name,_that.countryCode,_that.population);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -189,10 +191,10 @@ return $default(_that.osmId,_that.name);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? osmId,  String name)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int placeId,  String name,  String? countryCode,  int? population)?  $default,) {final _that = this;
 switch (_that) {
 case _CityDto() when $default != null:
-return $default(_that.osmId,_that.name);case _:
+return $default(_that.placeId,_that.name,_that.countryCode,_that.population);case _:
   return null;
 
 }
@@ -204,11 +206,13 @@ return $default(_that.osmId,_that.name);case _:
 @JsonSerializable()
 
 class _CityDto implements CityDto {
-  const _CityDto({this.osmId, required this.name});
+  const _CityDto({required this.placeId, required this.name, this.countryCode, this.population});
   factory _CityDto.fromJson(Map<String, dynamic> json) => _$CityDtoFromJson(json);
 
-@override final  int? osmId;
+@override final  int placeId;
 @override final  String name;
+@override final  String? countryCode;
+@override final  int? population;
 
 /// Create a copy of CityDto
 /// with the given fields replaced by the non-null parameter values.
@@ -223,16 +227,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CityDto&&(identical(other.osmId, osmId) || other.osmId == osmId)&&(identical(other.name, name) || other.name == name));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CityDto&&(identical(other.placeId, placeId) || other.placeId == placeId)&&(identical(other.name, name) || other.name == name)&&(identical(other.countryCode, countryCode) || other.countryCode == countryCode)&&(identical(other.population, population) || other.population == population));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,osmId,name);
+int get hashCode => Object.hash(runtimeType,placeId,name,countryCode,population);
 
 @override
 String toString() {
-  return 'CityDto(osmId: $osmId, name: $name)';
+  return 'CityDto(placeId: $placeId, name: $name, countryCode: $countryCode, population: $population)';
 }
 
 
@@ -243,7 +247,7 @@ abstract mixin class _$CityDtoCopyWith<$Res> implements $CityDtoCopyWith<$Res> {
   factory _$CityDtoCopyWith(_CityDto value, $Res Function(_CityDto) _then) = __$CityDtoCopyWithImpl;
 @override @useResult
 $Res call({
- int? osmId, String name
+ int placeId, String name, String? countryCode, int? population
 });
 
 
@@ -260,11 +264,13 @@ class __$CityDtoCopyWithImpl<$Res>
 
 /// Create a copy of CityDto
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? osmId = freezed,Object? name = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? placeId = null,Object? name = null,Object? countryCode = freezed,Object? population = freezed,}) {
   return _then(_CityDto(
-osmId: freezed == osmId ? _self.osmId : osmId // ignore: cast_nullable_to_non_nullable
-as int?,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
-as String,
+placeId: null == placeId ? _self.placeId : placeId // ignore: cast_nullable_to_non_nullable
+as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,countryCode: freezed == countryCode ? _self.countryCode : countryCode // ignore: cast_nullable_to_non_nullable
+as String?,population: freezed == population ? _self.population : population // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 

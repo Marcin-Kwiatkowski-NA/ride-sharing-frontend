@@ -104,20 +104,6 @@ void main() {
       expect(city.population, 760000);
     });
 
-    test('fromLegacyStorageJson migrates from old osmId format', () {
-      final json = {
-        'name': 'Gdansk',
-        'osmId': 22222,
-      };
-
-      final city = City.fromLegacyStorageJson(json);
-
-      expect(city.name, 'Gdansk');
-      expect(city.placeId, 22222);
-      expect(city.countryCode, isNull);
-      expect(city.population, isNull);
-    });
-
     test('toStorageJson serializes correctly', () {
       const city = City(
         name: 'Poznan',

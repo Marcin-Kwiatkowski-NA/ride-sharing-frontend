@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SearchCriteriaDto {
 
- String? get originCityName; String? get destinationCityName; DateTime? get departureDate; DateTime? get departureDateTo; TimeOfDay? get departureTimeFrom; int get minAvailableSeats; int get page; int get size;
+ City? get origin; City? get destination; DateTime? get departureDate; DateTime? get departureDateTo; TimeOfDay? get departureTimeFrom; int get minAvailableSeats; int get page; int get size;
 /// Create a copy of SearchCriteriaDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $SearchCriteriaDtoCopyWith<SearchCriteriaDto> get copyWith => _$SearchCriteriaDt
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SearchCriteriaDto&&(identical(other.originCityName, originCityName) || other.originCityName == originCityName)&&(identical(other.destinationCityName, destinationCityName) || other.destinationCityName == destinationCityName)&&(identical(other.departureDate, departureDate) || other.departureDate == departureDate)&&(identical(other.departureDateTo, departureDateTo) || other.departureDateTo == departureDateTo)&&(identical(other.departureTimeFrom, departureTimeFrom) || other.departureTimeFrom == departureTimeFrom)&&(identical(other.minAvailableSeats, minAvailableSeats) || other.minAvailableSeats == minAvailableSeats)&&(identical(other.page, page) || other.page == page)&&(identical(other.size, size) || other.size == size));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SearchCriteriaDto&&(identical(other.origin, origin) || other.origin == origin)&&(identical(other.destination, destination) || other.destination == destination)&&(identical(other.departureDate, departureDate) || other.departureDate == departureDate)&&(identical(other.departureDateTo, departureDateTo) || other.departureDateTo == departureDateTo)&&(identical(other.departureTimeFrom, departureTimeFrom) || other.departureTimeFrom == departureTimeFrom)&&(identical(other.minAvailableSeats, minAvailableSeats) || other.minAvailableSeats == minAvailableSeats)&&(identical(other.page, page) || other.page == page)&&(identical(other.size, size) || other.size == size));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,originCityName,destinationCityName,departureDate,departureDateTo,departureTimeFrom,minAvailableSeats,page,size);
+int get hashCode => Object.hash(runtimeType,origin,destination,departureDate,departureDateTo,departureTimeFrom,minAvailableSeats,page,size);
 
 @override
 String toString() {
-  return 'SearchCriteriaDto(originCityName: $originCityName, destinationCityName: $destinationCityName, departureDate: $departureDate, departureDateTo: $departureDateTo, departureTimeFrom: $departureTimeFrom, minAvailableSeats: $minAvailableSeats, page: $page, size: $size)';
+  return 'SearchCriteriaDto(origin: $origin, destination: $destination, departureDate: $departureDate, departureDateTo: $departureDateTo, departureTimeFrom: $departureTimeFrom, minAvailableSeats: $minAvailableSeats, page: $page, size: $size)';
 }
 
 
@@ -45,11 +45,11 @@ abstract mixin class $SearchCriteriaDtoCopyWith<$Res>  {
   factory $SearchCriteriaDtoCopyWith(SearchCriteriaDto value, $Res Function(SearchCriteriaDto) _then) = _$SearchCriteriaDtoCopyWithImpl;
 @useResult
 $Res call({
- String? originCityName, String? destinationCityName, DateTime? departureDate, DateTime? departureDateTo, TimeOfDay? departureTimeFrom, int minAvailableSeats, int page, int size
+ City? origin, City? destination, DateTime? departureDate, DateTime? departureDateTo, TimeOfDay? departureTimeFrom, int minAvailableSeats, int page, int size
 });
 
 
-
+$CityCopyWith<$Res>? get origin;$CityCopyWith<$Res>? get destination;
 
 }
 /// @nodoc
@@ -62,11 +62,11 @@ class _$SearchCriteriaDtoCopyWithImpl<$Res>
 
 /// Create a copy of SearchCriteriaDto
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? originCityName = freezed,Object? destinationCityName = freezed,Object? departureDate = freezed,Object? departureDateTo = freezed,Object? departureTimeFrom = freezed,Object? minAvailableSeats = null,Object? page = null,Object? size = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? origin = freezed,Object? destination = freezed,Object? departureDate = freezed,Object? departureDateTo = freezed,Object? departureTimeFrom = freezed,Object? minAvailableSeats = null,Object? page = null,Object? size = null,}) {
   return _then(_self.copyWith(
-originCityName: freezed == originCityName ? _self.originCityName : originCityName // ignore: cast_nullable_to_non_nullable
-as String?,destinationCityName: freezed == destinationCityName ? _self.destinationCityName : destinationCityName // ignore: cast_nullable_to_non_nullable
-as String?,departureDate: freezed == departureDate ? _self.departureDate : departureDate // ignore: cast_nullable_to_non_nullable
+origin: freezed == origin ? _self.origin : origin // ignore: cast_nullable_to_non_nullable
+as City?,destination: freezed == destination ? _self.destination : destination // ignore: cast_nullable_to_non_nullable
+as City?,departureDate: freezed == departureDate ? _self.departureDate : departureDate // ignore: cast_nullable_to_non_nullable
 as DateTime?,departureDateTo: freezed == departureDateTo ? _self.departureDateTo : departureDateTo // ignore: cast_nullable_to_non_nullable
 as DateTime?,departureTimeFrom: freezed == departureTimeFrom ? _self.departureTimeFrom : departureTimeFrom // ignore: cast_nullable_to_non_nullable
 as TimeOfDay?,minAvailableSeats: null == minAvailableSeats ? _self.minAvailableSeats : minAvailableSeats // ignore: cast_nullable_to_non_nullable
@@ -75,7 +75,31 @@ as int,size: null == size ? _self.size : size // ignore: cast_nullable_to_non_nu
 as int,
   ));
 }
+/// Create a copy of SearchCriteriaDto
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$CityCopyWith<$Res>? get origin {
+    if (_self.origin == null) {
+    return null;
+  }
 
+  return $CityCopyWith<$Res>(_self.origin!, (value) {
+    return _then(_self.copyWith(origin: value));
+  });
+}/// Create a copy of SearchCriteriaDto
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$CityCopyWith<$Res>? get destination {
+    if (_self.destination == null) {
+    return null;
+  }
+
+  return $CityCopyWith<$Res>(_self.destination!, (value) {
+    return _then(_self.copyWith(destination: value));
+  });
+}
 }
 
 
@@ -154,10 +178,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? originCityName,  String? destinationCityName,  DateTime? departureDate,  DateTime? departureDateTo,  TimeOfDay? departureTimeFrom,  int minAvailableSeats,  int page,  int size)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( City? origin,  City? destination,  DateTime? departureDate,  DateTime? departureDateTo,  TimeOfDay? departureTimeFrom,  int minAvailableSeats,  int page,  int size)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SearchCriteriaDto() when $default != null:
-return $default(_that.originCityName,_that.destinationCityName,_that.departureDate,_that.departureDateTo,_that.departureTimeFrom,_that.minAvailableSeats,_that.page,_that.size);case _:
+return $default(_that.origin,_that.destination,_that.departureDate,_that.departureDateTo,_that.departureTimeFrom,_that.minAvailableSeats,_that.page,_that.size);case _:
   return orElse();
 
 }
@@ -175,10 +199,10 @@ return $default(_that.originCityName,_that.destinationCityName,_that.departureDa
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? originCityName,  String? destinationCityName,  DateTime? departureDate,  DateTime? departureDateTo,  TimeOfDay? departureTimeFrom,  int minAvailableSeats,  int page,  int size)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( City? origin,  City? destination,  DateTime? departureDate,  DateTime? departureDateTo,  TimeOfDay? departureTimeFrom,  int minAvailableSeats,  int page,  int size)  $default,) {final _that = this;
 switch (_that) {
 case _SearchCriteriaDto():
-return $default(_that.originCityName,_that.destinationCityName,_that.departureDate,_that.departureDateTo,_that.departureTimeFrom,_that.minAvailableSeats,_that.page,_that.size);}
+return $default(_that.origin,_that.destination,_that.departureDate,_that.departureDateTo,_that.departureTimeFrom,_that.minAvailableSeats,_that.page,_that.size);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -192,10 +216,10 @@ return $default(_that.originCityName,_that.destinationCityName,_that.departureDa
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? originCityName,  String? destinationCityName,  DateTime? departureDate,  DateTime? departureDateTo,  TimeOfDay? departureTimeFrom,  int minAvailableSeats,  int page,  int size)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( City? origin,  City? destination,  DateTime? departureDate,  DateTime? departureDateTo,  TimeOfDay? departureTimeFrom,  int minAvailableSeats,  int page,  int size)?  $default,) {final _that = this;
 switch (_that) {
 case _SearchCriteriaDto() when $default != null:
-return $default(_that.originCityName,_that.destinationCityName,_that.departureDate,_that.departureDateTo,_that.departureTimeFrom,_that.minAvailableSeats,_that.page,_that.size);case _:
+return $default(_that.origin,_that.destination,_that.departureDate,_that.departureDateTo,_that.departureTimeFrom,_that.minAvailableSeats,_that.page,_that.size);case _:
   return null;
 
 }
@@ -207,11 +231,11 @@ return $default(_that.originCityName,_that.destinationCityName,_that.departureDa
 
 
 class _SearchCriteriaDto implements SearchCriteriaDto {
-  const _SearchCriteriaDto({this.originCityName, this.destinationCityName, this.departureDate, this.departureDateTo, this.departureTimeFrom, this.minAvailableSeats = 1, this.page = 0, this.size = 10});
+  const _SearchCriteriaDto({this.origin, this.destination, this.departureDate, this.departureDateTo, this.departureTimeFrom, this.minAvailableSeats = 1, this.page = 0, this.size = 10});
   
 
-@override final  String? originCityName;
-@override final  String? destinationCityName;
+@override final  City? origin;
+@override final  City? destination;
 @override final  DateTime? departureDate;
 @override final  DateTime? departureDateTo;
 @override final  TimeOfDay? departureTimeFrom;
@@ -229,16 +253,16 @@ _$SearchCriteriaDtoCopyWith<_SearchCriteriaDto> get copyWith => __$SearchCriteri
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SearchCriteriaDto&&(identical(other.originCityName, originCityName) || other.originCityName == originCityName)&&(identical(other.destinationCityName, destinationCityName) || other.destinationCityName == destinationCityName)&&(identical(other.departureDate, departureDate) || other.departureDate == departureDate)&&(identical(other.departureDateTo, departureDateTo) || other.departureDateTo == departureDateTo)&&(identical(other.departureTimeFrom, departureTimeFrom) || other.departureTimeFrom == departureTimeFrom)&&(identical(other.minAvailableSeats, minAvailableSeats) || other.minAvailableSeats == minAvailableSeats)&&(identical(other.page, page) || other.page == page)&&(identical(other.size, size) || other.size == size));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SearchCriteriaDto&&(identical(other.origin, origin) || other.origin == origin)&&(identical(other.destination, destination) || other.destination == destination)&&(identical(other.departureDate, departureDate) || other.departureDate == departureDate)&&(identical(other.departureDateTo, departureDateTo) || other.departureDateTo == departureDateTo)&&(identical(other.departureTimeFrom, departureTimeFrom) || other.departureTimeFrom == departureTimeFrom)&&(identical(other.minAvailableSeats, minAvailableSeats) || other.minAvailableSeats == minAvailableSeats)&&(identical(other.page, page) || other.page == page)&&(identical(other.size, size) || other.size == size));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,originCityName,destinationCityName,departureDate,departureDateTo,departureTimeFrom,minAvailableSeats,page,size);
+int get hashCode => Object.hash(runtimeType,origin,destination,departureDate,departureDateTo,departureTimeFrom,minAvailableSeats,page,size);
 
 @override
 String toString() {
-  return 'SearchCriteriaDto(originCityName: $originCityName, destinationCityName: $destinationCityName, departureDate: $departureDate, departureDateTo: $departureDateTo, departureTimeFrom: $departureTimeFrom, minAvailableSeats: $minAvailableSeats, page: $page, size: $size)';
+  return 'SearchCriteriaDto(origin: $origin, destination: $destination, departureDate: $departureDate, departureDateTo: $departureDateTo, departureTimeFrom: $departureTimeFrom, minAvailableSeats: $minAvailableSeats, page: $page, size: $size)';
 }
 
 
@@ -249,11 +273,11 @@ abstract mixin class _$SearchCriteriaDtoCopyWith<$Res> implements $SearchCriteri
   factory _$SearchCriteriaDtoCopyWith(_SearchCriteriaDto value, $Res Function(_SearchCriteriaDto) _then) = __$SearchCriteriaDtoCopyWithImpl;
 @override @useResult
 $Res call({
- String? originCityName, String? destinationCityName, DateTime? departureDate, DateTime? departureDateTo, TimeOfDay? departureTimeFrom, int minAvailableSeats, int page, int size
+ City? origin, City? destination, DateTime? departureDate, DateTime? departureDateTo, TimeOfDay? departureTimeFrom, int minAvailableSeats, int page, int size
 });
 
 
-
+@override $CityCopyWith<$Res>? get origin;@override $CityCopyWith<$Res>? get destination;
 
 }
 /// @nodoc
@@ -266,11 +290,11 @@ class __$SearchCriteriaDtoCopyWithImpl<$Res>
 
 /// Create a copy of SearchCriteriaDto
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? originCityName = freezed,Object? destinationCityName = freezed,Object? departureDate = freezed,Object? departureDateTo = freezed,Object? departureTimeFrom = freezed,Object? minAvailableSeats = null,Object? page = null,Object? size = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? origin = freezed,Object? destination = freezed,Object? departureDate = freezed,Object? departureDateTo = freezed,Object? departureTimeFrom = freezed,Object? minAvailableSeats = null,Object? page = null,Object? size = null,}) {
   return _then(_SearchCriteriaDto(
-originCityName: freezed == originCityName ? _self.originCityName : originCityName // ignore: cast_nullable_to_non_nullable
-as String?,destinationCityName: freezed == destinationCityName ? _self.destinationCityName : destinationCityName // ignore: cast_nullable_to_non_nullable
-as String?,departureDate: freezed == departureDate ? _self.departureDate : departureDate // ignore: cast_nullable_to_non_nullable
+origin: freezed == origin ? _self.origin : origin // ignore: cast_nullable_to_non_nullable
+as City?,destination: freezed == destination ? _self.destination : destination // ignore: cast_nullable_to_non_nullable
+as City?,departureDate: freezed == departureDate ? _self.departureDate : departureDate // ignore: cast_nullable_to_non_nullable
 as DateTime?,departureDateTo: freezed == departureDateTo ? _self.departureDateTo : departureDateTo // ignore: cast_nullable_to_non_nullable
 as DateTime?,departureTimeFrom: freezed == departureTimeFrom ? _self.departureTimeFrom : departureTimeFrom // ignore: cast_nullable_to_non_nullable
 as TimeOfDay?,minAvailableSeats: null == minAvailableSeats ? _self.minAvailableSeats : minAvailableSeats // ignore: cast_nullable_to_non_nullable
@@ -280,7 +304,31 @@ as int,
   ));
 }
 
+/// Create a copy of SearchCriteriaDto
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$CityCopyWith<$Res>? get origin {
+    if (_self.origin == null) {
+    return null;
+  }
 
+  return $CityCopyWith<$Res>(_self.origin!, (value) {
+    return _then(_self.copyWith(origin: value));
+  });
+}/// Create a copy of SearchCriteriaDto
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$CityCopyWith<$Res>? get destination {
+    if (_self.destination == null) {
+    return null;
+  }
+
+  return $CityCopyWith<$Res>(_self.destination!, (value) {
+    return _then(_self.copyWith(destination: value));
+  });
+}
 }
 
 // dart format on

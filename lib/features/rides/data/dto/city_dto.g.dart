@@ -7,11 +7,15 @@ part of 'city_dto.dart';
 // **************************************************************************
 
 _CityDto _$CityDtoFromJson(Map<String, dynamic> json) => _CityDto(
-  osmId: (json['osmId'] as num?)?.toInt(),
+  placeId: (json['placeId'] as num).toInt(),
   name: json['name'] as String,
+  countryCode: json['countryCode'] as String?,
+  population: (json['population'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$CityDtoToJson(_CityDto instance) => <String, dynamic>{
-  'osmId': instance.osmId,
+  'placeId': instance.placeId,
   'name': instance.name,
+  'countryCode': instance.countryCode,
+  'population': instance.population,
 };
