@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/cities/domain/city.dart';
 import '../../../../core/cities/widgets/city_autocomplete_field.dart';
 import '../../../../core/widgets/core_widgets.dart';
-import '../../../../routes/app_router.dart';
+import '../../../../routes/routes.dart';
 import '../../presentation/providers/paginated_rides_provider.dart';
 import '../../presentation/providers/rides_providers.dart';
 import 'post_ride_controller.dart';
@@ -152,10 +153,9 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
         ref.read(paginatedRidesProvider.notifier).refresh();
 
         // Navigate (replace so user can't go back to form)
-        AppRouter.replaceTo(
-          context,
-          AppRoutes.rideDetails,
-          arguments: next.createdRideId,
+        context.goNamed(
+          RouteNames.rideDetails,
+          pathParameters: {'rideId': '${next.createdRideId}'},
         );
       }
 

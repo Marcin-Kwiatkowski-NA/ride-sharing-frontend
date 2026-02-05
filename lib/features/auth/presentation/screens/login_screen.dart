@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:blablafront/core/providers/auth_notifier.dart';
-import 'package:blablafront/core/providers/auth_state.dart';
-import 'package:blablafront/routes/app_router.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../../core/providers/auth_notifier.dart';
+import '../../../../core/providers/auth_state.dart';
+import '../../../../routes/routes.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
-  const LoginScreen({super.key});
+  final String? returnTo;
+  final String? backTo;
+
+  const LoginScreen({super.key, this.returnTo, this.backTo});
 
   @override
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
@@ -21,9 +26,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     // Listen for auth state changes to handle navigation and errors
     ref.listen<AuthState>(authProvider, (previous, next) {
-      // Navigate to home on successful authentication
+      // Navigate on successful authentication
       if (next.status == AuthStatus.authenticated) {
-        AppRouter.navigateAndClearStack(context, AppRoutes.home);
+        // Validate returnTo to prevent open redirects - must be internal path
+        final returnTo = widget.returnTo;
+        if (returnTo != null && returnTo.startsWith('/')) {
+          context.go(returnTo);
+        } else {
+          context.goNamed(RouteNames.rides);
+        }
       }
       // Show error message if present
       if (next.errorMessage != null && next.errorMessage != previous?.errorMessage) {
@@ -31,17 +42,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       }
     });
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Login'),
-        leading: Navigator.canPop(context)
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () => Navigator.pop(context),
-              )
-            : null,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        _handleBack();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Login'),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: _handleBack,
+          ),
+        ),
+        body: Center(child: _buildLoginForm()),
       ),
-      body: Center(child: _buildLoginForm()),
     );
   }
 
@@ -155,7 +171,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 const Text("Don't have an account? "),
                 TextButton(
                   onPressed: () {
-                    AppRouter.navigateTo(context, AppRoutes.createAccount);
+                    context.pushNamed(RouteNames.createAccount);
                   },
                   child: const Text('Sign up'),
                 ),
@@ -202,5 +218,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         backgroundColor: Colors.red,
       ),
     );
+  }
+
+  void _handleBack() {
+    // canPop has quirks with shell routes - fallback to backTo is the reliable path
+    if (GoRouter.of(context).canPop()) {
+      context.pop();
+    } else {
+      context.go(widget.backTo ?? '/rides');
+    }
   }
 }

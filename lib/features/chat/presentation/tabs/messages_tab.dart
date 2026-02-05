@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
-import '../../../../routes/app_router.dart';
+import '../../../../routes/routes.dart';
 import '../../domain/conversation_ui_model.dart';
-import '../navigation/chat_arguments.dart';
 import '../providers/inbox_provider.dart';
 
 /// Messages tab content for the bottom navigation.
@@ -152,10 +152,9 @@ class _ConversationTile extends StatelessWidget {
             )
           : null,
       onTap: () {
-        AppRouter.navigateTo(
-          context,
-          AppRoutes.chat,
-          arguments: ChatArguments(conversationId: conversation.id),
+        context.pushNamed(
+          RouteNames.chat,
+          pathParameters: {'conversationId': conversation.id},
         );
       },
     );

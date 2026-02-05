@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/utils/error_mapper.dart';
+import '../../../../routes/routes.dart';
 import '../../data/dto/search_criteria_dto.dart';
 import '../providers/paginated_rides_provider.dart';
 import '../providers/search_criteria_provider.dart';
@@ -124,10 +126,9 @@ class _RidesListScreenState extends ConsumerState<RidesListScreen> {
           return RideCard(
             ride: ride,
             onTap: () {
-              Navigator.pushNamed(
-                context,
-                '/rides/details',
-                arguments: ride.id,
+              context.pushNamed(
+                RouteNames.rideDetails,
+                pathParameters: {'rideId': '${ride.id}'},
               );
             },
           );

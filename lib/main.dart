@@ -1,9 +1,9 @@
-import 'package:blablafront/features/navigation/main_layout.dart';
-import 'package:blablafront/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:blablafront/core/network/auth_token_provider.dart';
-import 'package:blablafront/routes/app_router.dart';
+
+import 'core/network/auth_token_provider.dart';
+import 'core/theme/app_theme.dart';
+import 'routes/router_config.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -17,8 +17,6 @@ class MyApp extends ConsumerStatefulWidget {
 }
 
 class _MyAppState extends ConsumerState<MyApp> {
-  bool _tokenInitialized = false;
-
   @override
   void initState() {
     super.initState();
@@ -26,34 +24,20 @@ class _MyAppState extends ConsumerState<MyApp> {
   }
 
   Future<void> _initializeToken() async {
-    // Load token pair from secure storage and sync to Riverpod
     final tokenPair = await loadTokensFromStorage();
     if (mounted) {
       ref.read(authTokenProvider.notifier).setTokenPair(tokenPair);
-      setState(() => _tokenInitialized = true);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Wait for token to be initialized before rendering
-    if (!_tokenInitialized) {
-      return MaterialApp(
-        title: 'Vamos Ride Sharing',
-        theme: AppTheme.lightTheme,
-        home: const Scaffold(
-          body: Center(
-            child: CircularProgressIndicator(),
-          ),
-        ),
-      );
-    }
-
-    return MaterialApp(
+    // Single MaterialApp.router - splash screen handles loading via redirect
+    final router = ref.watch(routerProvider);
+    return MaterialApp.router(
       title: 'Vamos Ride Sharing',
       theme: AppTheme.lightTheme,
-      onGenerateRoute: AppRouter.generateRoute,
-      home: const MainLayout(),
+      routerConfig: router,
     );
   }
 }

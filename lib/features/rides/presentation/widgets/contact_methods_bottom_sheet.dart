@@ -1,11 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/utils/launchers.dart';
-import '../../../../routes/app_router.dart';
+import '../../../../routes/routes.dart';
 import '../../../chat/data/chat_repository.dart';
-import '../../../chat/presentation/navigation/chat_arguments.dart';
 import '../../data/dto/ride_enums.dart';
 import '../../domain/ride_ui_model.dart';
 
@@ -68,10 +68,9 @@ class _SourceAwareContactSheetState
 
       if (!mounted) return;
       Navigator.pop(context);
-      AppRouter.navigateTo(
-        context,
-        AppRoutes.chat,
-        arguments: ChatArguments(conversationId: conversation.id),
+      context.pushNamed(
+        RouteNames.chat,
+        pathParameters: {'conversationId': conversation.id},
       );
     } catch (e) {
       if (!mounted) return;

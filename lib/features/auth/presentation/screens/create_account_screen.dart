@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:blablafront/core/providers/auth_notifier.dart';
-import 'package:blablafront/core/providers/auth_state.dart';
-import 'package:blablafront/routes/app_router.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../../core/providers/auth_notifier.dart';
+import '../../../../core/providers/auth_state.dart';
+import '../../../../routes/routes.dart';
 
 class CreateAccountScreen extends ConsumerStatefulWidget {
   const CreateAccountScreen({super.key});
@@ -25,7 +27,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
     ref.listen<AuthState>(authProvider, (previous, next) {
       // Navigate to profile on successful authentication
       if (next.status == AuthStatus.authenticated) {
-        AppRouter.navigateAndClearStack(context, AppRoutes.profile);
+        context.goNamed(RouteNames.profile);
       }
       // Show error message if present
       if (next.errorMessage != null && next.errorMessage != previous?.errorMessage) {
@@ -202,7 +204,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                 const Text('Already have an account? '),
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop();
+                    context.pop();
                   },
                   child: const Text('Login'),
                 ),

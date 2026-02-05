@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:blablafront/core/providers/auth_notifier.dart';
-import 'package:blablafront/core/models/user_profile.dart';
-import 'package:blablafront/core/widgets/core_widgets.dart';
-import 'package:blablafront/features/auth/presentation/screens/login_screen.dart';
-import 'package:blablafront/features/profile/presentation/widgets.dart';
-import 'package:blablafront/routes/app_router.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../../core/models/user_profile.dart';
+import '../../../../core/providers/auth_notifier.dart';
+import '../../../../core/widgets/core_widgets.dart';
+import '../../../../routes/routes.dart';
+import '../widgets.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -28,10 +29,7 @@ class ProfileScreen extends ConsumerWidget {
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const LoginScreen()),
-                  );
+                  context.pushNamed(RouteNames.login);
                 },
                 child: const Text('Log In / Sign Up'),
               ),
@@ -153,7 +151,7 @@ class _ProfileDashboard extends ConsumerWidget {
               child: ProfileCompletenessCard(
                 user: user,
                 onCompleteProfile: () {
-                  Navigator.pushNamed(context, AppRoutes.editProfile);
+                  context.pushNamed(RouteNames.editProfile);
                 },
               ),
             ),
@@ -222,7 +220,7 @@ class _ProfileDashboard extends ConsumerWidget {
                       title: 'Edit Profile',
                       subtitle: 'Update your personal information',
                       onTap: () {
-                        Navigator.pushNamed(context, AppRoutes.editProfile);
+                        context.pushNamed(RouteNames.editProfile);
                       },
                     ),
                     const Divider(height: 1),
@@ -273,7 +271,7 @@ class _ProfileDashboard extends ConsumerWidget {
   Future<void> _handleLogout(BuildContext context, WidgetRef ref) async {
     await ref.read(authProvider.notifier).signOut();
     if (context.mounted) {
-      AppRouter.navigateAndClearStack(context, AppRoutes.home);
+      context.goNamed(RouteNames.rides);
     }
   }
 }
