@@ -155,18 +155,6 @@ class AppTheme {
       ),
 
       // ─────────────────────────────────────────────────────────────────────────
-      // Floating Action Button Theme
-      // ─────────────────────────────────────────────────────────────────────────
-      floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: _primaryColor,
-        foregroundColor: Colors.white,
-        elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-      ),
-
-      // ─────────────────────────────────────────────────────────────────────────
       // Navigation Bar Theme (Material 3)
       // ─────────────────────────────────────────────────────────────────────────
       navigationBarTheme: NavigationBarThemeData(

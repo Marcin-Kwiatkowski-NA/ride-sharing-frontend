@@ -15,7 +15,9 @@ import 'widgets/part_of_day_selector.dart';
 import 'widgets/time_mode_selector.dart';
 
 class PostRideScreen extends ConsumerStatefulWidget {
-  const PostRideScreen({super.key});
+  final City? prefillOrigin;
+
+  const PostRideScreen({super.key, this.prefillOrigin});
 
   @override
   ConsumerState<PostRideScreen> createState() => _PostRideScreenState();
@@ -45,6 +47,16 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
     // Clear placeId if user types after selecting (text no longer matches)
     _originController.addListener(_onOriginTextChanged);
     _destinationController.addListener(_onDestinationTextChanged);
+
+    // Prefill origin from navigation extra
+    if (widget.prefillOrigin != null) {
+      final city = widget.prefillOrigin!;
+      _originController.text = city.name;
+      _lastSelectedOrigin = city;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(postRideControllerProvider.notifier).setOrigin(city);
+      });
+    }
   }
 
   void _onOriginTextChanged() {

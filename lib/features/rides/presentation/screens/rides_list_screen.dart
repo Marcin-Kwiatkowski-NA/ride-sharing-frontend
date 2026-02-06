@@ -4,14 +4,15 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/utils/error_mapper.dart';
 import '../../../../routes/routes.dart';
-import '../../data/dto/search_criteria_dto.dart';
 import '../providers/paginated_rides_provider.dart';
-import '../providers/search_criteria_provider.dart';
-import '../widgets/day_switcher.dart';
+import '../providers/search_mode_provider.dart';
+import '../widgets/compact_search_capsule.dart';
+import '../widgets/date_strip.dart';
 import '../widgets/ride_card.dart';
 import '../widgets/ride_skeleton.dart';
 
-/// Screen displaying list of rides with search/filter and infinite scroll.
+/// Screen displaying list of rides with pinned sliver header, date strip,
+/// and infinite scroll.
 class RidesListScreen extends ConsumerStatefulWidget {
   const RidesListScreen({super.key});
 
@@ -51,69 +52,89 @@ class _RidesListScreenState extends ConsumerState<RidesListScreen> {
   @override
   Widget build(BuildContext context) {
     final ridesState = ref.watch(paginatedRidesProvider);
-    final criteria = ref.watch(searchCriteriaProvider);
+
+    // Navigate to passengers placeholder when mode switches
+    ref.listen(searchModeProvider, (prev, next) {
+      if (prev == next) return;
+      if (next == SearchMode.passengers && mounted) {
+        Future.microtask(() {
+          if (mounted) {
+            context.goNamed(RouteNames.passengersListPlaceholder);
+          }
+        });
+      }
+    });
 
     return Scaffold(
-      appBar: AppBar(title: Text(_buildTitle(criteria))),
-      body: Column(
-        children: [
-          const DaySwitcher(),
-          Expanded(child: _buildBody(context, ridesState)),
-        ],
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await ref.read(paginatedRidesProvider.notifier).refresh();
+        },
+        child: CustomScrollView(
+          controller: _scrollController,
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            SliverAppBar(
+              pinned: true,
+              automaticallyImplyLeading: false,
+              title: const CompactSearchCapsule(),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.tune),
+                  onPressed: null, // Filter placeholder
+                  tooltip: 'Filters',
+                ),
+              ],
+              bottom: const PreferredSize(
+                preferredSize: Size.fromHeight(48),
+                child: DateStrip(),
+              ),
+            ),
+            _buildSliverBody(ridesState),
+          ],
+        ),
       ),
     );
   }
 
-  String _buildTitle(SearchCriteriaDto criteria) {
-    final originName = criteria.origin?.name;
-    final destName = criteria.destination?.name;
-
-    if (originName != null && destName != null) {
-      return '$originName -> $destName';
-    } else if (originName != null) {
-      return 'From $originName';
-    } else if (destName != null) {
-      return 'To $destName';
-    }
-    return 'All rides';
-  }
-
-  Widget _buildBody(BuildContext context, PaginatedRidesState state) {
+  Widget _buildSliverBody(PaginatedRidesState state) {
     if (state.isLoading && state.rides.isEmpty) {
-      return const RideSkeletonList();
+      return const SliverFillRemaining(
+        hasScrollBody: false,
+        child: RideSkeletonList(),
+      );
     }
 
     if (state.error != null && state.rides.isEmpty) {
-      return _buildErrorWidget(context, state.error!);
+      return SliverFillRemaining(
+        hasScrollBody: false,
+        child: _buildErrorWidget(context, state.error!),
+      );
     }
 
     if (!state.isLoading && state.rides.isEmpty) {
-      return const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.directions_car_outlined, size: 64, color: Colors.grey),
-            SizedBox(height: 16),
-            Text('No rides found matching your criteria.'),
-          ],
+      return const SliverFillRemaining(
+        hasScrollBody: false,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.directions_car_outlined, size: 64, color: Colors.grey),
+              SizedBox(height: 16),
+              Text('No rides found matching your criteria.'),
+            ],
+          ),
         ),
       );
     }
 
-    return _buildRidesList(context, state);
-  }
-
-  Widget _buildRidesList(BuildContext context, PaginatedRidesState state) {
     final rides = state.rides;
+    final itemCount = state.hasMore ? rides.length + 1 : rides.length;
 
-    return RefreshIndicator(
-      onRefresh: () async {
-        await ref.read(paginatedRidesProvider.notifier).refresh();
-      },
-      child: ListView.builder(
-        controller: _scrollController,
-        padding: const EdgeInsets.all(16),
-        itemCount: state.hasMore ? rides.length + 1 : rides.length,
+    return SliverPadding(
+      padding: const EdgeInsets.all(16),
+      sliver: SliverList.builder(
+        itemCount: itemCount,
         itemBuilder: (context, index) {
           if (index >= rides.length) {
             return const Padding(

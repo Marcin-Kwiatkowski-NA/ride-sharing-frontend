@@ -2,17 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../core/cities/domain/city.dart';
 import '../features/auth/presentation/screens/create_account_screen.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/chat/presentation/screens/chat_screen.dart';
 import '../features/chat/presentation/tabs/messages_tab.dart';
 import '../features/navigation/main_layout.dart';
-import '../features/passengers/presentation/screens/search_passenger_screen.dart';
+import '../features/packages/presentation/screens/packages_screen.dart';
+import '../features/passengers/presentation/screens/passengers_list_placeholder_screen.dart';
 import '../features/profile/presentation/screens/edit_profile_screen.dart';
 import '../features/profile/presentation/screens/profile_screen.dart';
 import '../features/rides/create/presentation/post_ride_screen.dart';
 import '../features/rides/presentation/screens/ride_details_screen.dart';
-import '../features/rides/presentation/screens/search_ride_screen.dart';
+import '../features/rides/presentation/screens/rides_home_screen.dart';
+import '../features/rides/presentation/screens/rides_list_screen.dart';
 import 'auth_redirect.dart';
 import 'error_screen.dart';
 import 'routes.dart';
@@ -82,8 +85,19 @@ GoRouter router(Ref ref) {
               GoRoute(
                 path: RoutePaths.rides,
                 name: RouteNames.rides,
-                builder: (context, state) => const SearchRideScreen(),
+                builder: (context, state) => const RidesHomeScreen(),
                 routes: [
+                  GoRoute(
+                    path: RoutePaths.ridesList,
+                    name: RouteNames.ridesList,
+                    builder: (context, state) => const RidesListScreen(),
+                  ),
+                  GoRoute(
+                    path: RoutePaths.passengersListPlaceholder,
+                    name: RouteNames.passengersListPlaceholder,
+                    builder: (context, state) =>
+                        const PassengersListPlaceholderScreen(),
+                  ),
                   GoRoute(
                     path: RoutePaths.rideDetails,
                     name: RouteNames.rideDetails,
@@ -96,7 +110,8 @@ GoRouter router(Ref ref) {
                       return null;
                     },
                     builder: (context, state) {
-                      final rideId = int.parse(state.pathParameters['rideId']!);
+                      final rideId =
+                          int.parse(state.pathParameters['rideId']!);
                       return RideDetailsScreen(rideId: rideId);
                     },
                   ),
@@ -105,13 +120,13 @@ GoRouter router(Ref ref) {
             ],
           ),
 
-          // Branch 1: Passengers
+          // Branch 1: Packages
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: RoutePaths.passengers,
-                name: RouteNames.passengers,
-                builder: (context, state) => const SearchPassengerScreen(),
+                path: RoutePaths.packages,
+                name: RouteNames.packages,
+                builder: (context, state) => const PackagesScreen(),
               ),
             ],
           ),
@@ -169,7 +184,10 @@ GoRouter router(Ref ref) {
         path: RoutePaths.postRide,
         name: RouteNames.postRide,
         parentNavigatorKey: _rootNavigatorKey, // Full screen above tabs
-        builder: (context, state) => const PostRideScreen(),
+        builder: (context, state) {
+          final prefillOrigin = state.extra as City?;
+          return PostRideScreen(prefillOrigin: prefillOrigin);
+        },
       ),
     ],
   );

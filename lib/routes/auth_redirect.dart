@@ -12,15 +12,17 @@ const _publicPaths = {
   RoutePaths.login,
   RoutePaths.createAccount,
   RoutePaths.rides,
-  RoutePaths.passengers,
+  RoutePaths.packages,
 };
 
 /// Check if path requires auth (protected by default, except explicit public paths)
 bool _isPublicPath(String path) {
   if (_publicPaths.contains(path)) return true;
-  // /rides is public, but /rides/:id requires auth
+  // /rides is public, sub-routes like /rides/list and /rides/passengers-placeholder too
   if (path == '/rides') return true;
-  if (path == '/passengers') return true;
+  if (path.startsWith('/rides/list')) return true;
+  if (path.startsWith('/rides/passengers-placeholder')) return true;
+  if (path == '/packages') return true;
   return false;
 }
 

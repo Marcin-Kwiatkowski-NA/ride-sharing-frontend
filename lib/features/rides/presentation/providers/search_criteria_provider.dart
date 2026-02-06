@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../core/cities/domain/city.dart';
+import '../../../../core/utils/date_utils.dart';
+import '../../data/dto/draft_search_criteria.dart';
 import '../../data/dto/search_criteria_dto.dart';
 
 part 'search_criteria_provider.g.dart';
@@ -50,5 +52,25 @@ class SearchCriteria extends _$SearchCriteria {
 
   void clear() {
     state = const SearchCriteriaDto();
+  }
+
+  /// Swap origin and destination cities.
+  void swapOriginDestination() {
+    state = state.copyWith(
+      origin: state.destination,
+      destination: state.origin,
+    );
+  }
+
+  /// Atomically commit a draft to the search criteria.
+  void commitDraft(DraftSearchCriteria draft) {
+    state = state.copyWith(
+      origin: draft.origin,
+      destination: draft.destination,
+      departureDate:
+          draft.departureDate != null ? normalizeDate(draft.departureDate!) : null,
+      departureTimeFrom: draft.anyTime ? null : draft.departureTime,
+      page: 0,
+    );
   }
 }

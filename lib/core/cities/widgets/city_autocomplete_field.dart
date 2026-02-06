@@ -196,16 +196,14 @@ class _CityAutocompleteFieldState extends ConsumerState<CityAutocompleteField> {
     }
     _langRef = lang;
 
-    return Autocomplete<City>(
+    return RawAutocomplete<City>(
+      textEditingController: widget.controller,
+      focusNode: _focusNode ??= FocusNode(),
       optionsBuilder: (TextEditingValue textEditingValue) {
-        // Pure function - only filter current suggestions
         final query = textEditingValue.text;
 
-        if (query.isEmpty) {
-          return _suggestions;
-        }
+        if (query.isEmpty) return _suggestions;
 
-        // Filter current suggestions by query while waiting for API
         final lowerQuery = query.toLowerCase();
         return _suggestions
             .where((c) => c.name.toLowerCase().contains(lowerQuery))
@@ -215,28 +213,28 @@ class _CityAutocompleteFieldState extends ConsumerState<CityAutocompleteField> {
       onSelected: (City selection) {
         repository?.addToRecent(selection);
         widget.onCitySelected(selection);
+
+        // Ensure field displays chosen city
+        widget.controller.text = selection.name;
+
         FocusScope.of(context).unfocus();
       },
-      fieldViewBuilder: (context, fieldController, focusNode, onFieldSubmitted) {
-        // Update focus node listener if it changed
+      fieldViewBuilder: (context, textController, focusNode, onFieldSubmitted) {
+        // Keep your focus listener behavior
         if (_focusNode != focusNode) {
           _removeFocusListener();
           _focusNode = focusNode;
           focusNode.addListener(_onFocusChange);
         }
-        _fieldControllerRef = fieldController;
 
         return TextFormField(
-          controller: fieldController,
+          controller: textController, // this is widget.controller now
           focusNode: focusNode,
           validator: widget.validator,
           onChanged: (text) {
-            // Sync external controller with internal one
-            widget.controller.text = text;
             if (text.isEmpty) {
               widget.onCityCleared?.call();
             }
-            // Trigger debounced fetch
             _onTextChanged(text, repository, lang);
           },
           decoration: InputDecoration(
@@ -308,11 +306,11 @@ class _CityAutocompleteFieldState extends ConsumerState<CityAutocompleteField> {
                 title: Text(option.name),
                 trailing: option.countryCode != null
                     ? Text(
-                        option.countryCode!,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      )
+                  option.countryCode!,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                )
                     : null,
                 onTap: () => onSelected(option),
               );

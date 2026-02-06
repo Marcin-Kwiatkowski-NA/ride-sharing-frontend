@@ -4,8 +4,10 @@ abstract class RouteNames {
   static const login = 'login';
   static const createAccount = 'create-account';
   static const rides = 'rides';
+  static const ridesList = 'rides-list';
   static const rideDetails = 'ride-details';
-  static const passengers = 'passengers';
+  static const passengersListPlaceholder = 'passengers-list-placeholder';
+  static const packages = 'packages';
   static const profile = 'profile';
   static const editProfile = 'edit-profile';
   static const messages = 'messages';
@@ -20,8 +22,10 @@ abstract class RoutePaths {
   static const login = '/login';
   static const createAccount = '/create-account';
   static const rides = '/rides';
+  static const ridesList = 'list'; // Nested under /rides
   static const rideDetails = ':rideId'; // Nested under /rides
-  static const passengers = '/passengers';
+  static const passengersListPlaceholder = 'passengers-placeholder'; // Nested under /rides
+  static const packages = '/packages';
   static const profile = '/profile';
   static const editProfile = 'edit'; // Nested under /profile
   static const messages = '/messages';

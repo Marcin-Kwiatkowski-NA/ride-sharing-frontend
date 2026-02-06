@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/providers/auth_notifier.dart';
 import '../../routes/routes.dart';
+import '../rides/presentation/providers/search_criteria_provider.dart';
 
 /// Main layout with persistent bottom navigation.
 /// Uses StatefulShellRoute to keep tab screens alive and preserve state.
@@ -15,7 +16,7 @@ class MainLayout extends ConsumerWidget {
     required this.navigationShell,
   });
 
-  // Tab indices: 0=Rides, 1=Passengers are public; 2=Profile, 3=Messages require auth
+  // Tab indices: 0=Rides, 1=Packages are public; 2=Profile, 3=Messages require auth
   static const _protectedTabs = {2, 3};
 
   @override
@@ -55,9 +56,9 @@ class MainLayout extends ConsumerWidget {
             label: 'Rides',
           ),
           NavigationDestination(
-            icon: Icon(Icons.people_outline),
-            selectedIcon: Icon(Icons.people),
-            label: 'Passengers',
+            icon: Icon(Icons.inventory_2_outlined),
+            selectedIcon: Icon(Icons.inventory_2),
+            label: 'Packages',
           ),
           NavigationDestination(
             icon: Icon(Icons.person_outline),
@@ -71,15 +72,6 @@ class MainLayout extends ConsumerWidget {
           ),
         ],
       ),
-      // FAB visible only on Rides tab
-      floatingActionButton: navigationShell.currentIndex == 0
-          ? FloatingActionButton.extended(
-              onPressed: () => context.pushNamed(RouteNames.postRide),
-              label: const Text('POST RIDE'),
-              icon: const Icon(Icons.add_circle_outline_rounded),
-            )
-          : null,
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }
