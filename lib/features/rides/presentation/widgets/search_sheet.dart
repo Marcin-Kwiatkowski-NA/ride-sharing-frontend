@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -12,7 +14,7 @@ import '../providers/recent_searches_provider.dart';
 import '../providers/search_criteria_provider.dart';
 import '../providers/search_mode_provider.dart';
 
-/// Opens the search sheet as a modal bottom sheet.
+/// Opens the search sheet as a modal bottom sheet with glassmorphism styling.
 void showSearchSheet(BuildContext context) {
   showModalBottomSheet<void>(
     context: context,
@@ -28,9 +30,9 @@ class _SearchSheetWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
-      initialChildSize: 0.78,
+      initialChildSize: 0.7,
       minChildSize: 0.5,
-      maxChildSize: 0.95,
+      maxChildSize: 0.9,
       builder: (context, scrollController) {
         return _SearchSheetContent(scrollController: scrollController);
       },
@@ -86,17 +88,13 @@ class _SearchSheetContentState extends ConsumerState<_SearchSheetContent> {
   void _onSearch() {
     final mode = ref.read(searchModeProvider);
 
-    // Commit draft to the shared search criteria
     ref.read(searchCriteriaProvider.notifier).commitDraft(_draft);
 
-    // Save to recent searches
     final snapshot = RecentSearchSnapshot.fromDraft(_draft, mode);
     ref.read(recentSearchesProvider.notifier).addSearch(snapshot);
 
-    // Close sheet
     Navigator.of(context).pop();
 
-    // Navigate based on mode
     if (mode == SearchMode.passengers) {
       context.goNamed(RouteNames.seatsList);
     } else {
@@ -110,16 +108,6 @@ class _SearchSheetContentState extends ConsumerState<_SearchSheetContent> {
       _fromController.clear();
       _toController.clear();
     });
-  }
-
-  void _onRecentTap(RecentSearchSnapshot recent) {
-    setState(() {
-      _draft = DraftSearchCriteria.fromSnapshot(recent);
-      _fromController.text = _draft.origin?.name ?? '';
-      _toController.text = _draft.destination?.name ?? '';
-    });
-    // Also set the mode to match the recent search
-    ref.read(searchModeProvider.notifier).setMode(recent.mode);
   }
 
   void _swapCities() {
@@ -157,133 +145,183 @@ class _SearchSheetContentState extends ConsumerState<_SearchSheetContent> {
     });
   }
 
-  Future<void> _pickTime() async {
-    final time = await showTimePicker(
-      context: context,
-      initialTime: _draft.departureTime ?? TimeOfDay.now(),
-    );
-    if (time != null && mounted) {
-      setState(() {
-        _draft = _draft.copyWith(departureTime: time, anyTime: false);
-      });
-    }
-  }
-
-  void _selectAnyTime() {
-    setState(() {
-      _draft = _draft.copyWith(departureTime: null, anyTime: true);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final mode = ref.watch(searchModeProvider);
-    final recentsAsync = ref.watch(recentSearchesProvider);
+    final hasDate = _draft.departureDate != null;
+    final hasBothCities = _draft.origin != null && _draft.destination != null;
 
-    return Material(
-      color: colorScheme.surface,
+    final searchLabel = mode == SearchMode.passengers
+        ? 'Search Passengers'
+        : 'Search Rides';
+
+    return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-      child: ListView(
-        controller: widget.scrollController,
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        children: [
-          // Drag handle
-          Center(
-            child: Container(
-              margin: const EdgeInsets.only(top: 12, bottom: 8),
-              width: 32,
-              height: 4,
-              decoration: BoxDecoration(
-                color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
-                borderRadius: BorderRadius.circular(2),
-              ),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.black26,
+            borderRadius:
+                const BorderRadius.vertical(top: Radius.circular(28)),
+            border: const Border(
+              top: BorderSide(color: Colors.white12),
             ),
-          ),
-
-          // Header: SegmentedButton + close
-          Row(
-            children: [
-              Expanded(
-                child: SegmentedButton<SearchMode>(
-                  segments: const [
-                    ButtonSegment(
-                      value: SearchMode.rides,
-                      label: Text('Rides'),
-                      icon: Icon(Icons.directions_car_outlined),
-                    ),
-                    ButtonSegment(
-                      value: SearchMode.passengers,
-                      label: Text('Passengers'),
-                      icon: Icon(Icons.people_outline),
-                    ),
-                  ],
-                  selected: {mode},
-                  onSelectionChanged: (selected) {
-                    ref
-                        .read(searchModeProvider.notifier)
-                        .setMode(selected.first);
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () => Navigator.of(context).pop(),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.3),
+                blurRadius: 20,
+                offset: const Offset(0, -4),
               ),
             ],
           ),
-
-          const SizedBox(height: 20),
-
-          // Route section with timeline decoration
-          _buildRouteSection(theme, colorScheme),
-
-          const SizedBox(height: 16),
-
-          // Date field
-          _buildDateField(theme, colorScheme),
-
-          // Time row (only when date is set)
-          if (_draft.departureDate != null) ...[
-            const SizedBox(height: 12),
-            _buildTimeRow(theme, colorScheme),
-          ],
-
-          const SizedBox(height: 20),
-
-          // Recent searches
-          _buildRecentSearches(theme, colorScheme, recentsAsync),
-
-          const SizedBox(height: 20),
-
-          // Action buttons
-          Row(
+          child: ListView(
+            controller: widget.scrollController,
+            padding: const EdgeInsets.symmetric(horizontal: 24),
             children: [
-              Expanded(
-                child: FilledButton(
-                  onPressed: _onSearch,
-                  child: const Text('Search'),
+              // Drag handle
+              Center(
+                child: Container(
+                  margin: const EdgeInsets.only(top: 12, bottom: 16),
+                  width: 32,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.white38,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
               ),
-              const SizedBox(width: 12),
-              TextButton(
-                onPressed: _onClear,
-                child: const Text('Clear'),
+
+              // Mode toggle + close
+              Row(
+                children: [
+                  Expanded(
+                    child: SegmentedButton<SearchMode>(
+                      segments: const [
+                        ButtonSegment(
+                          value: SearchMode.rides,
+                          label: Text('Rides'),
+                          icon: Icon(Icons.directions_car_outlined),
+                        ),
+                        ButtonSegment(
+                          value: SearchMode.passengers,
+                          label: Text('Passengers'),
+                          icon: Icon(Icons.hail),
+                        ),
+                      ],
+                      selected: {mode},
+                      onSelectionChanged: (selected) {
+                        ref
+                            .read(searchModeProvider.notifier)
+                            .setMode(selected.first);
+                      },
+                      style: ButtonStyle(
+                        foregroundColor:
+                            WidgetStateProperty.resolveWith((states) {
+                          if (states.contains(WidgetState.selected)) {
+                            return colorScheme.onPrimary;
+                          }
+                          return Colors.white70;
+                        }),
+                        backgroundColor:
+                            WidgetStateProperty.resolveWith((states) {
+                          if (states.contains(WidgetState.selected)) {
+                            return colorScheme.primary;
+                          }
+                          return Colors.white.withValues(alpha: 0.1);
+                        }),
+                        side: WidgetStateProperty.all(
+                          BorderSide(
+                              color: Colors.white.withValues(alpha: 0.2)),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white70),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ],
               ),
+
+              const SizedBox(height: 24),
+
+              // Route section with timeline decoration
+              _buildRouteSection(colorScheme, hasBothCities),
+
+              const SizedBox(height: 16),
+
+              // Date chip
+              Align(
+                alignment: Alignment.centerLeft,
+                child: InputChip(
+                  avatar: Icon(
+                    Icons.calendar_today,
+                    size: 18,
+                    color: hasDate ? colorScheme.onPrimary : Colors.white70,
+                  ),
+                  label: Text(
+                    hasDate
+                        ? DateFormat('EEE, d MMM').format(_draft.departureDate!)
+                        : 'Any date',
+                  ),
+                  selected: hasDate,
+                  onPressed: _pickDate,
+                  onDeleted: hasDate ? _clearDate : null,
+                  selectedColor: colorScheme.primary,
+                  backgroundColor: Colors.white.withValues(alpha: 0.1),
+                  labelStyle: TextStyle(
+                    color: hasDate ? colorScheme.onPrimary : Colors.white,
+                  ),
+                  side: BorderSide(
+                    color: hasDate
+                        ? Colors.transparent
+                        : Colors.white.withValues(alpha: 0.2),
+                  ),
+                  deleteIconColor:
+                      hasDate ? colorScheme.onPrimary : Colors.white54,
+                ),
+              ),
+
+              const SizedBox(height: 28),
+
+              // Footer actions
+              FilledButton(
+                onPressed: _onSearch,
+                style: FilledButton.styleFrom(
+                  backgroundColor: colorScheme.primary,
+                  foregroundColor: colorScheme.onPrimary,
+                  minimumSize: const Size.fromHeight(52),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: Text(searchLabel),
+              ),
+              const SizedBox(height: 8),
+              Center(
+                child: TextButton.icon(
+                  onPressed: _onClear,
+                  icon: const Icon(Icons.clear_all, size: 18),
+                  label: const Text('Clear All'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.white54,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 16),
             ],
           ),
-
-          const SizedBox(height: 24),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildRouteSection(ThemeData theme, ColorScheme colorScheme) {
-    final hasBothCities = _draft.origin != null && _draft.destination != null;
-
+  Widget _buildRouteSection(ColorScheme colorScheme, bool hasBothCities) {
     return Column(
       children: [
         // From field with timeline dot
@@ -306,7 +344,7 @@ class _SearchSheetContentState extends ConsumerState<_SearchSheetContent> {
                 Container(
                   width: 2,
                   height: 24,
-                  color: colorScheme.outlineVariant,
+                  color: Colors.white.withValues(alpha: 0.2),
                 ),
               ],
             ),
@@ -334,18 +372,12 @@ class _SearchSheetContentState extends ConsumerState<_SearchSheetContent> {
 
         // Swap button
         if (hasBothCities)
-          Padding(
-            padding: const EdgeInsets.only(left: 0),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: IconButton(
-                icon: Icon(
-                  Icons.swap_vert,
-                  color: colorScheme.primary,
-                ),
-                onPressed: _swapCities,
-                tooltip: 'Swap cities',
-              ),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: IconButton(
+              icon: Icon(Icons.swap_vert, color: colorScheme.primary),
+              onPressed: _swapCities,
+              tooltip: 'Swap cities',
             ),
           ),
 
@@ -358,7 +390,7 @@ class _SearchSheetContentState extends ConsumerState<_SearchSheetContent> {
                 Container(
                   width: 2,
                   height: hasBothCities ? 0 : 24,
-                  color: colorScheme.outlineVariant,
+                  color: Colors.white.withValues(alpha: 0.2),
                 ),
                 Icon(
                   Icons.location_on,
@@ -390,133 +422,5 @@ class _SearchSheetContentState extends ConsumerState<_SearchSheetContent> {
         ),
       ],
     );
-  }
-
-  Widget _buildDateField(ThemeData theme, ColorScheme colorScheme) {
-    final hasDate = _draft.departureDate != null;
-
-    return InkWell(
-      onTap: _pickDate,
-      borderRadius: BorderRadius.circular(12),
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: 'Date',
-          prefixIcon: Icon(Icons.calendar_today, color: colorScheme.primary),
-          suffixIcon: hasDate
-              ? IconButton(
-                  icon: const Icon(Icons.clear),
-                  onPressed: _clearDate,
-                )
-              : const Icon(Icons.arrow_drop_down),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-        child: Text(
-          hasDate
-              ? DateFormat('EEE, d MMM yyyy').format(_draft.departureDate!)
-              : 'Any date',
-          style: theme.textTheme.bodyLarge,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTimeRow(ThemeData theme, ColorScheme colorScheme) {
-    return Row(
-      children: [
-        FilterChip(
-          label: const Text('Any time'),
-          selected: _draft.anyTime,
-          onSelected: (_) => _selectAnyTime(),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: InkWell(
-            onTap: _pickTime,
-            borderRadius: BorderRadius.circular(12),
-            child: InputDecorator(
-              decoration: InputDecoration(
-                labelText: 'Time',
-                prefixIcon:
-                    Icon(Icons.access_time, color: colorScheme.primary),
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12)),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              ),
-              child: Text(
-                _draft.departureTime != null
-                    ? _draft.departureTime!.format(context)
-                    : 'Select time',
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: _draft.departureTime != null
-                      ? colorScheme.onSurface
-                      : colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildRecentSearches(
-    ThemeData theme,
-    ColorScheme colorScheme,
-    AsyncValue<List<RecentSearchSnapshot>> recentsAsync,
-  ) {
-    return recentsAsync.when(
-      loading: () => const SizedBox.shrink(),
-      error: (_, _) => const SizedBox.shrink(),
-      data: (recents) {
-        if (recents.isEmpty) return const SizedBox.shrink();
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Recent searches',
-              style: theme.textTheme.labelLarge?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 4,
-              children: recents.map((recent) {
-                return ActionChip(
-                  avatar: Icon(
-                    recent.mode == SearchMode.passengers
-                        ? Icons.people_outline
-                        : Icons.directions_car_outlined,
-                    size: 18,
-                  ),
-                  label: Text(_recentLabel(recent)),
-                  onPressed: () => _onRecentTap(recent),
-                );
-              }).toList(),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  String _recentLabel(RecentSearchSnapshot recent) {
-    final parts = <String>[];
-    if (recent.origin != null && recent.destination != null) {
-      parts.add('${recent.origin!.name} → ${recent.destination!.name}');
-    } else if (recent.origin != null) {
-      parts.add('From ${recent.origin!.name}');
-    } else if (recent.destination != null) {
-      parts.add('To ${recent.destination!.name}');
-    }
-
-    if (recent.departureDate != null) {
-      parts.add(DateFormat('d MMM').format(recent.departureDate!));
-    }
-
-    return parts.isEmpty ? 'All rides' : parts.join(' · ');
   }
 }
