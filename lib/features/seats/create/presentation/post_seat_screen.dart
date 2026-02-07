@@ -147,9 +147,9 @@ class _PostSeatScreenState extends ConsumerState<PostSeatScreen> {
         ref.read(postSeatControllerProvider.notifier).markNavigated();
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Seat request created successfully!'),
-            backgroundColor: Colors.green,
+          SnackBar(
+            content: const Text('Seat request created successfully!'),
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
 

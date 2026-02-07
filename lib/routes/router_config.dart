@@ -9,6 +9,7 @@ import '../features/chat/presentation/screens/chat_screen.dart';
 import '../features/chat/presentation/tabs/messages_tab.dart';
 import '../features/navigation/main_layout.dart';
 import '../features/offers/domain/offer_ui_model.dart';
+import '../core/theme/component_gallery_screen.dart';
 import '../features/offers/presentation/screens/my_offers_screen.dart';
 import '../features/offers/presentation/screens/offer_details_screen.dart';
 import '../features/packages/presentation/screens/packages_screen.dart';
@@ -218,6 +219,12 @@ GoRouter router(Ref ref) {
         name: RouteNames.myOffers,
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const MyOffersScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.devGallery,
+        name: RouteNames.devGallery,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const ComponentGalleryScreen(),
       ),
     ],
   );

@@ -37,8 +37,6 @@ class AppTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0),
       child: TextFormField(
@@ -51,15 +49,8 @@ class AppTextField extends StatelessWidget {
         decoration: InputDecoration(
           labelText: label,
           hintText: hint ?? 'Enter $label',
-          prefixIcon: prefixIcon != null
-              ? Icon(prefixIcon, color: theme.colorScheme.primary, size: 22)
-              : null,
-          suffixIcon: suffixIcon != null
-              ? Icon(suffixIcon, color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7), size: 22)
-              : null,
-        ),
-        style: theme.textTheme.titleMedium?.copyWith(
-          color: theme.colorScheme.onSurface,
+          prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
+          suffixIcon: suffixIcon != null ? Icon(suffixIcon) : null,
         ),
         validator: validator,
       ),

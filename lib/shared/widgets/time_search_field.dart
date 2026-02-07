@@ -54,12 +54,9 @@ class _TimeSearchFieldState extends State<TimeSearchField> {
     return TextField(
       controller: _timeController,
       readOnly: true,
-      decoration: InputDecoration(
+      decoration: const InputDecoration(
         labelText: 'Select Time',
-        labelStyle: Theme.of(context).textTheme.bodyLarge,
-        filled: true,
-        fillColor: Colors.white60,
-        suffixIcon: const Icon(Icons.access_time),
+        suffixIcon: Icon(Icons.access_time),
       ),
       onTap: () => _selectTime(context),
     );

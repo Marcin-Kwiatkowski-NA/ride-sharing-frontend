@@ -228,7 +228,7 @@ class _CityAutocompleteFieldState extends ConsumerState<CityAutocompleteField> {
         }
 
         return TextFormField(
-          controller: textController, // this is widget.controller now
+          controller: textController,
           focusNode: focusNode,
           validator: widget.validator,
           onChanged: (text) {
@@ -239,36 +239,7 @@ class _CityAutocompleteFieldState extends ConsumerState<CityAutocompleteField> {
           },
           decoration: InputDecoration(
             labelText: widget.labelText,
-            labelStyle: theme.textTheme.titleMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-            ),
-            prefixIcon: Icon(
-              widget.prefixIcon,
-              color: theme.colorScheme.primary,
-              size: 22,
-            ),
-            filled: true,
-            fillColor: Colors.white.withValues(alpha: 0.85),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.0),
-              borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.0),
-              borderSide: BorderSide(
-                color: theme.colorScheme.outline.withValues(alpha: 0.4),
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.0),
-              borderSide: BorderSide(
-                color: theme.colorScheme.primary,
-                width: 2.0,
-              ),
-            ),
-          ),
-          style: theme.textTheme.titleMedium?.copyWith(
-            color: theme.colorScheme.onSurface,
+            prefixIcon: Icon(widget.prefixIcon),
           ),
         );
       },
@@ -287,7 +258,7 @@ class _CityAutocompleteFieldState extends ConsumerState<CityAutocompleteField> {
             padding: const EdgeInsets.all(16.0),
             child: Text(
               _errorMessage!,
-              style: TextStyle(color: Colors.red.shade700),
+              style: TextStyle(color: theme.colorScheme.error),
             ),
           );
         } else if (options.isEmpty) {
@@ -322,7 +293,7 @@ class _CityAutocompleteFieldState extends ConsumerState<CityAutocompleteField> {
           alignment: Alignment.topLeft,
           child: Material(
             elevation: 4.0,
-            borderRadius: BorderRadius.circular(10.0),
+            borderRadius: BorderRadius.circular(12.0),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxHeight: 220),
               child: content,

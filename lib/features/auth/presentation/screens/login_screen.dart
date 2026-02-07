@@ -114,7 +114,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             // Login button
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
+              child: FilledButton(
                 onPressed: _isLoading ? null : _handleLogin,
                 child: _isLoading
                     ? const SizedBox(
@@ -130,15 +130,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             // Divider with "OR"
             Row(
               children: [
-                Expanded(child: Divider(color: Colors.grey.shade400)),
+                Expanded(child: Divider(color: Theme.of(context).colorScheme.outlineVariant)),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
                     'OR',
-                    style: TextStyle(color: Colors.grey.shade600),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
                 ),
-                Expanded(child: Divider(color: Colors.grey.shade400)),
+                Expanded(child: Divider(color: Theme.of(context).colorScheme.outlineVariant)),
               ],
             ),
             const SizedBox(height: 30),
@@ -158,7 +158,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 label: const Text('Continue with Google'),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
-                  side: BorderSide(color: Colors.grey.shade400),
+                  side: BorderSide(color: Theme.of(context).colorScheme.outline),
                 ),
               ),
             ),
@@ -215,7 +215,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.red,
+        backgroundColor: Theme.of(context).colorScheme.error,
       ),
     );
   }

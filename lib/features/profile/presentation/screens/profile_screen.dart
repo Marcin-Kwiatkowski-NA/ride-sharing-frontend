@@ -23,7 +23,7 @@ class ProfileScreen extends ConsumerWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.account_circle, size: 100, color: Colors.grey),
+              Icon(Icons.account_circle, size: 100, color: Theme.of(context).colorScheme.onSurfaceVariant),
               const SizedBox(height: 16),
               const Text('Log in to see your profile'),
               const SizedBox(height: 24),
@@ -87,7 +87,7 @@ class _ProfileDashboard extends ConsumerWidget {
                       Text(
                         user.displayName,
                         style: theme.textTheme.headlineSmall?.copyWith(
-                          color: Colors.white,
+                          color: theme.colorScheme.onPrimary,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -95,7 +95,7 @@ class _ProfileDashboard extends ConsumerWidget {
                       Text(
                         user.email,
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color: Colors.white.withValues(alpha: 0.9),
+                          color: theme.colorScheme.onPrimary.withValues(alpha: 0.9),
                         ),
                       ),
                     ],
@@ -187,7 +187,7 @@ class _ProfileDashboard extends ConsumerWidget {
                           icon: Icons.airline_seat_recline_normal,
                           value: user.stats.ridesTaken.toString(),
                           label: 'Rides Taken',
-                          accentColor: theme.colorScheme.secondary,
+                          accentColor: theme.colorScheme.tertiary,
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -198,7 +198,7 @@ class _ProfileDashboard extends ConsumerWidget {
                               ? user.stats.ratingAvg.toStringAsFixed(1)
                               : '-',
                           label: 'Rating',
-                          accentColor: Colors.amber,
+                          accentColor: theme.colorScheme.tertiary,
                         ),
                       ),
                     ],
@@ -247,8 +247,8 @@ class _ProfileDashboard extends ConsumerWidget {
                   icon: const Icon(Icons.logout),
                   label: const Text('Logout'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red.shade400,
-                    foregroundColor: Colors.white,
+                    backgroundColor: theme.colorScheme.error,
+                    foregroundColor: theme.colorScheme.onError,
                   ),
                 ),
               ),

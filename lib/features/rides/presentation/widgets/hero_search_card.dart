@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/theme/app_tokens.dart';
 import '../providers/search_criteria_provider.dart';
 import 'search_label.dart';
 import 'search_sheet.dart';
@@ -36,12 +37,12 @@ class HeroSearchCard extends ConsumerWidget {
       button: true,
       label: 'Search for rides. $label',
       child: Material(
-        color: colorScheme.surface,
-        elevation: 10,
-        borderRadius: BorderRadius.circular(28),
+        color: colorScheme.surfaceContainerHigh,
+        elevation: AppTokens.elevationHigh,
+        borderRadius: BorderRadius.circular(AppTokens.radiusXL),
         child: InkWell(
           onTap: () => showSearchSheet(context),
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: BorderRadius.circular(AppTokens.radiusXL),
           child: Container(
             height: 64,
             padding: const EdgeInsets.symmetric(horizontal: 20),

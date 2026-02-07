@@ -7,9 +7,6 @@ import '../../../../routes/routes.dart';
 void showPublishSelectionSheet(BuildContext context) {
   showModalBottomSheet<void>(
     context: context,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
     builder: (_) => const PublishSelectionSheet(),
   );
 }
@@ -50,7 +47,7 @@ class PublishSelectionSheet extends StatelessWidget {
             const SizedBox(height: 12),
             _PublishOption(
               icon: Icons.hail,
-              iconColor: colorScheme.secondary,
+              iconColor: colorScheme.tertiary,
               title: 'Request a Ride',
               subtitle: 'I need a driver for a specific date.',
               onTap: () {

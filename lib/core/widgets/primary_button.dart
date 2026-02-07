@@ -19,14 +19,14 @@ class PrimaryButton extends StatelessWidget {
     return SizedBox(
       height: 48,
       width: width,
-      child: ElevatedButton(
+      child: FilledButton(
         onPressed: isLoading ? null : onPressed,
         child: isLoading
-            ? const SizedBox(
+            ? SizedBox(
                 width: 24,
                 height: 24,
                 child: CircularProgressIndicator(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onPrimary,
                   strokeWidth: 3,
                 ),
               )

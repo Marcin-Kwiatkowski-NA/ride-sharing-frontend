@@ -15,6 +15,7 @@ abstract class RouteNames {
   static const postRide = 'post-ride';
   static const postSeat = 'post-seat';
   static const myOffers = 'my-offers';
+  static const devGallery = 'dev-gallery';
 }
 
 /// Route paths (used only in router config)
@@ -35,4 +36,5 @@ abstract class RoutePaths {
   static const postRide = '/post-ride';
   static const postSeat = '/post-seat';
   static const myOffers = '/my-offers';
+  static const devGallery = '/dev/gallery';
 }

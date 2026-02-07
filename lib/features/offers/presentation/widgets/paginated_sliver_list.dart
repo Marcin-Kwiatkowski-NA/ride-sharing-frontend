@@ -50,7 +50,7 @@ class PaginatedSliverList<T> extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(emptyIcon, size: 64, color: Colors.grey),
+              Icon(emptyIcon, size: 64, color: Theme.of(context).colorScheme.onSurfaceVariant),
               const SizedBox(height: 16),
               Text(emptyMessage),
             ],
@@ -83,7 +83,7 @@ class PaginatedSliverList<T> extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+            Icon(Icons.error_outline, size: 64, color: Theme.of(context).colorScheme.error),
             const SizedBox(height: 16),
             Text(
               'Error loading data',
@@ -92,7 +92,7 @@ class PaginatedSliverList<T> extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               failure.message,
-              style: const TextStyle(color: Colors.red),
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),

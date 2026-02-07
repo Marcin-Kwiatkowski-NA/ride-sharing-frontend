@@ -155,9 +155,9 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
         ref.read(postRideControllerProvider.notifier).markNavigated();
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Ride created successfully!'),
-            backgroundColor: Colors.green,
+          SnackBar(
+            content: const Text('Ride created successfully!'),
+            backgroundColor: colorScheme.primary,
           ),
         );
 

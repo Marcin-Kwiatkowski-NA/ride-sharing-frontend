@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import '../../../../core/cities/domain/city.dart';
 import '../../../../core/cities/widgets/city_autocomplete_field.dart';
+import '../../../../core/theme/app_tokens.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../routes/routes.dart';
 import '../../data/dto/draft_search_criteria.dart';
@@ -191,8 +190,7 @@ class _SearchSheetContentState extends ConsumerState<_SearchSheetContent> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final tokens = Theme.of(context).extension<AppTokens>()!;
     final mode = ref.watch(searchModeProvider);
     final hasDate = _draft.departureDate != null;
     final hasBothCities = _draft.origin != null && _draft.destination != null;
@@ -200,144 +198,114 @@ class _SearchSheetContentState extends ConsumerState<_SearchSheetContent> {
     final searchLabel =
         mode == SearchMode.passengers ? 'Search Passengers' : 'Search Rides';
 
-    return ClipRRect(
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.black26,
-            borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(28)),
-            border: const Border(
-              top: BorderSide(color: Colors.white12),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.3),
-                blurRadius: 20,
-                offset: const Offset(0, -4),
-              ),
-            ],
-          ),
-          child: ListView(
-            controller: widget.scrollController,
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            children: [
-              // Drag handle
-              Center(
-                child: Container(
-                  margin: const EdgeInsets.only(top: 12, bottom: 16),
-                  width: 32,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.white38,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
+    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
 
-              // Mode toggle + close
-              Row(
-                children: [
-                  Expanded(
-                    child: SegmentedButton<SearchMode>(
-                      segments: const [
-                        ButtonSegment(
-                          value: SearchMode.rides,
-                          label: Text('Rides'),
-                          icon: Icon(Icons.directions_car_outlined),
-                        ),
-                        ButtonSegment(
-                          value: SearchMode.passengers,
-                          label: Text('Passengers'),
-                          icon: Icon(Icons.hail),
-                        ),
-                      ],
-                      selected: {mode},
-                      onSelectionChanged: (selected) {
-                        ref
-                            .read(searchModeProvider.notifier)
-                            .setMode(selected.first);
-                      },
-                      style: ButtonStyle(
-                        foregroundColor:
-                            WidgetStateProperty.resolveWith((states) {
-                          if (states.contains(WidgetState.selected)) {
-                            return colorScheme.onPrimary;
-                          }
-                          return Colors.white70;
-                        }),
-                        backgroundColor:
-                            WidgetStateProperty.resolveWith((states) {
-                          if (states.contains(WidgetState.selected)) {
-                            return colorScheme.primary;
-                          }
-                          return Colors.white.withValues(alpha: 0.1);
-                        }),
-                        side: WidgetStateProperty.all(
-                          BorderSide(
-                              color: Colors.white.withValues(alpha: 0.2)),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    icon: const Icon(Icons.close, color: Colors.white70),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 24),
-
-              // Route picker card
-              _RoutePickerCard(
-                originName: _draft.origin?.name,
-                destinationName: _draft.destination?.name,
-                showSwap: hasBothCities,
-                onFromTap: () => _pickCity(isOrigin: true),
-                onToTap: () => _pickCity(isOrigin: false),
-                onSwap: _swapCities,
-              ),
-
-              const SizedBox(height: 12),
-
-              // Date tile
-              _buildDateTile(theme, colorScheme, hasDate),
-
-              const SizedBox(height: 28),
-
-              // Footer actions
-              FilledButton(
-                onPressed: _onSearch,
-                style: FilledButton.styleFrom(
-                  backgroundColor: colorScheme.primary,
-                  foregroundColor: colorScheme.onPrimary,
-                  minimumSize: const Size.fromHeight(52),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-                child: Text(searchLabel),
-              ),
-              const SizedBox(height: 8),
-              Center(
-                child: TextButton.icon(
-                  onPressed: _onClear,
-                  icon: const Icon(Icons.clear_all, size: 18),
-                  label: const Text('Clear All'),
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.white54,
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-            ],
-          ),
+    return Container(
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppTokens.radiusXL),
         ),
+        border: Border(
+          top: BorderSide(color: tokens.overlayBorder),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: tokens.overlayScrim,
+            blurRadius: 20,
+            offset: const Offset(0, -4),
+          ),
+        ],
+      ),
+      child: ListView(
+        controller: widget.scrollController,
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        children: [
+          // Drag handle
+          Center(
+            child: Container(
+              margin: const EdgeInsets.only(top: 12, bottom: 16),
+              width: 32,
+              height: 4,
+              decoration: BoxDecoration(
+                color: tokens.overlayDragHandle,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+
+          // Mode toggle + close
+          Row(
+            children: [
+              Expanded(
+                child: SegmentedButton<SearchMode>(
+                  segments: const [
+                    ButtonSegment(
+                      value: SearchMode.rides,
+                      label: Text('Rides'),
+                      icon: Icon(Icons.directions_car_outlined),
+                    ),
+                    ButtonSegment(
+                      value: SearchMode.passengers,
+                      label: Text('Passengers'),
+                      icon: Icon(Icons.hail),
+                    ),
+                  ],
+                  selected: {mode},
+                  onSelectionChanged: (selected) {
+                    ref
+                        .read(searchModeProvider.notifier)
+                        .setMode(selected.first);
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+
+          // Route picker card
+          _RoutePickerCard(
+            originName: _draft.origin?.name,
+            destinationName: _draft.destination?.name,
+            showSwap: hasBothCities,
+            onFromTap: () => _pickCity(isOrigin: true),
+            onToTap: () => _pickCity(isOrigin: false),
+            onSwap: _swapCities,
+          ),
+
+          const SizedBox(height: 12),
+
+          // Date tile
+          _buildDateTile(theme, colorScheme, hasDate),
+
+          const SizedBox(height: 28),
+
+          // Footer actions
+          FilledButton(
+            onPressed: _onSearch,
+            style: FilledButton.styleFrom(
+              minimumSize: const Size.fromHeight(52),
+            ),
+            child: Text(searchLabel),
+          ),
+          const SizedBox(height: 8),
+          Center(
+            child: TextButton.icon(
+              onPressed: _onClear,
+              icon: const Icon(Icons.clear_all, size: 18),
+              label: const Text('Clear All'),
+            ),
+          ),
+
+          const SizedBox(height: 16),
+        ],
       ),
     );
   }
@@ -348,13 +316,12 @@ class _SearchSheetContentState extends ConsumerState<_SearchSheetContent> {
     bool hasDate,
   ) {
     return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(20),
-      elevation: 1,
-      shadowColor: Colors.black26,
+      color: colorScheme.surface,
+      borderRadius: BorderRadius.circular(AppTokens.radiusLG),
+      elevation: AppTokens.elevationLow,
       child: InkWell(
         onTap: _pickDate,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppTokens.radiusLG),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           child: Row(
@@ -438,10 +405,9 @@ class _RoutePickerCard extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(20),
-      elevation: 1,
-      shadowColor: Colors.black26,
+      color: colorScheme.surface,
+      borderRadius: BorderRadius.circular(AppTokens.radiusLG),
+      elevation: AppTokens.elevationLow,
       clipBehavior: Clip.antiAlias,
       child: Stack(
         children: [
@@ -597,8 +563,10 @@ class _CityPickerSheetState extends State<_CityPickerSheet> {
       padding:
           EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Material(
-        color: colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        color: colorScheme.surfaceContainer,
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppTokens.radiusXL),
+        ),
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),

@@ -40,7 +40,7 @@ class OfferUserSection extends StatelessWidget {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      Icon(Icons.star, size: 16, color: Colors.amber.shade700),
+                      Icon(Icons.star, size: 16, color: theme.colorScheme.tertiary),
                       const SizedBox(width: 4),
                       Text(
                         '${user.rating!.toStringAsFixed(1)} (${user.completedTrips} rides)',

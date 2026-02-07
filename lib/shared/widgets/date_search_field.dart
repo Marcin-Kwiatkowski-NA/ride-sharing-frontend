@@ -41,12 +41,9 @@ class _DateSearchFieldState extends State<DateSearchField> {
     return TextField(
       controller: _dateController,
       readOnly: true,
-      decoration: InputDecoration(
-        filled: true,
-        fillColor: Colors.white60,
+      decoration: const InputDecoration(
         labelText: 'Select Date',
-        labelStyle: Theme.of(context).textTheme.headlineSmall,
-        suffixIcon: const Icon(Icons.calendar_today),
+        suffixIcon: Icon(Icons.calendar_today),
       ),
       onTap: () => _selectDate(context),
     );
