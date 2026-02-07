@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../routes/routes.dart';
+import 'publish_selection_sheet.dart';
 
 /// Glassmorphism bottom action bar for the rides home screen.
 ///
-/// Houses a "My Rides" shortcut (left) and the primary "Offer Ride"
-/// driver action (right), replacing the old floating driver conversion tile.
+/// Houses a "My Rides" shortcut (left) and a universal "Post" action
+/// (right) that opens [PublishSelectionSheet] for driver/passenger choice.
 class HomeBottomActionBar extends StatelessWidget {
   const HomeBottomActionBar({super.key});
 
@@ -45,9 +46,9 @@ class HomeBottomActionBar extends StatelessWidget {
               ),
               const Spacer(),
               FilledButton.icon(
-                onPressed: () => context.pushNamed(RouteNames.postRide),
-                icon: const Icon(Icons.add_circle_outline, size: 20),
-                label: const Text('Offer Ride'),
+                onPressed: () => showPublishSelectionSheet(context),
+                icon: const Icon(Icons.add, size: 20),
+                label: const Text('Post'),
                 style: FilledButton.styleFrom(
                   backgroundColor: colorScheme.secondary,
                   foregroundColor: colorScheme.onSecondary,
