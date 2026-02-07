@@ -29,6 +29,12 @@ class OfferFormatting {
     return '${pricePerSeat.toStringAsFixed(0)} PLN';
   }
 
+  /// Format price with a custom fallback label.
+  static String formatPriceOrFallback(double? price, String fallback) {
+    if (price == null) return fallback;
+    return '${price.toStringAsFixed(0)} PLN';
+  }
+
   /// Format capacity display (e.g. "3 seats", "1 seat").
   static String formatCapacity(int available, {String unit = 'seat'}) {
     return available == 1 ? '1 $unit' : '$available ${unit}s';

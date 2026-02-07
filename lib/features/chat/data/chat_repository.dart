@@ -4,6 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:blablafront/core/network/dio_provider.dart';
 import 'api_chat_repository.dart';
 import 'dto/conversation_dto.dart';
+import 'dto/conversation_open_response_dto.dart';
 import 'dto/message_dto.dart';
 
 part 'chat_repository.g.dart';
@@ -16,11 +17,11 @@ abstract interface class ChatRepository {
     CancelToken? cancelToken,
   });
 
-  /// Get existing conversation or create a new one for a ride with a driver.
-  /// POST /conversations/init
-  Future<ConversationDto> getOrCreateConversation({
-    required int rideId,
-    required int driverId,
+  /// Open or create a conversation by topic key and peer user.
+  /// POST /conversations/open
+  Future<ConversationOpenResponseDto> openConversation({
+    required String topicKey,
+    required int peerUserId,
   });
 
   /// Get messages for a conversation with optional cursor-based pagination.

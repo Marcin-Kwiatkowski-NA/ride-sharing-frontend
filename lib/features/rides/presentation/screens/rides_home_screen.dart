@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../shared/widgets/background.dart';
+import '../../../seats/presentation/widgets/post_seat_cta.dart';
 import '../providers/search_mode_provider.dart';
 import '../widgets/post_ride_cta.dart';
 import '../widgets/search_capsule.dart';
@@ -57,6 +58,11 @@ class RidesHomeScreen extends ConsumerWidget {
 
                   // Post ride CTA
                   const PostRideCta(),
+
+                  const SizedBox(height: 8),
+
+                  // Post seat CTA
+                  const PostSeatCta(),
 
                   const Spacer(),
                 ],

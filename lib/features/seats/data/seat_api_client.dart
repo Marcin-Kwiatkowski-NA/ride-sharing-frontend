@@ -4,28 +4,32 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/network/dio_provider.dart';
 import '../../offers/data/offer_search_criteria.dart';
 import '../../offers/data/paginated_response.dart';
-import 'dto/ride_response_dto.dart';
+import 'dto/seat_creation_request_dto.dart';
+import 'dto/seat_response_dto.dart';
 
-part 'ride_api_client.g.dart';
+part 'seat_api_client.g.dart';
 
-/// API client for ride endpoints.
-class RideApiClient {
+/// API client for seat endpoints.
+class SeatApiClient {
   final Dio _dio;
 
-  RideApiClient(this._dio);
+  SeatApiClient(this._dio);
 
-  /// Search rides with criteria.
+  /// Search seats with criteria.
   ///
-  /// Returns paginated response with rides and pagination metadata.
-  Future<PaginatedResponse<RideResponseDto>> searchRides(
+  /// Maps OfferSearchCriteria to seat-specific query params.
+  /// Note: `minAvailableSeats` maps to `availableSeatsInCar` on the backend.
+  Future<PaginatedResponse<SeatResponseDto>> searchSeats(
     OfferSearchCriteria criteria,
   ) async {
     final queryParams = <String, dynamic>{
       'page': criteria.page,
       'size': criteria.size,
-      'minAvailableSeats': criteria.minAvailableSeats,
     };
 
+    if (criteria.minAvailableSeats > 0) {
+      queryParams['availableSeatsInCar'] = criteria.minAvailableSeats;
+    }
     if (criteria.origin != null) {
       queryParams['originPlaceId'] = criteria.origin!.placeId;
     }
@@ -49,18 +53,18 @@ class RideApiClient {
     }
 
     final response = await _dio.get(
-      '/rides/search',
+      '/seats/search',
       queryParameters: queryParams,
     );
 
     final data = response.data;
     final List<dynamic> content = data['content'] ?? [];
-    final rides = content
-        .map((json) => RideResponseDto.fromJson(json))
+    final seats = content
+        .map((json) => SeatResponseDto.fromJson(json as Map<String, dynamic>))
         .toList();
 
     return PaginatedResponse(
-      content: rides,
+      content: seats,
       totalElements: data['totalElements'] ?? 0,
       totalPages: data['totalPages'] ?? 0,
       currentPage: data['number'] ?? 0,
@@ -68,40 +72,34 @@ class RideApiClient {
     );
   }
 
-  /// Get all rides with pagination.
-  Future<List<RideResponseDto>> getAllRides({
-    int page = 0,
-    int size = 10,
-  }) async {
-    final response = await _dio.get(
-      '/rides',
-      queryParameters: {'page': page, 'size': size},
-    );
-
-    final List<dynamic> content = response.data['content'] ?? [];
-    return content.map((json) => RideResponseDto.fromJson(json)).toList();
+  /// Get seat by ID.
+  Future<SeatResponseDto> getSeatById(int seatId) async {
+    final response = await _dio.get('/seats/$seatId');
+    return SeatResponseDto.fromJson(response.data);
   }
 
-  /// Get ride by ID.
-  Future<RideResponseDto> getRideById(int rideId) async {
-    final response = await _dio.get('/rides/$rideId');
-    return RideResponseDto.fromJson(response.data);
+  /// Create a new seat request.
+  Future<SeatResponseDto> createSeat(SeatCreationRequestDto dto) async {
+    final response = await _dio.post('/seats', data: dto.toJson());
+    return SeatResponseDto.fromJson(response.data);
   }
 
-  /// Get current user's booked rides.
-  Future<List<RideResponseDto>> getMyRides() async {
-    final response = await _dio.get<List<dynamic>>('/me/rides');
+  /// Delete a seat request.
+  Future<void> deleteSeat(int seatId) async {
+    await _dio.delete('/seats/$seatId');
+  }
+
+  /// Get current user's seat requests.
+  Future<List<SeatResponseDto>> getMySeats() async {
+    final response = await _dio.get<List<dynamic>>('/me/seats');
     return (response.data ?? [])
-        .map((json) => RideResponseDto.fromJson(json as Map<String, dynamic>))
+        .map((json) => SeatResponseDto.fromJson(json as Map<String, dynamic>))
         .toList();
   }
 }
 
-/// Provider for RideApiClient.
-///
-/// Uses keepAlive since this is a service that should persist.
 @Riverpod(keepAlive: true)
-RideApiClient rideApiClient(Ref ref) {
+SeatApiClient seatApiClient(Ref ref) {
   final dio = ref.watch(dioProvider);
-  return RideApiClient(dio);
+  return SeatApiClient(dio);
 }

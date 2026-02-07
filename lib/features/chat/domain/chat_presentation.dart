@@ -11,15 +11,14 @@ class ChatPresentation {
 
   /// Convert ConversationDto to UI model.
   static ConversationUiModel toConversationUiModel(ConversationDto dto) {
-    final lastMessagePreview = dto.lastMessage?.body ?? 'No messages yet';
+    final lastMessagePreview = dto.lastMessage ?? 'No messages yet';
     final timeAgo =
-        dto.updatedAt != null ? _formatTimeAgo(dto.updatedAt!) : '';
+        dto.lastMessageAt != null ? _formatTimeAgo(dto.lastMessageAt!) : '';
 
     return ConversationUiModel(
       id: dto.id,
-      rideId: dto.rideId,
-      driverId: dto.driverId,
-      driverName: dto.driverName,
+      peerUserName: dto.peerUser.displayName,
+      peerAvatarUrl: dto.peerUser.avatarUrl,
       lastMessagePreview: lastMessagePreview,
       timeAgo: timeAgo,
       unreadCount: dto.unreadCount,

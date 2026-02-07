@@ -31,10 +31,10 @@ class RidePresentation {
       dto.isApproximate,
     );
 
-    // Price & Capacity
-    final hasPrice = dto.pricePerSeat != null;
-    final priceDisplay = OfferFormatting.formatPrice(dto.pricePerSeat);
-    final capacityDisplay = OfferFormatting.formatCapacity(dto.availableSeats);
+    // Money & Count
+    final moneyHighlight = dto.pricePerSeat != null;
+    final moneyValue = OfferFormatting.formatPrice(dto.pricePerSeat);
+    final countDisplay = OfferFormatting.formatCapacity(dto.availableSeats);
 
     // Source badge
     final sourceBadge = OfferFormatting.formatSourceBadge(dto.source);
@@ -80,9 +80,12 @@ class RidePresentation {
       partOfDay: partOfDay,
       partOfDayDisplay: partOfDayDisplay,
       isTimeUndefined: timeUndefined,
-      capacityDisplay: capacityDisplay,
-      priceDisplay: priceDisplay,
-      hasPrice: hasPrice,
+      moneyLabel: 'Price per seat',
+      moneyValue: moneyValue,
+      moneyHighlight: moneyHighlight,
+      countLabel: 'Available seats',
+      countDisplay: countDisplay,
+      countIcon: Icons.airline_seat_recline_normal,
       sourceBadgeText: sourceBadge.text,
       sourceBadgeColor: sourceBadge.color,
       statusChip: statusChip,

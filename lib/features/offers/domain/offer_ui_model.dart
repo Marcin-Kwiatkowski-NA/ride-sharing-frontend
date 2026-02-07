@@ -85,10 +85,15 @@ class OfferUiModel {
   final String partOfDayDisplay;
   final bool isTimeUndefined;
 
-  // Capacity & Price
-  final String capacityDisplay;
-  final String priceDisplay;
-  final bool hasPrice;
+  // Money (price/budget)
+  final String moneyLabel;
+  final String moneyValue;
+  final bool moneyHighlight;
+
+  // Count (seats/passengers)
+  final String countLabel;
+  final String countDisplay;
+  final IconData countIcon;
 
   // Source
   final String sourceBadgeText;
@@ -114,9 +119,12 @@ class OfferUiModel {
     required this.partOfDay,
     required this.partOfDayDisplay,
     required this.isTimeUndefined,
-    required this.capacityDisplay,
-    required this.priceDisplay,
-    required this.hasPrice,
+    required this.moneyLabel,
+    required this.moneyValue,
+    required this.moneyHighlight,
+    required this.countLabel,
+    required this.countDisplay,
+    required this.countIcon,
     required this.sourceBadgeText,
     required this.sourceBadgeColor,
     required this.statusChip,
@@ -125,3 +133,9 @@ class OfferUiModel {
     required this.description,
   });
 }
+
+/// Derive a topicKey for messaging from an OfferKey.
+///
+/// Convention: `offer:r-123` for rides, `offer:s-456` for seats.
+/// Extensible for future types (e.g. `package:42`).
+String topicKeyForOffer(OfferKey key) => 'offer:${key.toRouteParam()}';

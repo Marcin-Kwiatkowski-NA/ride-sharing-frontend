@@ -9,15 +9,17 @@ import '../features/chat/presentation/screens/chat_screen.dart';
 import '../features/chat/presentation/tabs/messages_tab.dart';
 import '../features/navigation/main_layout.dart';
 import '../features/offers/domain/offer_ui_model.dart';
+import '../features/offers/presentation/screens/my_offers_screen.dart';
 import '../features/offers/presentation/screens/offer_details_screen.dart';
 import '../features/packages/presentation/screens/packages_screen.dart';
-import '../features/passengers/presentation/screens/passengers_list_placeholder_screen.dart';
 import '../features/profile/presentation/screens/edit_profile_screen.dart';
 import '../features/profile/presentation/screens/profile_screen.dart';
 import '../features/rides/create/presentation/post_ride_screen.dart';
 import '../features/rides/presentation/providers/search_mode_provider.dart';
 import '../features/rides/presentation/screens/rides_home_screen.dart';
 import '../features/rides/presentation/screens/rides_list_screen.dart';
+import '../features/seats/create/presentation/post_seat_screen.dart';
+import '../features/seats/presentation/screens/seats_list_screen.dart';
 import 'auth_redirect.dart';
 import 'error_screen.dart';
 import 'routes.dart';
@@ -94,15 +96,15 @@ GoRouter router(Ref ref) {
                     redirect: (context, state) {
                       final mode = ref.read(searchModeProvider);
                       if (mode == SearchMode.passengers) {
-                        return '/rides/passengers-placeholder';
+                        return '/rides/seats';
                       }
                       return null;
                     },
                     builder: (context, state) => const RidesListScreen(),
                   ),
                   GoRoute(
-                    path: RoutePaths.passengersListPlaceholder,
-                    name: RouteNames.passengersListPlaceholder,
+                    path: RoutePaths.seatsList,
+                    name: RouteNames.seatsList,
                     redirect: (context, state) {
                       final mode = ref.read(searchModeProvider);
                       if (mode == SearchMode.rides) {
@@ -110,8 +112,7 @@ GoRouter router(Ref ref) {
                       }
                       return null;
                     },
-                    builder: (context, state) =>
-                        const PassengersListPlaceholderScreen(),
+                    builder: (context, state) => const SeatsListScreen(),
                   ),
                   GoRoute(
                     path: RoutePaths.offerDetails,
@@ -202,6 +203,21 @@ GoRouter router(Ref ref) {
           final prefillOrigin = state.extra as City?;
           return PostRideScreen(prefillOrigin: prefillOrigin);
         },
+      ),
+      GoRoute(
+        path: RoutePaths.postSeat,
+        name: RouteNames.postSeat,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) {
+          final prefillOrigin = state.extra as City?;
+          return PostSeatScreen(prefillOrigin: prefillOrigin);
+        },
+      ),
+      GoRoute(
+        path: RoutePaths.myOffers,
+        name: RouteNames.myOffers,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const MyOffersScreen(),
       ),
     ],
   );

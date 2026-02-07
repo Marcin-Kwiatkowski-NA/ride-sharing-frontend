@@ -35,7 +35,13 @@ class MessagesTab extends ConsumerWidget {
               ),
               data: (conversations) => conversations.isEmpty
                   ? const _EmptyMessages()
-                  : _ConversationsList(conversations: conversations),
+                  : _ConversationsList(
+                      conversations: conversations,
+                      onRefresh: () async {
+                        ref.invalidate(inboxProvider);
+                        await ref.read(inboxProvider.future);
+                      },
+                    ),
             ),
           ),
         ],
@@ -105,17 +111,24 @@ class _EmptyMessages extends StatelessWidget {
 
 class _ConversationsList extends StatelessWidget {
   final List<ConversationUiModel> conversations;
+  final Future<void> Function() onRefresh;
 
-  const _ConversationsList({required this.conversations});
+  const _ConversationsList({
+    required this.conversations,
+    required this.onRefresh,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: conversations.length,
-      itemBuilder: (context, index) {
-        final conversation = conversations[index];
-        return _ConversationTile(conversation: conversation);
-      },
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      child: ListView.builder(
+        itemCount: conversations.length,
+        itemBuilder: (context, index) {
+          final conversation = conversations[index];
+          return _ConversationTile(conversation: conversation);
+        },
+      ),
     );
   }
 }
@@ -132,12 +145,12 @@ class _ConversationTile extends StatelessWidget {
     return ListTile(
       leading: CircleAvatar(
         child: Text(
-          conversation.driverName.isNotEmpty
-              ? conversation.driverName[0].toUpperCase()
-              : 'D',
+          conversation.peerUserName.isNotEmpty
+              ? conversation.peerUserName[0].toUpperCase()
+              : '?',
         ),
       ),
-      title: Text(conversation.driverName),
+      title: Text(conversation.peerUserName),
       subtitle: Text(
         conversation.lastMessagePreview,
         maxLines: 1,

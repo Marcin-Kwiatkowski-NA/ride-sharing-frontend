@@ -98,7 +98,7 @@ class _SearchSheetContentState extends ConsumerState<_SearchSheetContent> {
 
     // Navigate based on mode
     if (mode == SearchMode.passengers) {
-      context.goNamed(RouteNames.passengersListPlaceholder);
+      context.goNamed(RouteNames.seatsList);
     } else {
       context.goNamed(RouteNames.ridesList);
     }

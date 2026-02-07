@@ -4,9 +4,8 @@ import 'package:flutter/foundation.dart';
 @immutable
 class ConversationUiModel {
   final String id;
-  final int rideId;
-  final int driverId;
-  final String driverName;
+  final String peerUserName;
+  final String? peerAvatarUrl;
   final String lastMessagePreview;
   final String timeAgo;
   final int unreadCount;
@@ -14,9 +13,8 @@ class ConversationUiModel {
 
   const ConversationUiModel({
     required this.id,
-    required this.rideId,
-    required this.driverId,
-    required this.driverName,
+    required this.peerUserName,
+    this.peerAvatarUrl,
     required this.lastMessagePreview,
     required this.timeAgo,
     required this.unreadCount,

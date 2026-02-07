@@ -8,6 +8,7 @@ import '../../../../routes/routes.dart';
 import '../../../chat/data/chat_repository.dart';
 import '../../data/offer_enums.dart';
 import '../../domain/offer_models.dart';
+import '../../domain/offer_ui_model.dart';
 
 /// Shows the contact methods bottom sheet.
 Future<void> showContactUserSheet(BuildContext context, OfferUserUi user) {
@@ -50,18 +51,21 @@ class _SourceAwareContactSheetState
 
     try {
       final user = widget.user;
-      final conversation = await ref
+      final offerKey = OfferKey(user.chatContext.kind, user.chatContext.id);
+      final topicKey = topicKeyForOffer(offerKey);
+
+      final response = await ref
           .read(chatRepositoryProvider)
-          .getOrCreateConversation(
-            rideId: user.chatContext.id,
-            driverId: user.userId!,
+          .openConversation(
+            topicKey: topicKey,
+            peerUserId: user.userId!,
           );
 
       if (!mounted) return;
       Navigator.pop(context);
       context.pushNamed(
         RouteNames.chat,
-        pathParameters: {'conversationId': conversation.id},
+        pathParameters: {'conversationId': response.conversationId},
       );
     } catch (e) {
       if (!mounted) return;

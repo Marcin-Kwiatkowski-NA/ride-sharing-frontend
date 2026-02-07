@@ -21,7 +21,7 @@ bool _isPublicPath(String path) {
   if (_publicPaths.contains(path)) return true;
   if (path == '/rides') return true;
   if (path.startsWith('/rides/list')) return true;
-  if (path.startsWith('/rides/passengers-placeholder')) return true;
+  if (path.startsWith('/rides/seats')) return true;
   if (path == '/packages') return true;
   return false;
 }

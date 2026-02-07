@@ -5,14 +5,16 @@ abstract class RouteNames {
   static const createAccount = 'create-account';
   static const rides = 'rides';
   static const ridesList = 'rides-list';
+  static const seatsList = 'seats-list';
   static const offerDetails = 'offer-details';
-  static const passengersListPlaceholder = 'passengers-list-placeholder';
   static const packages = 'packages';
   static const profile = 'profile';
   static const editProfile = 'edit-profile';
   static const messages = 'messages';
   static const chat = 'chat';
   static const postRide = 'post-ride';
+  static const postSeat = 'post-seat';
+  static const myOffers = 'my-offers';
 }
 
 /// Route paths (used only in router config)
@@ -23,12 +25,14 @@ abstract class RoutePaths {
   static const createAccount = '/create-account';
   static const rides = '/rides';
   static const ridesList = 'list'; // Nested under /rides
+  static const seatsList = 'seats'; // Nested under /rides
   static const offerDetails = 'offer/:offerKey'; // Nested under /rides
-  static const passengersListPlaceholder = 'passengers-placeholder'; // Nested under /rides
   static const packages = '/packages';
   static const profile = '/profile';
   static const editProfile = 'edit'; // Nested under /profile
   static const messages = '/messages';
   static const chat = '/chat/:conversationId';
   static const postRide = '/post-ride';
+  static const postSeat = '/post-seat';
+  static const myOffers = '/my-offers';
 }

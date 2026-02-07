@@ -46,10 +46,10 @@ class OfferCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    offer.priceDisplay,
+                    offer.moneyValue,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: offer.hasPrice ? colorScheme.primary : null,
+                      color: offer.moneyHighlight ? colorScheme.primary : null,
                     ),
                   ),
                 ],
@@ -97,8 +97,8 @@ class OfferCard extends StatelessWidget {
                 children: [
                   _buildChip(
                     context,
-                    Icons.event_seat_outlined,
-                    offer.capacityDisplay,
+                    offer.countIcon,
+                    offer.countDisplay,
                   ),
                   SourceBadge(
                     text: offer.sourceBadgeText,

@@ -6,7 +6,9 @@ import 'package:blablafront/core/providers/auth_session_provider.dart';
 import 'package:blablafront/features/chat/presentation/providers/inbox_provider.dart';
 import 'package:blablafront/features/chat/data/chat_repository.dart';
 import 'package:blablafront/features/chat/data/dto/conversation_dto.dart';
+import 'package:blablafront/features/chat/data/dto/conversation_open_response_dto.dart';
 import 'package:blablafront/features/chat/data/dto/message_dto.dart';
+import 'package:blablafront/features/chat/data/dto/peer_user_dto.dart';
 
 /// Mock implementation of ChatRepository for testing
 class MockChatRepository implements ChatRepository {
@@ -25,9 +27,9 @@ class MockChatRepository implements ChatRepository {
   }
 
   @override
-  Future<ConversationDto> getOrCreateConversation({
-    required int rideId,
-    required int driverId,
+  Future<ConversationOpenResponseDto> openConversation({
+    required String topicKey,
+    required int peerUserId,
   }) async {
     throw UnimplementedError();
   }
@@ -75,13 +77,8 @@ void main() {
         mockConversations: [
           const ConversationDto(
             id: 'conv-1',
-            rideId: 1,
-            driverId: 456,
-            driverName: 'Driver',
-            passengerId: 123,
-            passengerName: 'Passenger',
-            originName: 'A',
-            destinationName: 'B',
+            topicKey: 'offer:r-1',
+            peerUser: PeerUserDto(id: 456, displayName: 'Driver'),
           ),
         ],
       );
@@ -106,13 +103,8 @@ void main() {
         mockConversations: [
           const ConversationDto(
             id: 'conv-1',
-            rideId: 1,
-            driverId: 456,
-            driverName: 'John Driver',
-            passengerId: 123,
-            passengerName: 'Jane Passenger',
-            originName: 'Paris',
-            destinationName: 'Lyon',
+            topicKey: 'offer:r-1',
+            peerUser: PeerUserDto(id: 456, displayName: 'John'),
             unreadCount: 3,
           ),
         ],
@@ -131,7 +123,7 @@ void main() {
       expect(result, hasLength(1));
       final conversation = result.first;
       expect(conversation.id, 'conv-1');
-      expect(conversation.driverName, 'John Driver');
+      expect(conversation.peerUserName, 'John');
       expect(conversation.unreadCount, 3);
     });
 
@@ -140,23 +132,13 @@ void main() {
         mockConversations: [
           const ConversationDto(
             id: 'conv-1',
-            rideId: 1,
-            driverId: 100,
-            driverName: 'Driver A',
-            passengerId: 123,
-            passengerName: 'Passenger',
-            originName: 'Paris',
-            destinationName: 'Lyon',
+            topicKey: 'offer:r-1',
+            peerUser: PeerUserDto(id: 100, displayName: 'User A'),
           ),
           const ConversationDto(
             id: 'conv-2',
-            rideId: 2,
-            driverId: 200,
-            driverName: 'Driver B',
-            passengerId: 123,
-            passengerName: 'Passenger',
-            originName: 'Berlin',
-            destinationName: 'Munich',
+            topicKey: 'offer:r-2',
+            peerUser: PeerUserDto(id: 200, displayName: 'User B'),
           ),
         ],
       );

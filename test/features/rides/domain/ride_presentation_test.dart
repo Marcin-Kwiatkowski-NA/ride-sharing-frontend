@@ -134,8 +134,8 @@ void main() {
 
         final uiModel = RidePresentation.toUiModel(dto);
 
-        expect(uiModel.priceDisplay, 'Ask driver');
-        expect(uiModel.hasPrice, false);
+        expect(uiModel.moneyValue, 'Ask driver');
+        expect(uiModel.moneyHighlight, false);
       });
 
       test('formats price with PLN currency (no decimals)', () {
@@ -143,8 +143,8 @@ void main() {
 
         final uiModel = RidePresentation.toUiModel(dto);
 
-        expect(uiModel.priceDisplay, '26 PLN');
-        expect(uiModel.hasPrice, true);
+        expect(uiModel.moneyValue, '26 PLN');
+        expect(uiModel.moneyHighlight, true);
       });
 
       test('formats whole number price', () {
@@ -152,7 +152,7 @@ void main() {
 
         final uiModel = RidePresentation.toUiModel(dto);
 
-        expect(uiModel.priceDisplay, '30 PLN');
+        expect(uiModel.moneyValue, '30 PLN');
       });
     });
 
@@ -348,7 +348,7 @@ void main() {
 
         final uiModel = RidePresentation.toUiModel(dto);
 
-        expect(uiModel.capacityDisplay, '1 seat');
+        expect(uiModel.countDisplay, '1 seat');
       });
 
       test('formats multiple seats correctly', () {
@@ -356,7 +356,7 @@ void main() {
 
         final uiModel = RidePresentation.toUiModel(dto);
 
-        expect(uiModel.capacityDisplay, '3 seats');
+        expect(uiModel.countDisplay, '3 seats');
       });
     });
 

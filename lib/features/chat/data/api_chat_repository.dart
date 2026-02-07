@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import 'chat_repository.dart';
 import 'dto/conversation_dto.dart';
+import 'dto/conversation_open_response_dto.dart';
 import 'dto/message_dto.dart';
 
 /// API implementation of ChatRepository using /conversations endpoints.
@@ -32,19 +33,19 @@ class ApiChatRepository implements ChatRepository {
   }
 
   @override
-  Future<ConversationDto> getOrCreateConversation({
-    required int rideId,
-    required int driverId,
+  Future<ConversationOpenResponseDto> openConversation({
+    required String topicKey,
+    required int peerUserId,
   }) async {
     final response = await _dio.post<Map<String, dynamic>>(
-      '/conversations/init',
+      '/conversations/open',
       data: {
-        'rideId': rideId,
-        'driverId': driverId,
+        'topicKey': topicKey,
+        'peerUserId': peerUserId,
       },
     );
 
-    return ConversationDto.fromJson(response.data!);
+    return ConversationOpenResponseDto.fromJson(response.data!);
   }
 
   @override

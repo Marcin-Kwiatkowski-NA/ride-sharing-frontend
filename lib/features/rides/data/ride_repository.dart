@@ -32,6 +32,11 @@ class RideRepository {
   Future<RideResponseDto> getRideById(int rideId) {
     return _apiClient.getRideById(rideId);
   }
+
+  /// Get current user's booked rides.
+  Future<List<RideResponseDto>> getMyRides() {
+    return _apiClient.getMyRides();
+  }
 }
 
 /// Provider for RideRepository.

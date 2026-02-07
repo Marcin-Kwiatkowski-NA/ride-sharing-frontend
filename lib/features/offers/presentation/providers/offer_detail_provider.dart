@@ -2,6 +2,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../rides/data/ride_repository.dart';
 import '../../../rides/domain/ride_presentation.dart';
+import '../../../seats/data/seat_repository.dart';
+import '../../../seats/domain/seat_presentation.dart';
 import '../../domain/offer_ui_model.dart';
 
 part 'offer_detail_provider.g.dart';
@@ -18,6 +20,8 @@ Future<OfferUiModel> offerDetail(Ref ref, OfferKey key) async {
       final dto = await repository.getRideById(key.id);
       return RidePresentation.toUiModel(dto);
     case OfferKind.seat:
-      throw UnimplementedError('Seat offers not yet supported');
+      final repository = ref.watch(seatRepositoryProvider);
+      final dto = await repository.getSeatById(key.id);
+      return SeatPresentation.toUiModel(dto);
   }
 }
