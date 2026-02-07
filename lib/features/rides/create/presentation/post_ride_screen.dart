@@ -8,8 +8,9 @@ import '../../../../core/cities/domain/city.dart';
 import '../../../../core/cities/widgets/city_autocomplete_field.dart';
 import '../../../../core/widgets/core_widgets.dart';
 import '../../../../routes/routes.dart';
+import '../../../offers/domain/offer_ui_model.dart';
+import '../../../offers/presentation/providers/offer_detail_provider.dart';
 import '../../presentation/providers/paginated_rides_provider.dart';
-import '../../presentation/providers/rides_providers.dart';
 import 'post_ride_controller.dart';
 import 'widgets/part_of_day_selector.dart';
 import 'widgets/time_mode_selector.dart';
@@ -161,13 +162,14 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
         );
 
         // Invalidate caches
-        ref.invalidate(rideDetailProvider(next.createdRideId!));
+        final offerKey = OfferKey(OfferKind.ride, next.createdRideId!);
+        ref.invalidate(offerDetailProvider(offerKey));
         ref.read(paginatedRidesProvider.notifier).refresh();
 
         // Navigate (replace so user can't go back to form)
         context.goNamed(
-          RouteNames.rideDetails,
-          pathParameters: {'rideId': '${next.createdRideId}'},
+          RouteNames.offerDetails,
+          pathParameters: {'offerKey': offerKey.toRouteParam()},
         );
       }
 

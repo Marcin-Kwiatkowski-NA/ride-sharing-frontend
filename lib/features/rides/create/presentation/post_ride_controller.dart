@@ -7,7 +7,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../../core/cities/domain/city.dart';
 import '../../../../core/network/dio_provider.dart';
 import '../../../../core/providers/auth_notifier.dart';
-import '../../domain/part_of_day.dart';
+import '../../../offers/domain/part_of_day.dart';
 import '../data/dto/ride_creation_request_dto.dart';
 
 part 'post_ride_controller.freezed.dart';

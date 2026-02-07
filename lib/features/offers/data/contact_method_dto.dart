@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import 'ride_enums.dart';
+import 'offer_enums.dart';
 
 part 'contact_method_dto.freezed.dart';
 part 'contact_method_dto.g.dart';

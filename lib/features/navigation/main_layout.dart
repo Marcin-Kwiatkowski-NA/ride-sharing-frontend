@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/providers/auth_notifier.dart';
 import '../../routes/routes.dart';
-import '../rides/presentation/providers/search_criteria_provider.dart';
 
 /// Main layout with persistent bottom navigation.
 /// Uses StatefulShellRoute to keep tab screens alive and preserve state.

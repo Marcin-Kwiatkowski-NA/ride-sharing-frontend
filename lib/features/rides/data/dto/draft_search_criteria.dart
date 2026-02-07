@@ -3,8 +3,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../../core/cities/domain/city.dart';
 import '../../../../core/utils/date_utils.dart';
+import '../../../offers/data/offer_search_criteria.dart';
 import 'recent_search_snapshot.dart';
-import 'search_criteria_dto.dart';
 
 part 'draft_search_criteria.freezed.dart';
 
@@ -19,7 +19,7 @@ sealed class DraftSearchCriteria with _$DraftSearchCriteria {
   }) = _DraftSearchCriteria;
 
   /// Create a draft from committed search criteria.
-  factory DraftSearchCriteria.fromCommitted(SearchCriteriaDto dto) {
+  factory DraftSearchCriteria.fromCommitted(OfferSearchCriteria dto) {
     return DraftSearchCriteria(
       origin: dto.origin,
       destination: dto.destination,

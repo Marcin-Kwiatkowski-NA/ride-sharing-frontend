@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Part-of-day classification for ride departure times.
+/// Part-of-day classification for departure times.
 ///
 /// Thresholds:
 /// - Morning: 05:00 - 11:59
@@ -54,7 +54,7 @@ IconData partOfDayIcon(PartOfDay pod) {
 
 /// Check if time represents "undefined" (23:57 + approximate).
 ///
-/// This is a special sentinel value indicating the driver hasn't
+/// This is a special sentinel value indicating the poster hasn't
 /// specified a departure time.
 bool isTimeUndefined(DateTime time, bool isApproximate) {
   return isApproximate && time.hour == 23 && time.minute == 57;

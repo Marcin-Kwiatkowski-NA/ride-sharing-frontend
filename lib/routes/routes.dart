@@ -5,7 +5,7 @@ abstract class RouteNames {
   static const createAccount = 'create-account';
   static const rides = 'rides';
   static const ridesList = 'rides-list';
-  static const rideDetails = 'ride-details';
+  static const offerDetails = 'offer-details';
   static const passengersListPlaceholder = 'passengers-list-placeholder';
   static const packages = 'packages';
   static const profile = 'profile';
@@ -23,7 +23,7 @@ abstract class RoutePaths {
   static const createAccount = '/create-account';
   static const rides = '/rides';
   static const ridesList = 'list'; // Nested under /rides
-  static const rideDetails = ':rideId'; // Nested under /rides
+  static const offerDetails = 'offer/:offerKey'; // Nested under /rides
   static const passengersListPlaceholder = 'passengers-placeholder'; // Nested under /rides
   static const packages = '/packages';
   static const profile = '/profile';

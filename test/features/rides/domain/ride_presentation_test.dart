@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:blablafront/features/rides/data/dto/ride_response_dto.dart';
-import 'package:blablafront/features/rides/data/dto/city_dto.dart';
-import 'package:blablafront/features/rides/data/dto/contact_method_dto.dart';
+import 'package:blablafront/features/offers/data/city_dto.dart';
+import 'package:blablafront/features/offers/data/contact_method_dto.dart';
 import 'package:blablafront/features/rides/data/dto/driver_dto.dart';
 import 'package:blablafront/features/rides/data/dto/ride_enums.dart';
-import 'package:blablafront/features/rides/domain/part_of_day.dart';
+import 'package:blablafront/features/offers/data/offer_enums.dart';
+import 'package:blablafront/features/offers/domain/part_of_day.dart';
 import 'package:blablafront/features/rides/domain/ride_presentation.dart';
 
 void main() {
@@ -162,7 +163,6 @@ void main() {
         final uiModel = RidePresentation.toUiModel(dto);
 
         expect(uiModel.sourceBadgeText, 'Verified member');
-        expect(uiModel.isInternal, true);
         expect(uiModel.sourceBadgeColor, Colors.green.shade700);
       });
 
@@ -180,7 +180,6 @@ void main() {
         final uiModel = RidePresentation.toUiModel(dto);
 
         expect(uiModel.sourceBadgeText, 'Community listing');
-        expect(uiModel.isInternal, false);
         expect(uiModel.sourceBadgeColor, Colors.orange.shade700);
       });
     });
@@ -205,12 +204,13 @@ void main() {
         );
 
         final uiModel = RidePresentation.toUiModel(dto);
+        final contacts = uiModel.user!.contactMethods;
 
-        expect(uiModel.contactMethods.length, 3);
-        expect(uiModel.contactMethods[0].type, ContactType.phone);
-        expect(uiModel.contactMethods[1].type, ContactType.facebookLink);
-        expect(uiModel.contactMethods[2].type, ContactType.email);
-        expect(uiModel.hasAnyContactAction, true);
+        expect(contacts.length, 3);
+        expect(contacts[0].type, ContactType.phone);
+        expect(contacts[1].type, ContactType.facebookLink);
+        expect(contacts[2].type, ContactType.email);
+        expect(uiModel.user!.hasAnyContactAction, true);
       });
 
       test('phone contact has correct properties', () {
@@ -224,10 +224,11 @@ void main() {
         );
 
         final uiModel = RidePresentation.toUiModel(dto);
+        final contacts = uiModel.user!.contactMethods;
 
-        expect(uiModel.contactMethods[0].label, 'Call');
-        expect(uiModel.contactMethods[0].preview, '+48123456789');
-        expect(uiModel.contactMethods[0].icon, Icons.phone_outlined);
+        expect(contacts[0].label, 'Call');
+        expect(contacts[0].preview, '+48123456789');
+        expect(contacts[0].icon, Icons.phone_outlined);
       });
 
       test('facebook link contact has correct properties', () {
@@ -241,9 +242,10 @@ void main() {
         );
 
         final uiModel = RidePresentation.toUiModel(dto);
+        final contacts = uiModel.user!.contactMethods;
 
-        expect(uiModel.contactMethods[0].label, 'Open Facebook post');
-        expect(uiModel.contactMethods[0].icon, Icons.open_in_new);
+        expect(contacts[0].label, 'Open Facebook post');
+        expect(contacts[0].icon, Icons.open_in_new);
       });
 
       test('email contact has correct properties', () {
@@ -257,10 +259,11 @@ void main() {
         );
 
         final uiModel = RidePresentation.toUiModel(dto);
+        final contacts = uiModel.user!.contactMethods;
 
-        expect(uiModel.contactMethods[0].label, 'Send email');
-        expect(uiModel.contactMethods[0].preview, 'driver@example.com');
-        expect(uiModel.contactMethods[0].icon, Icons.email_outlined);
+        expect(contacts[0].label, 'Send email');
+        expect(contacts[0].preview, 'driver@example.com');
+        expect(contacts[0].icon, Icons.email_outlined);
       });
 
       test('hasAnyContactAction is false when no contacts and no chat', () {
@@ -268,8 +271,8 @@ void main() {
 
         final uiModel = RidePresentation.toUiModel(dto);
 
-        expect(uiModel.contactMethods, isEmpty);
-        expect(uiModel.hasAnyContactAction, false);
+        expect(uiModel.user!.contactMethods, isEmpty);
+        expect(uiModel.user!.hasAnyContactAction, false);
       });
     });
 
@@ -282,7 +285,7 @@ void main() {
 
         final uiModel = RidePresentation.toUiModel(dto);
 
-        expect(uiModel.showRating, false);
+        expect(uiModel.user!.showRating, false);
       });
 
       test('showRating is false when completedRides is 0', () {
@@ -293,7 +296,7 @@ void main() {
 
         final uiModel = RidePresentation.toUiModel(dto);
 
-        expect(uiModel.showRating, false);
+        expect(uiModel.user!.showRating, false);
       });
 
       test('showRating is false when rating is null', () {
@@ -304,7 +307,7 @@ void main() {
 
         final uiModel = RidePresentation.toUiModel(dto);
 
-        expect(uiModel.showRating, false);
+        expect(uiModel.user!.showRating, false);
       });
 
       test('showRating is true when completedRides > 0 and rating exists', () {
@@ -315,21 +318,13 @@ void main() {
 
         final uiModel = RidePresentation.toUiModel(dto);
 
-        expect(uiModel.showRating, true);
-        expect(uiModel.driverRating, 4.5);
-        expect(uiModel.driverCompletedRides, 10);
+        expect(uiModel.user!.showRating, true);
+        expect(uiModel.user!.rating, 4.5);
+        expect(uiModel.user!.completedTrips, 10);
       });
     });
 
     group('New fields', () {
-      test('seatsTaken is passed through', () {
-        final dto = createTestRide(seatsTaken: 2);
-
-        final uiModel = RidePresentation.toUiModel(dto);
-
-        expect(uiModel.seatsTaken, 2);
-      });
-
       test('description is passed through', () {
         final dto = createTestRide(description: 'No smoking please');
 
@@ -347,13 +342,13 @@ void main() {
       });
     });
 
-    group('Seats formatting', () {
+    group('Capacity formatting', () {
       test('formats single seat correctly', () {
         final dto = createTestRide(availableSeats: 1);
 
         final uiModel = RidePresentation.toUiModel(dto);
 
-        expect(uiModel.seatsDisplay, '1 seat');
+        expect(uiModel.capacityDisplay, '1 seat');
       });
 
       test('formats multiple seats correctly', () {
@@ -361,7 +356,7 @@ void main() {
 
         final uiModel = RidePresentation.toUiModel(dto);
 
-        expect(uiModel.seatsDisplay, '3 seats');
+        expect(uiModel.capacityDisplay, '3 seats');
       });
     });
 
@@ -420,22 +415,22 @@ void main() {
     group('Status display', () {
       test('formats open status', () {
         final dto = createTestRide(rideStatus: RideStatus.open);
-        expect(RidePresentation.toUiModel(dto).statusDisplay, 'Open');
+        expect(RidePresentation.toUiModel(dto).statusChip!.label, 'Open');
       });
 
       test('formats full status', () {
         final dto = createTestRide(rideStatus: RideStatus.full);
-        expect(RidePresentation.toUiModel(dto).statusDisplay, 'Full');
+        expect(RidePresentation.toUiModel(dto).statusChip!.label, 'Full');
       });
 
       test('formats completed status', () {
         final dto = createTestRide(rideStatus: RideStatus.completed);
-        expect(RidePresentation.toUiModel(dto).statusDisplay, 'Completed');
+        expect(RidePresentation.toUiModel(dto).statusChip!.label, 'Completed');
       });
 
       test('formats cancelled status', () {
         final dto = createTestRide(rideStatus: RideStatus.cancelled);
-        expect(RidePresentation.toUiModel(dto).statusDisplay, 'Cancelled');
+        expect(RidePresentation.toUiModel(dto).statusChip!.label, 'Cancelled');
       });
     });
 
@@ -450,9 +445,9 @@ void main() {
         final uiModels = RidePresentation.toUiModels(dtos);
 
         expect(uiModels.length, 3);
-        expect(uiModels[0].id, 1);
-        expect(uiModels[1].id, 2);
-        expect(uiModels[2].id, 3);
+        expect(uiModels[0].offerKey.id, 1);
+        expect(uiModels[1].offerKey.id, 2);
+        expect(uiModels[2].offerKey.id, 3);
       });
 
       test('returns empty list for empty input', () {

@@ -1,25 +1,25 @@
 import 'package:flutter/material.dart';
 
-import '../../domain/ride_ui_model.dart';
-import 'contact_methods_bottom_sheet.dart';
+import '../../domain/offer_models.dart';
+import 'contact_user_sheet.dart';
 
 /// Button that opens the contact methods bottom sheet.
 ///
-/// Shows "No contact available" when disabled.
+/// Shows "No contact available" when the user has no contact actions.
 /// Use [useTonalStyle] for in-card appearance vs bottom bar.
-class ContactDriverButton extends StatelessWidget {
-  final RideUiModel ride;
+class ContactUserButton extends StatelessWidget {
+  final OfferUserUi user;
   final bool useTonalStyle;
 
-  const ContactDriverButton({
+  const ContactUserButton({
     super.key,
-    required this.ride,
+    required this.user,
     this.useTonalStyle = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (!ride.hasAnyContactAction) {
+    if (!user.hasAnyContactAction) {
       return FilledButton.icon(
         onPressed: null,
         icon: const Icon(Icons.phone_disabled),
@@ -29,16 +29,16 @@ class ContactDriverButton extends StatelessWidget {
 
     if (useTonalStyle) {
       return FilledButton.tonalIcon(
-        onPressed: () => showContactMethodsSheet(context, ride),
+        onPressed: () => showContactUserSheet(context, user),
         icon: const Icon(Icons.phone),
-        label: const Text('Contact driver'),
+        label: const Text('Contact'),
       );
     }
 
     return FilledButton.icon(
-      onPressed: () => showContactMethodsSheet(context, ride),
+      onPressed: () => showContactUserSheet(context, user),
       icon: const Icon(Icons.phone),
-      label: const Text('Contact driver'),
+      label: const Text('Contact'),
     );
   }
 }

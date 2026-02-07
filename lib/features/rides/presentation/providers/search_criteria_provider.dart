@@ -3,8 +3,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../core/cities/domain/city.dart';
 import '../../../../core/utils/date_utils.dart';
+import '../../../offers/data/offer_search_criteria.dart';
 import '../../data/dto/draft_search_criteria.dart';
-import '../../data/dto/search_criteria_dto.dart';
 
 part 'search_criteria_provider.g.dart';
 
@@ -14,8 +14,8 @@ part 'search_criteria_provider.g.dart';
 @Riverpod(keepAlive: true)
 class SearchCriteria extends _$SearchCriteria {
   @override
-  SearchCriteriaDto build() {
-    return const SearchCriteriaDto();
+  OfferSearchCriteria build() {
+    return const OfferSearchCriteria();
   }
 
   void setOrigin(City? city) {
@@ -51,7 +51,7 @@ class SearchCriteria extends _$SearchCriteria {
   }
 
   void clear() {
-    state = const SearchCriteriaDto();
+    state = const OfferSearchCriteria();
   }
 
   /// Swap origin and destination cities.

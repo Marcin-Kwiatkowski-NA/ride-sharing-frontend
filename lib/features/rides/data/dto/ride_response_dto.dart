@@ -1,7 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import 'city_dto.dart';
-import 'contact_method_dto.dart';
+import '../../../offers/data/city_dto.dart';
+import '../../../offers/data/contact_method_dto.dart';
+import '../../../offers/data/offer_enums.dart';
 import 'driver_dto.dart';
 import 'ride_enums.dart';
 import 'vehicle_response_dto.dart';

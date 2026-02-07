@@ -1,16 +1,16 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../data/dto/search_criteria_dto.dart';
+import '../../../offers/data/offer_search_criteria.dart';
+import '../../../offers/domain/offer_ui_model.dart';
 import '../../data/ride_repository.dart';
 import '../../domain/ride_presentation.dart';
-import '../../domain/ride_ui_model.dart';
 import 'search_criteria_provider.dart';
 
 part 'paginated_rides_provider.g.dart';
 
 /// State for paginated rides list.
 class PaginatedRidesState {
-  final List<RideUiModel> rides;
+  final List<OfferUiModel> rides;
   final bool isLoading;
   final bool hasMore;
   final Object? error;
@@ -25,7 +25,7 @@ class PaginatedRidesState {
   });
 
   PaginatedRidesState copyWith({
-    List<RideUiModel>? rides,
+    List<OfferUiModel>? rides,
     bool? isLoading,
     bool? hasMore,
     Object? error,
@@ -48,22 +48,20 @@ class PaginatedRidesState {
 class PaginatedRides extends _$PaginatedRides {
   @override
   PaginatedRidesState build() {
-    // Watch search criteria - reset when it changes
     final criteria = ref.watch(searchCriteriaProvider);
-
-    // Trigger initial load
-    Future.microtask(() => _loadInitial(criteria));
-
+    _loadInitial(criteria);
     return const PaginatedRidesState(isLoading: true);
   }
 
-  Future<void> _loadInitial(SearchCriteriaDto criteria) async {
+  Future<void> _loadInitial(OfferSearchCriteria criteria) async {
     state = const PaginatedRidesState(isLoading: true);
 
     try {
       final repository = ref.read(rideRepositoryProvider);
       final initialCriteria = criteria.copyWith(page: 0);
       final response = await repository.searchRides(initialCriteria);
+
+      if (!ref.mounted) return;
 
       final rides = RidePresentation.toUiModels(response.content);
 
@@ -74,6 +72,7 @@ class PaginatedRides extends _$PaginatedRides {
         currentPage: 0,
       );
     } catch (e) {
+      if (!ref.mounted) return;
       state = PaginatedRidesState(isLoading: false, hasMore: false, error: e);
     }
   }
@@ -92,6 +91,8 @@ class PaginatedRides extends _$PaginatedRides {
       final nextCriteria = criteria.copyWith(page: nextPage);
       final response = await repository.searchRides(nextCriteria);
 
+      if (!ref.mounted) return;
+
       final newRides = RidePresentation.toUiModels(response.content);
 
       state = state.copyWith(
@@ -101,6 +102,7 @@ class PaginatedRides extends _$PaginatedRides {
         currentPage: nextPage,
       );
     } catch (e) {
+      if (!ref.mounted) return;
       state = state.copyWith(isLoading: false, error: e);
     }
   }

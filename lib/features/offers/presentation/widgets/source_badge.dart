@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Badge widget showing ride source (Verified member / Community listing).
+/// Badge widget showing offer source (Verified member / Community listing).
 class SourceBadge extends StatelessWidget {
   final String text;
   final Color color;

@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 
-import '../../domain/ride_ui_model.dart';
+import '../../domain/offer_ui_model.dart';
 import 'source_badge.dart';
 
-/// Card widget displaying ride information.
+/// Card widget displaying offer information in a list.
 ///
 /// Layout:
 /// - Route + price (top row)
 /// - Date + part-of-day + time (second row)
-/// - Chips: seats, source (bottom row)
-class RideCard extends StatelessWidget {
-  final RideUiModel ride;
+/// - Chips: capacity, source (bottom row)
+class OfferCard extends StatelessWidget {
+  final OfferUiModel offer;
   final VoidCallback? onTap;
 
-  const RideCard({super.key, required this.ride, this.onTap});
+  const OfferCard({super.key, required this.offer, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +36,7 @@ class RideCard extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      ride.routeDisplay,
+                      offer.routeDisplay,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
@@ -46,10 +46,10 @@ class RideCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    ride.priceDisplay,
+                    offer.priceDisplay,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: ride.hasPrice ? colorScheme.primary : null,
+                      color: offer.hasPrice ? colorScheme.primary : null,
                     ),
                   ),
                 ],
@@ -60,7 +60,7 @@ class RideCard extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                    ride.dateDisplay,
+                    offer.dateDisplay,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: colorScheme.onSurfaceVariant,
                     ),
@@ -72,15 +72,15 @@ class RideCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    ride.partOfDayDisplay,
+                    offer.partOfDayDisplay,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: colorScheme.onSurfaceVariant,
                     ),
                   ),
-                  if (ride.exactTimeDisplay != null) ...[
+                  if (offer.exactTimeDisplay != null) ...[
                     const Spacer(),
                     Text(
-                      ride.exactTimeDisplay!,
+                      offer.exactTimeDisplay!,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.w500,
                       ),
@@ -90,7 +90,7 @@ class RideCard extends StatelessWidget {
               ),
               const SizedBox(height: 12),
 
-              // Chips row: seats + source
+              // Chips row: capacity + source
               Wrap(
                 spacing: 8,
                 runSpacing: 4,
@@ -98,11 +98,11 @@ class RideCard extends StatelessWidget {
                   _buildChip(
                     context,
                     Icons.event_seat_outlined,
-                    ride.seatsDisplay,
+                    offer.capacityDisplay,
                   ),
                   SourceBadge(
-                    text: ride.sourceBadgeText,
-                    color: ride.sourceBadgeColor,
+                    text: offer.sourceBadgeText,
+                    color: offer.sourceBadgeColor,
                   ),
                 ],
               ),

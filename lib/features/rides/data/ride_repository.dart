@@ -1,8 +1,8 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import 'dto/paginated_response.dart';
+import '../../offers/data/offer_search_criteria.dart';
+import '../../offers/data/paginated_response.dart';
 import 'dto/ride_response_dto.dart';
-import 'dto/search_criteria_dto.dart';
 import 'ride_api_client.dart';
 
 part 'ride_repository.g.dart';
@@ -18,7 +18,7 @@ class RideRepository {
 
   /// Search rides with criteria.
   Future<PaginatedResponse<RideResponseDto>> searchRides(
-    SearchCriteriaDto criteria,
+    OfferSearchCriteria criteria,
   ) {
     return _apiClient.searchRides(criteria);
   }

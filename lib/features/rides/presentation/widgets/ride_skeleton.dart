@@ -62,10 +62,11 @@ class RideSkeletonList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
+    return Padding(
       padding: const EdgeInsets.all(16),
-      itemCount: count,
-      itemBuilder: (context, index) => const RideSkeleton(),
+      child: Column(
+        children: List.generate(count, (_) => const RideSkeleton()),
+      ),
     );
   }
 }

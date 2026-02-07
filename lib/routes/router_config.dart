@@ -8,12 +8,14 @@ import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/chat/presentation/screens/chat_screen.dart';
 import '../features/chat/presentation/tabs/messages_tab.dart';
 import '../features/navigation/main_layout.dart';
+import '../features/offers/domain/offer_ui_model.dart';
+import '../features/offers/presentation/screens/offer_details_screen.dart';
 import '../features/packages/presentation/screens/packages_screen.dart';
 import '../features/passengers/presentation/screens/passengers_list_placeholder_screen.dart';
 import '../features/profile/presentation/screens/edit_profile_screen.dart';
 import '../features/profile/presentation/screens/profile_screen.dart';
 import '../features/rides/create/presentation/post_ride_screen.dart';
-import '../features/rides/presentation/screens/ride_details_screen.dart';
+import '../features/rides/presentation/providers/search_mode_provider.dart';
 import '../features/rides/presentation/screens/rides_home_screen.dart';
 import '../features/rides/presentation/screens/rides_list_screen.dart';
 import 'auth_redirect.dart';
@@ -28,7 +30,7 @@ final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
 @Riverpod(keepAlive: true)
 GoRouter router(Ref ref) {
-  final refreshListenable = AuthRefreshListenable(ref);
+  final refreshListenable = RouterRefreshListenable(ref);
 
   // Dispose the listenable when provider is disposed
   ref.onDispose(() {
@@ -61,7 +63,6 @@ GoRouter router(Ref ref) {
         path: RoutePaths.login,
         name: RouteNames.login,
         builder: (context, state) {
-          // 'from' is validated in redirect (must start with /) - safe to use
           final from = state.uri.queryParameters['from'];
           final back = state.uri.queryParameters['back'];
           return LoginScreen(returnTo: from, backTo: back);
@@ -90,29 +91,43 @@ GoRouter router(Ref ref) {
                   GoRoute(
                     path: RoutePaths.ridesList,
                     name: RouteNames.ridesList,
+                    redirect: (context, state) {
+                      final mode = ref.read(searchModeProvider);
+                      if (mode == SearchMode.passengers) {
+                        return '/rides/passengers-placeholder';
+                      }
+                      return null;
+                    },
                     builder: (context, state) => const RidesListScreen(),
                   ),
                   GoRoute(
                     path: RoutePaths.passengersListPlaceholder,
                     name: RouteNames.passengersListPlaceholder,
+                    redirect: (context, state) {
+                      final mode = ref.read(searchModeProvider);
+                      if (mode == SearchMode.rides) {
+                        return '/rides/list';
+                      }
+                      return null;
+                    },
                     builder: (context, state) =>
                         const PassengersListPlaceholderScreen(),
                   ),
                   GoRoute(
-                    path: RoutePaths.rideDetails,
-                    name: RouteNames.rideDetails,
-                    // Redirect invalid params - let errorBuilder handle display
+                    path: RoutePaths.offerDetails,
+                    name: RouteNames.offerDetails,
                     redirect: (context, state) {
-                      final rideIdStr = state.pathParameters['rideId']!;
-                      if (int.tryParse(rideIdStr) == null) {
-                        return RoutePaths.rides; // Redirect to safe location
+                      final param = state.pathParameters['offerKey']!;
+                      if (OfferKey.fromRouteParam(param) == null) {
+                        return RoutePaths.rides;
                       }
                       return null;
                     },
                     builder: (context, state) {
-                      final rideId =
-                          int.parse(state.pathParameters['rideId']!);
-                      return RideDetailsScreen(rideId: rideId);
+                      final offerKey = OfferKey.fromRouteParam(
+                        state.pathParameters['offerKey']!,
+                      )!;
+                      return OfferDetailsScreen(offerKey: offerKey);
                     },
                   ),
                 ],
@@ -166,8 +181,7 @@ GoRouter router(Ref ref) {
       GoRoute(
         path: RoutePaths.chat,
         name: RouteNames.chat,
-        parentNavigatorKey: _rootNavigatorKey, // Full screen above tabs
-        // Redirect invalid params to messages tab
+        parentNavigatorKey: _rootNavigatorKey,
         redirect: (context, state) {
           final idStr = state.pathParameters['conversationId'];
           if (idStr == null || idStr.isEmpty) {
@@ -183,7 +197,7 @@ GoRouter router(Ref ref) {
       GoRoute(
         path: RoutePaths.postRide,
         name: RouteNames.postRide,
-        parentNavigatorKey: _rootNavigatorKey, // Full screen above tabs
+        parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) {
           final prefillOrigin = state.extra as City?;
           return PostRideScreen(prefillOrigin: prefillOrigin);

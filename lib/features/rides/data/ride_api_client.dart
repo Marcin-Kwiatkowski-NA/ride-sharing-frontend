@@ -2,9 +2,9 @@ import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/network/dio_provider.dart';
-import 'dto/paginated_response.dart';
+import '../../offers/data/offer_search_criteria.dart';
+import '../../offers/data/paginated_response.dart';
 import 'dto/ride_response_dto.dart';
-import 'dto/search_criteria_dto.dart';
 
 part 'ride_api_client.g.dart';
 
@@ -18,7 +18,7 @@ class RideApiClient {
   ///
   /// Returns paginated response with rides and pagination metadata.
   Future<PaginatedResponse<RideResponseDto>> searchRides(
-    SearchCriteriaDto criteria,
+    OfferSearchCriteria criteria,
   ) async {
     final queryParams = <String, dynamic>{
       'page': criteria.page,
