@@ -40,7 +40,7 @@ class RidesHomeScreen extends StatelessWidget {
 
           // Search group — slightly above optical center.
           Align(
-            alignment: const Alignment(0, -0.2),
+            alignment: const Alignment(0, -0.05),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 500),
               child: Padding(
