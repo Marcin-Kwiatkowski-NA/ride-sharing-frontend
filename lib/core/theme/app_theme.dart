@@ -197,12 +197,34 @@ class AppTheme {
       ),
 
       // ─────────────────────────────────────────────────────────────────────────
+      // ListTile Theme
+      // ─────────────────────────────────────────────────────────────────────────
+      listTileTheme: ListTileThemeData(
+        dense: false,
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        iconColor: _primaryColor,
+        textColor: Colors.black87,
+      ),
+
+      // ─────────────────────────────────────────────────────────────────────────
+      // Bottom Sheet Theme
+      // ─────────────────────────────────────────────────────────────────────────
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: Colors.transparent,
+        modalBackgroundColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+      ),
+
+      // ─────────────────────────────────────────────────────────────────────────
       // Divider Theme
       // ─────────────────────────────────────────────────────────────────────────
-      dividerTheme: DividerThemeData(
-        color: Colors.grey.shade200,
+      dividerTheme: const DividerThemeData(
+        color: Colors.black12,
         thickness: 1,
-        space: 24,
+        space: 0,
       ),
 
       // ─────────────────────────────────────────────────────────────────────────

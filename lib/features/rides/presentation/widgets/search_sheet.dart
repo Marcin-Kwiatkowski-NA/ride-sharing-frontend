@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/cities/domain/city.dart';
 import '../../../../core/cities/widgets/city_autocomplete_field.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../routes/routes.dart';
@@ -13,6 +14,10 @@ import '../../data/dto/recent_search_snapshot.dart';
 import '../providers/recent_searches_provider.dart';
 import '../providers/search_criteria_provider.dart';
 import '../providers/search_mode_provider.dart';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Public entry point
+// ─────────────────────────────────────────────────────────────────────────────
 
 /// Opens the search sheet as a modal bottom sheet with glassmorphism styling.
 void showSearchSheet(BuildContext context) {
@@ -23,6 +28,10 @@ void showSearchSheet(BuildContext context) {
     builder: (context) => const _SearchSheetWrapper(),
   );
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Sheet wrapper (DraggableScrollableSheet)
+// ─────────────────────────────────────────────────────────────────────────────
 
 class _SearchSheetWrapper extends StatelessWidget {
   const _SearchSheetWrapper();
@@ -39,6 +48,10 @@ class _SearchSheetWrapper extends StatelessWidget {
     );
   }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Main sheet content (stateful, Riverpod)
+// ─────────────────────────────────────────────────────────────────────────────
 
 class _SearchSheetContent extends ConsumerStatefulWidget {
   final ScrollController scrollController;
@@ -85,6 +98,8 @@ class _SearchSheetContentState extends ConsumerState<_SearchSheetContent> {
     super.dispose();
   }
 
+  // ── Actions ──────────────────────────────────────────────────────────────
+
   void _onSearch() {
     final mode = ref.read(searchModeProvider);
 
@@ -121,6 +136,33 @@ class _SearchSheetContentState extends ConsumerState<_SearchSheetContent> {
     });
   }
 
+  Future<void> _pickCity({required bool isOrigin}) async {
+    final controller = isOrigin ? _fromController : _toController;
+    final city = await showModalBottomSheet<City>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _CityPickerSheet(
+        controller: controller,
+        label: isOrigin ? 'From' : 'To',
+      ),
+    );
+
+    if (!mounted) return;
+
+    if (city != null) {
+      setState(() {
+        if (isOrigin) {
+          _draft = _draft.copyWith(origin: city);
+          _fromController.text = city.name;
+        } else {
+          _draft = _draft.copyWith(destination: city);
+          _toController.text = city.name;
+        }
+      });
+    }
+  }
+
   Future<void> _pickDate() async {
     final date = await showDatePicker(
       context: context,
@@ -145,6 +187,8 @@ class _SearchSheetContentState extends ConsumerState<_SearchSheetContent> {
     });
   }
 
+  // ── Build ────────────────────────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -153,9 +197,8 @@ class _SearchSheetContentState extends ConsumerState<_SearchSheetContent> {
     final hasDate = _draft.departureDate != null;
     final hasBothCities = _draft.origin != null && _draft.destination != null;
 
-    final searchLabel = mode == SearchMode.passengers
-        ? 'Search Passengers'
-        : 'Search Rides';
+    final searchLabel =
+        mode == SearchMode.passengers ? 'Search Passengers' : 'Search Rides';
 
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
@@ -249,42 +292,20 @@ class _SearchSheetContentState extends ConsumerState<_SearchSheetContent> {
 
               const SizedBox(height: 24),
 
-              // Route section with timeline decoration
-              _buildRouteSection(colorScheme, hasBothCities),
-
-              const SizedBox(height: 16),
-
-              // Date chip
-              Align(
-                alignment: Alignment.centerLeft,
-                child: InputChip(
-                  avatar: Icon(
-                    Icons.calendar_today,
-                    size: 18,
-                    color: hasDate ? colorScheme.onPrimary : Colors.white70,
-                  ),
-                  label: Text(
-                    hasDate
-                        ? DateFormat('EEE, d MMM').format(_draft.departureDate!)
-                        : 'Any date',
-                  ),
-                  selected: hasDate,
-                  onPressed: _pickDate,
-                  onDeleted: hasDate ? _clearDate : null,
-                  selectedColor: colorScheme.primary,
-                  backgroundColor: Colors.white.withValues(alpha: 0.1),
-                  labelStyle: TextStyle(
-                    color: hasDate ? colorScheme.onPrimary : Colors.white,
-                  ),
-                  side: BorderSide(
-                    color: hasDate
-                        ? Colors.transparent
-                        : Colors.white.withValues(alpha: 0.2),
-                  ),
-                  deleteIconColor:
-                      hasDate ? colorScheme.onPrimary : Colors.white54,
-                ),
+              // Route picker card
+              _RoutePickerCard(
+                originName: _draft.origin?.name,
+                destinationName: _draft.destination?.name,
+                showSwap: hasBothCities,
+                onFromTap: () => _pickCity(isOrigin: true),
+                onToTap: () => _pickCity(isOrigin: false),
+                onSwap: _swapCities,
               ),
+
+              const SizedBox(height: 12),
+
+              // Date tile
+              _buildDateTile(theme, colorScheme, hasDate),
 
               const SizedBox(height: 28),
 
@@ -321,106 +342,313 @@ class _SearchSheetContentState extends ConsumerState<_SearchSheetContent> {
     );
   }
 
-  Widget _buildRouteSection(ColorScheme colorScheme, bool hasBothCities) {
-    return Column(
-      children: [
-        // From field with timeline dot
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Column(
-              children: [
-                Container(
-                  width: 12,
-                  height: 12,
+  Widget _buildDateTile(
+    ThemeData theme,
+    ColorScheme colorScheme,
+    bool hasDate,
+  ) {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(20),
+      elevation: 1,
+      shadowColor: Colors.black26,
+      child: InkWell(
+        onTap: _pickDate,
+        borderRadius: BorderRadius.circular(20),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            children: [
+              Icon(
+                Icons.calendar_today,
+                size: 22,
+                color: colorScheme.primary,
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Date',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      hasDate
+                          ? DateFormat('EEE, d MMM yyyy')
+                              .format(_draft.departureDate!)
+                          : 'Any date',
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        color: hasDate
+                            ? colorScheme.onSurface
+                            : colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (hasDate)
+                IconButton(
+                  icon:
+                      Icon(Icons.close, size: 18, color: colorScheme.outline),
+                  onPressed: _clearDate,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  tooltip: 'Clear date',
+                )
+              else
+                Icon(
+                  Icons.chevron_right,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Route Picker Card
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _RoutePickerCard extends StatelessWidget {
+  final String? originName;
+  final String? destinationName;
+  final bool showSwap;
+  final VoidCallback onFromTap;
+  final VoidCallback onToTap;
+  final VoidCallback onSwap;
+
+  const _RoutePickerCard({
+    required this.originName,
+    required this.destinationName,
+    required this.showSwap,
+    required this.onFromTap,
+    required this.onToTap,
+    required this.onSwap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(20),
+      elevation: 1,
+      shadowColor: Colors.black26,
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        children: [
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _RouteRow(
+                icon: Icons.trip_origin,
+                label: 'From',
+                value: originName,
+                onTap: onFromTap,
+              ),
+              const Divider(height: 1, indent: 52),
+              _RouteRow(
+                icon: Icons.location_on,
+                label: 'To',
+                value: destinationName,
+                onTap: onToTap,
+              ),
+            ],
+          ),
+
+          // Swap button overlay
+          if (showSwap)
+            Positioned(
+              right: 8,
+              top: 0,
+              bottom: 0,
+              child: Center(
+                child: Container(
                   decoration: BoxDecoration(
+                    color: colorScheme.primary.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
-                    border: Border.all(
-                      color: colorScheme.primary,
-                      width: 2,
+                  ),
+                  child: IconButton(
+                    icon: Icon(Icons.swap_vert, color: colorScheme.primary),
+                    onPressed: onSwap,
+                    tooltip: 'Swap cities',
+                    iconSize: 20,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Route Row (single tappable row inside the card)
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _RouteRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String? value;
+  final VoidCallback onTap;
+
+  const _RouteRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final hasValue = value != null && value!.isNotEmpty;
+
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
+          children: [
+            Icon(icon, size: 22, color: colorScheme.primary),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    hasValue ? value! : 'Choose city',
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: hasValue
+                          ? colorScheme.onSurface
+                          : colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.chevron_right,
+              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// City Picker Sheet (reuses CityAutocompleteField)
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _CityPickerSheet extends StatefulWidget {
+  final TextEditingController controller;
+  final String label;
+
+  const _CityPickerSheet({
+    required this.controller,
+    required this.label,
+  });
+
+  @override
+  State<_CityPickerSheet> createState() => _CityPickerSheetState();
+}
+
+class _CityPickerSheetState extends State<_CityPickerSheet> {
+  late final TextEditingController _pickerController;
+
+  @override
+  void initState() {
+    super.initState();
+    // Start with fresh text so the autocomplete opens clean.
+    _pickerController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _pickerController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Padding(
+      padding:
+          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: Material(
+        color: colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Handle
+                Center(
+                  child: Container(
+                    width: 32,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: colorScheme.onSurfaceVariant
+                          .withValues(alpha: 0.4),
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
                 ),
-                Container(
-                  width: 2,
-                  height: 24,
-                  color: Colors.white.withValues(alpha: 0.2),
-                ),
-              ],
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: CityAutocompleteField(
-                controller: _fromController,
-                labelText: 'From',
-                prefixIcon: Icons.trip_origin,
-                onCitySelected: (city) {
-                  setState(() {
-                    _draft = _draft.copyWith(origin: city);
-                    _fromController.text = city.name;
-                  });
-                },
-                onCityCleared: () {
-                  setState(() {
-                    _draft = _draft.copyWith(origin: null);
-                  });
-                },
-              ),
-            ),
-          ],
-        ),
+                const SizedBox(height: 16),
 
-        // Swap button
-        if (hasBothCities)
-          Align(
-            alignment: Alignment.centerLeft,
-            child: IconButton(
-              icon: Icon(Icons.swap_vert, color: colorScheme.primary),
-              onPressed: _swapCities,
-              tooltip: 'Swap cities',
+                // Title
+                Text(
+                  widget.label,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Autocomplete field
+                CityAutocompleteField(
+                  controller: _pickerController,
+                  labelText: 'Search city',
+                  prefixIcon: Icons.search,
+                  onCitySelected: (city) {
+                    Navigator.of(context).pop(city);
+                  },
+                  onCityCleared: () {
+                    // Keep picker open — user is clearing to re-search.
+                  },
+                ),
+
+                // Give space for the dropdown suggestions
+                const SizedBox(height: 240),
+              ],
             ),
           ),
-
-        // To field with timeline dot
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Column(
-              children: [
-                Container(
-                  width: 2,
-                  height: hasBothCities ? 0 : 24,
-                  color: Colors.white.withValues(alpha: 0.2),
-                ),
-                Icon(
-                  Icons.location_on,
-                  size: 14,
-                  color: colorScheme.primary,
-                ),
-              ],
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: CityAutocompleteField(
-                controller: _toController,
-                labelText: 'To',
-                prefixIcon: Icons.location_on,
-                onCitySelected: (city) {
-                  setState(() {
-                    _draft = _draft.copyWith(destination: city);
-                    _toController.text = city.name;
-                  });
-                },
-                onCityCleared: () {
-                  setState(() {
-                    _draft = _draft.copyWith(destination: null);
-                  });
-                },
-              ),
-            ),
-          ],
         ),
-      ],
+      ),
     );
   }
 }
