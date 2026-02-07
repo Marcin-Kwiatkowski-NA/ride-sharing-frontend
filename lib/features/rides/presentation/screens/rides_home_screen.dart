@@ -9,15 +9,13 @@ import '../widgets/recent_searches_list.dart';
 ///
 /// Layout (top → bottom):
 /// - Optically-centered search group: [HeroSearchCard] + [RecentSearchesList]
-/// - Empty-state hint foreshadowing the request flow
-/// - Bottom-pinned [HomeBottomActionBar] (driver + my rides actions)
+/// - Open background space
+/// - Floating [HomeBottomActionBar] capsule near the bottom
 class RidesHomeScreen extends StatelessWidget {
   const RidesHomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Background(
       child: Stack(
         children: [
@@ -59,23 +57,17 @@ class RidesHomeScreen extends StatelessWidget {
             ),
           ),
 
-          // Empty state hint — between search group and driver tile.
-          Align(
-            alignment: const Alignment(0, 0.25),
-            child: Text(
-              'No ride? Create a request.',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: Colors.white.withValues(alpha: 0.4),
+          // Floating command capsule.
+          Positioned(
+            left: 24,
+            right: 24,
+            bottom: MediaQuery.of(context).padding.bottom + 24,
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 500),
+                child: const HomeBottomActionBar(),
               ),
             ),
-          ),
-
-          // Bottom action bar — full-width glassmorphism dock.
-          const Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: HomeBottomActionBar(),
           ),
         ],
       ),

@@ -6,32 +6,29 @@ import 'package:go_router/go_router.dart';
 import '../../../../routes/routes.dart';
 import 'publish_selection_sheet.dart';
 
-/// Glassmorphism bottom action bar for the rides home screen.
+/// Floating command capsule at the bottom of the rides home screen.
 ///
-/// Houses a "My Rides" shortcut (left) and a universal "Post" action
-/// (right) that opens [PublishSelectionSheet] for driver/passenger choice.
+/// Pill-shaped glassmorphism bar housing a "My Rides" shortcut (left)
+/// and a universal "Post" action (right) that opens [PublishSelectionSheet].
 class HomeBottomActionBar extends StatelessWidget {
   const HomeBottomActionBar({super.key});
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final bottomPadding = MediaQuery.of(context).padding.bottom;
 
-    return ClipRect(
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(100),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Container(
-          height: 80 + bottomPadding,
-          padding: EdgeInsets.only(
-            left: 16,
-            right: 16,
-            bottom: bottomPadding,
-          ),
+          height: 64,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
           decoration: BoxDecoration(
-            color: Colors.black.withValues(alpha: 0.6),
-            border: const Border(
-              top: BorderSide(color: Colors.white12),
+            color: Colors.black.withValues(alpha: 0.8),
+            borderRadius: BorderRadius.circular(100),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.1),
             ),
           ),
           child: Row(
@@ -41,7 +38,7 @@ class HomeBottomActionBar extends StatelessWidget {
                 icon: const Icon(Icons.directions_car, size: 20),
                 label: const Text('My Rides'),
                 style: TextButton.styleFrom(
-                  foregroundColor: Colors.white70,
+                  foregroundColor: Colors.white,
                 ),
               ),
               const Spacer(),
@@ -52,9 +49,7 @@ class HomeBottomActionBar extends StatelessWidget {
                 style: FilledButton.styleFrom(
                   backgroundColor: colorScheme.secondary,
                   foregroundColor: colorScheme.onSecondary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
+                  shape: const StadiumBorder(),
                 ),
               ),
             ],
