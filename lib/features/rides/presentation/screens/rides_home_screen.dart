@@ -1,18 +1,23 @@
 import 'package:flutter/material.dart';
 
 import '../../../../shared/widgets/background.dart';
-import '../widgets/driver_conversion_tile.dart';
 import '../widgets/hero_search_card.dart';
+import '../widgets/home_bottom_action_bar.dart';
+import '../widgets/recent_searches_list.dart';
 
 /// Intent-based launcher for the Rides tab.
 ///
-/// Shows a centered hero search surface (passenger intent) and a floating
-/// bottom driver conversion tile (driver intent).
+/// Layout (top → bottom):
+/// - Optically-centered search group: [HeroSearchCard] + [RecentSearchesList]
+/// - Empty-state hint foreshadowing the request flow
+/// - Bottom-pinned [HomeBottomActionBar] (driver + my rides actions)
 class RidesHomeScreen extends StatelessWidget {
   const RidesHomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Background(
       child: Stack(
         children: [
@@ -35,33 +40,42 @@ class RidesHomeScreen extends StatelessWidget {
             ),
           ),
 
-          // Hero search card — centered.
-          Center(
+          // Search group — slightly above optical center.
+          Align(
+            alignment: const Alignment(0, -0.2),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 500),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24),
-                child: HeroSearchCard(),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    HeroSearchCard(),
+                    SizedBox(height: 8),
+                    RecentSearchesList(),
+                  ],
+                ),
               ),
             ),
           ),
 
-          // Driver conversion tile — bottom, above nav bar.
-          Positioned(
+          // Empty state hint — between search group and driver tile.
+          Align(
+            alignment: const Alignment(0, 0.25),
+            child: Text(
+              'No ride? Create a request.',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: Colors.white.withValues(alpha: 0.4),
+              ),
+            ),
+          ),
+
+          // Bottom action bar — full-width glassmorphism dock.
+          const Positioned(
             left: 0,
             right: 0,
             bottom: 0,
-            child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 500),
-                    child: const DriverConversionTile(),
-                  ),
-                ),
-              ),
-            ),
+            child: HomeBottomActionBar(),
           ),
         ],
       ),
