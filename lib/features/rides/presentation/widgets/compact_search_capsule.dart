@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/search_criteria_provider.dart';
+import 'search_label.dart';
 import 'search_sheet.dart';
 
 /// Compact single-line search capsule for the rides list header.
@@ -36,9 +37,10 @@ class CompactSearchCapsule extends ConsumerWidget {
               const SizedBox(width: 8),
               Flexible(
                 child: Text(
-                  _buildLabel(
-                    criteria.origin?.name,
-                    criteria.destination?.name,
+                  buildSearchLabel(
+                    originName: criteria.origin?.name,
+                    destinationName: criteria.destination?.name,
+                    emptyLabel: 'All rides',
                   ),
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: colorScheme.onSurface,
@@ -53,14 +55,4 @@ class CompactSearchCapsule extends ConsumerWidget {
     );
   }
 
-  String _buildLabel(String? originName, String? destName) {
-    if (originName != null && destName != null) {
-      return '$originName → $destName';
-    } else if (originName != null) {
-      return 'From $originName';
-    } else if (destName != null) {
-      return 'To $destName';
-    }
-    return 'All rides';
-  }
 }

@@ -1,75 +1,69 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../shared/widgets/background.dart';
-import '../../../seats/presentation/widgets/post_seat_cta.dart';
-import '../providers/search_mode_provider.dart';
-import '../widgets/post_ride_cta.dart';
-import '../widgets/search_capsule.dart';
+import '../widgets/driver_conversion_tile.dart';
+import '../widgets/hero_search_card.dart';
 
-/// Hero home screen for the Rides tab.
-/// Replaces the old SearchRideScreen as Branch 0 root.
-class RidesHomeScreen extends ConsumerWidget {
+/// Intent-based launcher for the Rides tab.
+///
+/// Shows a centered hero search surface (passenger intent) and a floating
+/// bottom driver conversion tile (driver intent).
+class RidesHomeScreen extends StatelessWidget {
   const RidesHomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final mode = ref.watch(searchModeProvider);
-
-    return SafeArea(
-      child: Background(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 500),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                children: [
-                  const SizedBox(height: 48),
-
-                  // Mode toggle
-                  SegmentedButton<SearchMode>(
-                    segments: const [
-                      ButtonSegment(
-                        value: SearchMode.rides,
-                        label: Text('Rides'),
-                        icon: Icon(Icons.directions_car_outlined),
-                      ),
-                      ButtonSegment(
-                        value: SearchMode.passengers,
-                        label: Text('Passengers'),
-                        icon: Icon(Icons.people_outline),
-                      ),
-                    ],
-                    selected: {mode},
-                    onSelectionChanged: (selected) {
-                      ref
-                          .read(searchModeProvider.notifier)
-                          .setMode(selected.first);
-                    },
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Search capsule
-                  const SearchCapsule(),
-
-                  const SizedBox(height: 16),
-
-                  // Post ride CTA
-                  const PostRideCta(),
-
-                  const SizedBox(height: 8),
-
-                  // Post seat CTA
-                  const PostSeatCta(),
-
-                  const Spacer(),
-                ],
+  Widget build(BuildContext context) {
+    return Background(
+      child: Stack(
+        children: [
+          // Gradient overlay for readability over the background image.
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: const [
+                    Color(0xDD000000),
+                    Color(0x80000000),
+                    Color(0x80000000),
+                    Color(0xDD000000),
+                  ],
+                  stops: const [0.0, 0.35, 0.65, 1.0],
+                ),
               ),
             ),
           ),
-        ),
+
+          // Hero search card — centered.
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 500),
+              child: const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24),
+                child: HeroSearchCard(),
+              ),
+            ),
+          ),
+
+          // Driver conversion tile — bottom, above nav bar.
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 500),
+                    child: const DriverConversionTile(),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
