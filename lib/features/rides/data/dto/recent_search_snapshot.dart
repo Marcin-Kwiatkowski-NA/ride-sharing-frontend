@@ -39,6 +39,16 @@ sealed class RecentSearchSnapshot with _$RecentSearchSnapshot {
     );
   }
 
+  /// Human-readable label for display in the recent searches list.
+  String get displayLabel {
+    final o = origin?.name;
+    final d = destination?.name;
+    if (o != null && d != null) return '$o \u2192 $d';
+    if (o != null) return 'from $o';
+    if (d != null) return 'to $d';
+    return 'Search';
+  }
+
   /// Stable equality for deduplication (not Dart ==).
   /// Compares: origin placeId + destination placeId + normalized date +
   /// anyTime + (time hour/min if !anyTime) + mode.
