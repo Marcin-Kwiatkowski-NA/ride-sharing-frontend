@@ -13,6 +13,7 @@ import '../../../offers/presentation/providers/offer_detail_provider.dart';
 import '../../presentation/providers/paginated_rides_provider.dart';
 import 'post_ride_controller.dart';
 import 'widgets/part_of_day_selector.dart';
+import 'widgets/smart_match_sheet.dart';
 import 'widgets/time_mode_selector.dart';
 
 class PostRideScreen extends ConsumerStatefulWidget {
@@ -154,23 +155,29 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
         // Mark as navigated FIRST to prevent double navigation on rebuild
         ref.read(postRideControllerProvider.notifier).markNavigated();
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Ride created successfully!'),
-            backgroundColor: colorScheme.primary,
-          ),
-        );
-
         // Invalidate caches
         final offerKey = OfferKey(OfferKind.ride, next.createdRideId!);
         ref.invalidate(offerDetailProvider(offerKey));
         ref.read(paginatedRidesProvider.notifier).refresh();
 
-        // Navigate (replace so user can't go back to form)
-        context.goNamed(
-          RouteNames.offerDetails,
-          pathParameters: {'offerKey': offerKey.toRouteParam()},
-        );
+        // Show Smart Match sheet — navigates to offer details on close
+        if (next.origin != null &&
+            next.destination != null &&
+            next.selectedDate != null) {
+          showSmartMatchSheet(
+            context,
+            origin: next.origin!,
+            destination: next.destination!,
+            departureDate: next.selectedDate!,
+            createdRideId: next.createdRideId!,
+          );
+        } else {
+          // Fallback: direct navigation if form data is somehow incomplete
+          context.goNamed(
+            RouteNames.offerDetails,
+            pathParameters: {'offerKey': offerKey.toRouteParam()},
+          );
+        }
       }
 
       // Show error snackbar

@@ -17,8 +17,15 @@ import 'post_seat_controller.dart';
 
 class PostSeatScreen extends ConsumerStatefulWidget {
   final City? prefillOrigin;
+  final City? prefillDestination;
+  final DateTime? prefillDate;
 
-  const PostSeatScreen({super.key, this.prefillOrigin});
+  const PostSeatScreen({
+    super.key,
+    this.prefillOrigin,
+    this.prefillDestination,
+    this.prefillDate,
+  });
 
   @override
   ConsumerState<PostSeatScreen> createState() => _PostSeatScreenState();
@@ -53,6 +60,23 @@ class _PostSeatScreenState extends ConsumerState<PostSeatScreen> {
       _lastSelectedOrigin = city;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ref.read(postSeatControllerProvider.notifier).setOrigin(city);
+      });
+    }
+
+    if (widget.prefillDestination != null) {
+      final city = widget.prefillDestination!;
+      _destinationController.text = city.name;
+      _lastSelectedDestination = city;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(postSeatControllerProvider.notifier).setDestination(city);
+      });
+    }
+
+    if (widget.prefillDate != null) {
+      final date = widget.prefillDate!;
+      _dateController.text = DateFormat('yyyy-MM-dd').format(date);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(postSeatControllerProvider.notifier).setSelectedDate(date);
       });
     }
   }

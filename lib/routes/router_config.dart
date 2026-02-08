@@ -16,11 +16,10 @@ import '../features/packages/presentation/screens/packages_screen.dart';
 import '../features/profile/presentation/screens/edit_profile_screen.dart';
 import '../features/profile/presentation/screens/profile_screen.dart';
 import '../features/rides/create/presentation/post_ride_screen.dart';
-import '../features/rides/presentation/providers/search_mode_provider.dart';
+import '../features/offers/presentation/screens/offers_list_screen.dart';
 import '../features/rides/presentation/screens/rides_home_screen.dart';
-import '../features/rides/presentation/screens/rides_list_screen.dart';
+import '../features/seats/create/domain/seat_prefill.dart';
 import '../features/seats/create/presentation/post_seat_screen.dart';
-import '../features/seats/presentation/screens/seats_list_screen.dart';
 import 'auth_redirect.dart';
 import 'error_screen.dart';
 import 'routes.dart';
@@ -94,26 +93,12 @@ GoRouter router(Ref ref) {
                   GoRoute(
                     path: RoutePaths.ridesList,
                     name: RouteNames.ridesList,
-                    redirect: (context, state) {
-                      final mode = ref.read(searchModeProvider);
-                      if (mode == SearchMode.passengers) {
-                        return '/rides/seats';
-                      }
-                      return null;
-                    },
-                    builder: (context, state) => const RidesListScreen(),
+                    builder: (context, state) => const OffersListScreen(),
                   ),
                   GoRoute(
                     path: RoutePaths.seatsList,
                     name: RouteNames.seatsList,
-                    redirect: (context, state) {
-                      final mode = ref.read(searchModeProvider);
-                      if (mode == SearchMode.rides) {
-                        return '/rides/list';
-                      }
-                      return null;
-                    },
-                    builder: (context, state) => const SeatsListScreen(),
+                    builder: (context, state) => const OffersListScreen(),
                   ),
                   GoRoute(
                     path: RoutePaths.offerDetails,
@@ -210,8 +195,12 @@ GoRouter router(Ref ref) {
         name: RouteNames.postSeat,
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) {
-          final prefillOrigin = state.extra as City?;
-          return PostSeatScreen(prefillOrigin: prefillOrigin);
+          final prefill = state.extra as SeatPrefill?;
+          return PostSeatScreen(
+            prefillOrigin: prefill?.origin,
+            prefillDestination: prefill?.destination,
+            prefillDate: prefill?.date,
+          );
         },
       ),
       GoRoute(

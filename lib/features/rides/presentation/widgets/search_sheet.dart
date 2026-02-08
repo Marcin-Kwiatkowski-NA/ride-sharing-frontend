@@ -109,11 +109,8 @@ class _SearchSheetContentState extends ConsumerState<_SearchSheetContent> {
 
     Navigator.of(context).pop();
 
-    if (mode == SearchMode.passengers) {
-      context.goNamed(RouteNames.seatsList);
-    } else {
-      context.goNamed(RouteNames.ridesList);
-    }
+    // Always navigate to the unified list screen — mode is handled inline.
+    context.goNamed(RouteNames.ridesList);
   }
 
   void _onClear() {

@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_tokens.dart';
 import '../../domain/offer_ui_model.dart';
-import 'source_badge.dart';
 
-/// Card widget displaying offer information in a list.
+/// Horizontal offer card with Time | Route+Driver | Price layout.
 ///
-/// Layout:
-/// - Route + price (top row)
-/// - Date + part-of-day + time (second row)
-/// - Chips: capacity, source (bottom row)
+/// ```
+/// ┌──────────────────────────────────────────────────┐
+/// │  Morning    │  Łódź          ○ Jan │      35 zł  │
+/// │  Flexible   │  ↓                   │     2 seats  │
+/// │             │  Kraków              │              │
+/// └──────────────────────────────────────────────────┘
+/// ```
 class OfferCard extends StatelessWidget {
   final OfferUiModel offer;
   final VoidCallback? onTap;
@@ -17,95 +20,31 @@ class OfferCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     return Card(
+      elevation: AppTokens.elevationLow,
       margin: const EdgeInsets.only(bottom: 12),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Route + Price row
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Text(
-                      offer.routeDisplay,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    offer.moneyValue,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: offer.moneyHighlight ? colorScheme.primary : null,
-                    ),
-                  ),
-                ],
+              // Left: Time anchor
+              SizedBox(
+                width: 80,
+                child: _TimeAnchor(offer: offer),
               ),
-              const SizedBox(height: 8),
-
-              // Date + Part-of-day + Time row
-              Row(
-                children: [
-                  Text(
-                    offer.dateDisplay,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '|',
-                    style: TextStyle(color: colorScheme.outlineVariant),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    offer.partOfDayDisplay,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  if (offer.exactTimeDisplay != null) ...[
-                    const Spacer(),
-                    Text(
-                      offer.exactTimeDisplay!,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ],
+              // Vertical divider
+              _verticalDivider(context),
+              // Middle: Route + Driver
+              Expanded(
+                child: _RouteSection(offer: offer),
               ),
-              const SizedBox(height: 12),
-
-              // Chips row: capacity + source
-              Wrap(
-                spacing: 8,
-                runSpacing: 4,
-                children: [
-                  _buildChip(
-                    context,
-                    offer.countIcon,
-                    offer.countDisplay,
-                  ),
-                  SourceBadge(
-                    text: offer.sourceBadgeText,
-                    color: offer.sourceBadgeColor,
-                  ),
-                ],
-              ),
+              const SizedBox(width: 12),
+              // Right: Price + Seats
+              _PriceSection(offer: offer),
             ],
           ),
         ),
@@ -113,26 +52,185 @@ class OfferCard extends StatelessWidget {
     );
   }
 
-  Widget _buildChip(BuildContext context, IconData icon, String label) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(8),
+  Widget _verticalDivider(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: SizedBox(
+        height: 48,
+        child: VerticalDivider(
+          width: 1,
+          thickness: 1,
+          color: Theme.of(context).colorScheme.outlineVariant,
+        ),
       ),
-      child: Row(
+    );
+  }
+}
+
+/// Left section: time anchor for quick scanning.
+class _TimeAnchor extends StatelessWidget {
+  final OfferUiModel offer;
+
+  const _TimeAnchor({required this.offer});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    // Undefined time
+    if (offer.isTimeUndefined) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 16, color: colorScheme.onSurfaceVariant),
-          const SizedBox(width: 4),
           Text(
-            label,
-            style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
+            'Any time',
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ],
-      ),
+      );
+    }
+
+    // Exact time (not approximate)
+    if (offer.exactTimeDisplay != null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            offer.exactTimeDisplay!,
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            offer.partOfDayDisplay,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
+      );
+    }
+
+    // Approximate (flexible)
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          offer.partOfDayDisplay,
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          'Flexible',
+          style: theme.textTheme.labelSmall?.copyWith(
+            color: colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Middle section: route (origin → destination).
+class _RouteSection extends StatelessWidget {
+  final OfferUiModel offer;
+
+  const _RouteSection({required this.offer});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          offer.originName,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w500,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Icon(
+            Icons.arrow_downward,
+            size: 14,
+            color: colorScheme.onSurfaceVariant,
+          ),
+        ),
+        Text(
+          offer.destinationName,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w500,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    );
+  }
+}
+
+/// Right section: price and seat count.
+class _PriceSection extends StatelessWidget {
+  final OfferUiModel offer;
+
+  const _PriceSection({required this.offer});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          offer.moneyValue,
+          style: theme.textTheme.titleLarge?.copyWith(
+            color: offer.moneyHighlight ? colorScheme.primary : null,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          decoration: BoxDecoration(
+            color: colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(AppTokens.radiusSM),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                offer.countIcon,
+                size: 14,
+                color: colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 3),
+              Text(
+                offer.countDisplay,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

@@ -9,6 +9,7 @@ class PaginatedOfferState {
   final bool hasMore;
   final Object? error;
   final int currentPage;
+  final int totalElements;
 
   const PaginatedOfferState({
     this.offers = const [],
@@ -16,6 +17,7 @@ class PaginatedOfferState {
     this.hasMore = true,
     this.error,
     this.currentPage = 0,
+    this.totalElements = 0,
   });
 
   PaginatedOfferState copyWith({
@@ -24,6 +26,7 @@ class PaginatedOfferState {
     bool? hasMore,
     Object? error,
     int? currentPage,
+    int? totalElements,
   }) {
     return PaginatedOfferState(
       offers: offers ?? this.offers,
@@ -31,6 +34,7 @@ class PaginatedOfferState {
       hasMore: hasMore ?? this.hasMore,
       error: error,
       currentPage: currentPage ?? this.currentPage,
+      totalElements: totalElements ?? this.totalElements,
     );
   }
 }

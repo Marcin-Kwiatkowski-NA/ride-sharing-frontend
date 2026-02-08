@@ -13,6 +13,8 @@ class PaginatedSliverList<T> extends StatelessWidget {
   final IconData emptyIcon;
   final String emptyMessage;
   final Widget? loadingWidget;
+  final Widget Function(BuildContext)? emptyBuilder;
+  final Widget? trailingWidget;
 
   const PaginatedSliverList({
     super.key,
@@ -25,6 +27,8 @@ class PaginatedSliverList<T> extends StatelessWidget {
     this.emptyIcon = Icons.search_off,
     this.emptyMessage = 'No results found.',
     this.loadingWidget,
+    this.emptyBuilder,
+    this.trailingWidget,
   });
 
   @override
@@ -44,6 +48,12 @@ class PaginatedSliverList<T> extends StatelessWidget {
     }
 
     if (!isLoading && items.isEmpty) {
+      if (emptyBuilder != null) {
+        return SliverFillRemaining(
+          hasScrollBody: false,
+          child: emptyBuilder!(context),
+        );
+      }
       return SliverFillRemaining(
         hasScrollBody: false,
         child: Center(
@@ -59,16 +69,21 @@ class PaginatedSliverList<T> extends StatelessWidget {
       );
     }
 
-    final itemCount = hasMore ? items.length + 1 : items.length;
+    final showTrailing = !hasMore && trailingWidget != null;
+    final int extraCount = hasMore ? 1 : (showTrailing ? 1 : 0);
+    final itemCount = items.length + extraCount;
 
     return SliverList.builder(
       itemCount: itemCount,
       itemBuilder: (context, index) {
         if (index >= items.length) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(vertical: 16),
-            child: Center(child: CircularProgressIndicator()),
-          );
+          if (hasMore) {
+            return const Padding(
+              padding: EdgeInsets.symmetric(vertical: 16),
+              child: Center(child: CircularProgressIndicator()),
+            );
+          }
+          return trailingWidget!;
         }
         return itemBuilder(context, items[index]);
       },

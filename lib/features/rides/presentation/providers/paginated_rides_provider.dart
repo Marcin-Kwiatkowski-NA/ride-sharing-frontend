@@ -15,6 +15,7 @@ class PaginatedRidesState {
   final bool hasMore;
   final Object? error;
   final int currentPage;
+  final int totalElements;
 
   const PaginatedRidesState({
     this.rides = const [],
@@ -22,6 +23,7 @@ class PaginatedRidesState {
     this.hasMore = true,
     this.error,
     this.currentPage = 0,
+    this.totalElements = 0,
   });
 
   PaginatedRidesState copyWith({
@@ -30,6 +32,7 @@ class PaginatedRidesState {
     bool? hasMore,
     Object? error,
     int? currentPage,
+    int? totalElements,
   }) {
     return PaginatedRidesState(
       rides: rides ?? this.rides,
@@ -37,6 +40,7 @@ class PaginatedRidesState {
       hasMore: hasMore ?? this.hasMore,
       error: error,
       currentPage: currentPage ?? this.currentPage,
+      totalElements: totalElements ?? this.totalElements,
     );
   }
 }
@@ -70,6 +74,7 @@ class PaginatedRides extends _$PaginatedRides {
         isLoading: false,
         hasMore: !response.last,
         currentPage: 0,
+        totalElements: response.totalElements,
       );
     } catch (e) {
       if (!ref.mounted) return;

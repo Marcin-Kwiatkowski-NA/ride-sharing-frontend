@@ -37,6 +37,7 @@ class PaginatedSeats extends _$PaginatedSeats {
         isLoading: false,
         hasMore: !response.last,
         currentPage: 0,
+        totalElements: response.totalElements,
       );
     } catch (e) {
       if (!ref.mounted) return;

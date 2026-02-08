@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../routes/routes.dart';
 import '../../../rides/presentation/providers/search_criteria_provider.dart';
+import '../../create/domain/seat_prefill.dart';
 
 /// Secondary CTA card to post a seat request, shown on the RidesHomeScreen.
 class PostSeatCta extends ConsumerWidget {
@@ -20,8 +21,15 @@ class PostSeatCta extends ConsumerWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
         onTap: () {
-          final origin = ref.read(searchCriteriaProvider).origin;
-          context.pushNamed(RouteNames.postSeat, extra: origin);
+          final criteria = ref.read(searchCriteriaProvider);
+          context.pushNamed(
+            RouteNames.postSeat,
+            extra: SeatPrefill(
+              origin: criteria.origin,
+              destination: criteria.destination,
+              date: criteria.departureDate,
+            ),
+          );
         },
         borderRadius: BorderRadius.circular(16),
         child: Padding(
