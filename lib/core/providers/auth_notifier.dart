@@ -48,20 +48,41 @@ class Auth extends _$Auth {
       }
 
       final token = await _authService.getAccessToken();
+      TokenPair? tokenPair = await _authService.getTokenPair();
+
       if (token == null || !JwtDecoder.isTokenValid(token)) {
-        // Token expired locally
-        await _authService.clearAuthStorage();
-        ref.read(authTokenProvider.notifier).clear();
-        if (!ref.mounted) return;
-        state = const AuthState(
-          status: AuthStatus.unauthenticated,
-          errorMessage: 'Your session has expired. Please log in again.',
-        );
-        return;
+        // Access token expired - try refreshing with refresh token
+        if (tokenPair != null && tokenPair.hasRefreshToken) {
+          final refreshed = await _authService.refreshTokens(
+            tokenPair.refreshToken,
+          );
+          if (refreshed != null) {
+            tokenPair = refreshed;
+          } else {
+            // Refresh failed - clear and log out
+            await _authService.clearAuthStorage();
+            ref.read(authTokenProvider.notifier).clear();
+            if (!ref.mounted) return;
+            state = const AuthState(
+              status: AuthStatus.unauthenticated,
+              errorMessage: 'Your session has expired. Please log in again.',
+            );
+            return;
+          }
+        } else {
+          // No refresh token available
+          await _authService.clearAuthStorage();
+          ref.read(authTokenProvider.notifier).clear();
+          if (!ref.mounted) return;
+          state = const AuthState(
+            status: AuthStatus.unauthenticated,
+            errorMessage: 'Your session has expired. Please log in again.',
+          );
+          return;
+        }
       }
 
-      // Token valid locally - sync to memory
-      final tokenPair = await _authService.getTokenPair();
+      // Sync valid tokens to memory
       ref.read(authTokenProvider.notifier).setTokenPair(tokenPair);
 
       // Hydrate user from API

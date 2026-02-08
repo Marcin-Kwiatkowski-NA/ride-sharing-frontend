@@ -94,9 +94,18 @@ class AuthInterceptor extends QueuedInterceptor {
     handler.next(err);
   }
 
-  /// Check if path is an auth endpoint (should skip token handling)
+  /// Check if path is a public auth endpoint (should skip token handling).
+  ///
+  /// Only login, register, refresh, and google endpoints are public.
+  /// `/auth/me` requires authentication and must NOT be skipped.
   bool _isAuthEndpoint(String path) {
-    return path.contains('/auth/');
+    const publicAuthPaths = [
+      '/auth/login',
+      '/auth/register',
+      '/auth/refresh',
+      '/auth/google',
+    ];
+    return publicAuthPaths.any((p) => path.contains(p));
   }
 
   /// Mutex-protected token refresh.
