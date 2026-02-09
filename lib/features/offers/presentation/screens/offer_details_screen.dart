@@ -89,23 +89,23 @@ class _OfferDetailsBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: [
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: OfferMasterCard(offer: offer),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+          sliver: SliverList.list(
+            children: [
+              OfferMasterCard(offer: offer),
+              if (offer.user != null) ...[
+                const SizedBox(height: 16),
+                OfferPersonSection(
+                  user: offer.user!,
+                  description: offer.description,
+                  offerKind: offer.offerKey.kind,
+                  isExternalSource: offer.isExternalSource,
+                ),
+              ],
+            ],
           ),
         ),
-        const SliverToBoxAdapter(child: SizedBox(height: 32)),
-        if (offer.user != null)
-          SliverToBoxAdapter(
-            child: OfferPersonSection(
-              user: offer.user!,
-              description: offer.description,
-              offerKind: offer.offerKey.kind,
-              isExternalSource: offer.isExternalSource,
-            ),
-          ),
-        const SliverToBoxAdapter(child: SizedBox(height: 8)),
       ],
     );
   }

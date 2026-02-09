@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_tokens.dart';
 import '../../domain/offer_models.dart';
 import '../../domain/offer_ui_model.dart';
 import '../helpers/offer_details_strings.dart';
 
-/// Driver/passenger section: user info card with optional 2-line description.
+/// Driver/passenger section: user info card with optional source chip
+/// and chat-bubble styled description.
 class OfferPersonSection extends StatelessWidget {
   const OfferPersonSection({
     super.key,
@@ -87,6 +89,10 @@ class OfferPersonSection extends StatelessWidget {
                             ],
                           ),
                         ],
+                        if (isExternalSource) ...[
+                          const SizedBox(height: 8),
+                          _SourceChip(cs: cs, tt: tt),
+                        ],
                       ],
                     ),
                   ),
@@ -95,20 +101,63 @@ class OfferPersonSection extends StatelessWidget {
               ),
             ),
           ),
-          // Description: 2-line truncation
+          // Description: chat-bubble style
           if (description != null && description!.isNotEmpty) ...[
-            const Divider(indent: 16, endIndent: 16),
+            Divider(indent: 16, endIndent: 16, height: 1, color: cs.outlineVariant),
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              child: Text(
-                description!,
-                style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: cs.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(AppTokens.radiusMD),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.format_quote,
+                      size: 20,
+                      color: cs.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        description!,
+                        style: tt.bodyMedium?.copyWith(color: cs.onSurface),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
         ],
+      ),
+    );
+  }
+}
+
+class _SourceChip extends StatelessWidget {
+  const _SourceChip({required this.cs, required this.tt});
+
+  final ColorScheme cs;
+  final TextTheme tt;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: ShapeDecoration(
+        color: cs.tertiaryContainer,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppTokens.radiusSM),
+        ),
+      ),
+      child: Text(
+        'Source: Facebook',
+        style: tt.labelSmall?.copyWith(color: cs.onTertiaryContainer),
       ),
     );
   }
