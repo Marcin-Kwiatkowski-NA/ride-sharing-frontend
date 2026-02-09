@@ -12,7 +12,7 @@ _RideResponseDto _$RideResponseDtoFromJson(
   id: (json['id'] as num).toInt(),
   driver: json['driver'] == null
       ? null
-      : DriverDto.fromJson(json['driver'] as Map<String, dynamic>),
+      : UserCardDto.fromJson(json['driver'] as Map<String, dynamic>),
   origin: CityDto.fromJson(json['origin'] as Map<String, dynamic>),
   destination: CityDto.fromJson(json['destination'] as Map<String, dynamic>),
   departureTime: DateTime.parse(json['departureTime'] as String),

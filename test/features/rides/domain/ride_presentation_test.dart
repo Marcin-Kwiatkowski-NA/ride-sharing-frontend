@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:blablafront/features/rides/data/dto/ride_response_dto.dart';
 import 'package:blablafront/features/offers/data/city_dto.dart';
 import 'package:blablafront/features/offers/data/contact_method_dto.dart';
-import 'package:blablafront/features/rides/data/dto/driver_dto.dart';
+import 'package:blablafront/features/rides/data/dto/user_card_dto.dart';
 import 'package:blablafront/features/rides/data/dto/ride_enums.dart';
 import 'package:blablafront/features/offers/data/offer_enums.dart';
 import 'package:blablafront/features/offers/domain/part_of_day.dart';
@@ -21,8 +21,8 @@ void main() {
       int seatsTaken = 0,
       RideStatus rideStatus = RideStatus.open,
       List<ContactMethodDto>? contactMethods,
-      int? driverId = 1,
-      String? driverName,
+      int driverId = 1,
+      String driverName = 'Test Driver',
       double? driverRating,
       int? driverCompletedRides,
       String? description,
@@ -38,7 +38,7 @@ void main() {
         seatsTaken: seatsTaken,
         pricePerSeat: pricePerSeat,
         rideStatus: rideStatus,
-        driver: DriverDto(
+        driver: UserCardDto(
           id: driverId,
           name: driverName,
           rating: driverRating,
@@ -267,7 +267,10 @@ void main() {
       });
 
       test('hasAnyContactAction is false when no contacts and no chat', () {
-        final dto = createTestRide(contactMethods: [], driverId: null);
+        final dto = createTestRide(
+          contactMethods: [],
+          source: RideSource.facebook,
+        );
 
         final uiModel = RidePresentation.toUiModel(dto);
 

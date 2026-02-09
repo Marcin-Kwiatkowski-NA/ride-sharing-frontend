@@ -5,6 +5,7 @@ import '../../offers/domain/offer_formatting.dart';
 import '../../offers/domain/offer_models.dart';
 import '../../offers/domain/offer_ui_model.dart';
 import '../../offers/domain/part_of_day.dart';
+import '../../profile/public_profile/domain/public_profile_data.dart';
 import '../data/dto/seat_enums.dart';
 import '../data/dto/seat_response_dto.dart';
 
@@ -72,6 +73,7 @@ class SeatPresentation {
             canUseInAppChat: canUseInAppChat,
             chatContext: ChatContext(OfferKind.seat, dto.id),
             contactMethods: contactMethods,
+            profileData: dto.passenger?.toPublicProfileData(),
           )
         : null;
 

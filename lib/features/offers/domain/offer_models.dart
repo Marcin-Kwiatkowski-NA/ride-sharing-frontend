@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../profile/public_profile/domain/public_profile_data.dart';
 import '../data/offer_enums.dart';
 import 'offer_ui_model.dart';
 
@@ -53,6 +54,9 @@ class OfferUserUi {
   final ChatContext chatContext;
   final List<ContactMethodUi> contactMethods;
 
+  // Public profile (for navigation to profile screen)
+  final PublicProfileData? profileData;
+
   const OfferUserUi({
     required this.sectionTitle,
     required this.displayName,
@@ -63,6 +67,7 @@ class OfferUserUi {
     required this.canUseInAppChat,
     required this.chatContext,
     required this.contactMethods,
+    this.profileData,
   });
 
   bool get hasAnyContactAction => canUseInAppChat || contactMethods.isNotEmpty;

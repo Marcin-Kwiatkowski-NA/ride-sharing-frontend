@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_tokens.dart';
+import '../../../../routes/routes.dart';
 import '../../domain/offer_models.dart';
 import '../../domain/offer_ui_model.dart';
 import '../helpers/offer_details_strings.dart';
@@ -33,20 +35,29 @@ class OfferPersonSection extends StatelessWidget {
         children: [
           // Tappable person row
           InkWell(
-            onTap: () {
-              // Future: navigate to user profile
-            },
+            onTap: user.profileData != null
+                ? () => context.pushNamed(
+                      RouteNames.publicProfile,
+                      pathParameters: {
+                        'userId': user.profileData!.userId.toString(),
+                      },
+                      extra: user.profileData,
+                    )
+                : null,
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  CircleAvatar(
-                    radius: 28,
-                    backgroundColor: cs.primaryContainer,
-                    child: Icon(
-                      Icons.person,
-                      size: 28,
-                      color: cs.onPrimaryContainer,
+                  Hero(
+                    tag: 'avatar-${user.userId}',
+                    child: CircleAvatar(
+                      radius: 28,
+                      backgroundColor: cs.primaryContainer,
+                      child: Icon(
+                        Icons.person,
+                        size: 28,
+                        color: cs.onPrimaryContainer,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 16),

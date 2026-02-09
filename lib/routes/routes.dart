@@ -15,6 +15,7 @@ abstract class RouteNames {
   static const postRide = 'post-ride';
   static const postSeat = 'post-seat';
   static const myOffers = 'my-offers';
+  static const publicProfile = 'public-profile';
   static const devGallery = 'dev-gallery';
 }
 
@@ -36,5 +37,6 @@ abstract class RoutePaths {
   static const postRide = '/post-ride';
   static const postSeat = '/post-seat';
   static const myOffers = '/my-offers';
+  static const publicProfile = '/user/:userId';
   static const devGallery = '/dev/gallery';
 }

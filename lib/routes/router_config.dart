@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -15,6 +16,8 @@ import '../features/offers/presentation/screens/offer_details_screen.dart';
 import '../features/packages/presentation/screens/packages_screen.dart';
 import '../features/profile/presentation/screens/edit_profile_screen.dart';
 import '../features/profile/presentation/screens/profile_screen.dart';
+import '../features/profile/public_profile/domain/public_profile_data.dart';
+import '../features/profile/public_profile/screens/public_profile_screen.dart';
 import '../features/rides/create/presentation/post_ride_screen.dart';
 import '../features/offers/presentation/screens/offers_list_screen.dart';
 import '../features/rides/presentation/screens/rides_home_screen.dart';
@@ -179,6 +182,29 @@ GoRouter router(Ref ref) {
         builder: (context, state) {
           final conversationId = state.pathParameters['conversationId']!;
           return ChatScreen(conversationId: conversationId);
+        },
+      ),
+      GoRoute(
+        path: RoutePaths.publicProfile,
+        name: RouteNames.publicProfile,
+        parentNavigatorKey: _rootNavigatorKey,
+        redirect: (context, state) {
+          final idStr = state.pathParameters['userId'];
+          if (idStr == null || int.tryParse(idStr) == null) {
+            return RoutePaths.rides;
+          }
+          return null;
+        },
+        builder: (context, state) {
+          final userId = int.parse(state.pathParameters['userId']!);
+          final extra = state.extra;
+          final profileData =
+              extra is PublicProfileData ? extra : null;
+
+          return PublicProfileScreen(
+            userId: userId,
+            initialData: profileData,
+          );
         },
       ),
       GoRoute(

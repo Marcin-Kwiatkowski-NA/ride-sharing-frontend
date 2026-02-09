@@ -3,8 +3,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../../offers/data/city_dto.dart';
 import '../../../offers/data/contact_method_dto.dart';
 import '../../../offers/data/offer_enums.dart';
-import 'driver_dto.dart';
 import 'ride_enums.dart';
+import 'user_card_dto.dart';
 import 'vehicle_response_dto.dart';
 
 part 'ride_response_dto.freezed.dart';
@@ -14,7 +14,7 @@ part 'ride_response_dto.g.dart';
 sealed class RideResponseDto with _$RideResponseDto {
   const factory RideResponseDto({
     required int id,
-    DriverDto? driver,
+    UserCardDto? driver,
     required CityDto origin,
     required CityDto destination,
     required DateTime departureTime,

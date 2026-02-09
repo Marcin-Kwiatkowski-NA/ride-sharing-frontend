@@ -5,6 +5,7 @@ import '../../offers/domain/offer_formatting.dart';
 import '../../offers/domain/offer_models.dart';
 import '../../offers/domain/offer_ui_model.dart';
 import '../../offers/domain/part_of_day.dart';
+import '../../profile/public_profile/domain/public_profile_data.dart';
 import '../data/dto/ride_enums.dart';
 import '../data/dto/ride_response_dto.dart';
 
@@ -67,6 +68,7 @@ class RidePresentation {
             canUseInAppChat: canUseInAppChat,
             chatContext: ChatContext(OfferKind.ride, dto.id),
             contactMethods: contactMethods,
+            profileData: dto.driver?.toPublicProfileData(),
           )
         : null;
 
