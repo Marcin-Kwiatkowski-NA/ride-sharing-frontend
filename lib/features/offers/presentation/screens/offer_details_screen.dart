@@ -3,13 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/utils/error_mapper.dart';
 import '../../domain/offer_ui_model.dart';
+import '../helpers/offer_details_strings.dart';
 import '../providers/offer_detail_provider.dart';
 import '../widgets/offer_bottom_bar.dart';
-import '../widgets/offer_description_section.dart';
-import '../widgets/offer_money_count_section.dart';
-import '../widgets/offer_route_header.dart';
-import '../widgets/offer_user_section.dart';
-import '../widgets/offer_when_section.dart';
+import '../widgets/offer_master_card.dart';
+import '../widgets/offer_person_section.dart';
 
 /// Unified details screen for any offer kind (ride or seat).
 class OfferDetailsScreen extends ConsumerWidget {
@@ -21,19 +19,31 @@ class OfferDetailsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final offerAsync = ref.watch(offerDetailProvider(offerKey));
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Details')),
-      body: offerAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => _ErrorView(
+    return offerAsync.when(
+      loading: () => Scaffold(
+        appBar: AppBar(),
+        body: const Center(child: CircularProgressIndicator()),
+      ),
+      error: (error, stack) => Scaffold(
+        appBar: AppBar(),
+        body: _ErrorView(
           error: error,
           onRetry: () => ref.invalidate(offerDetailProvider(offerKey)),
         ),
-        data: (offer) => _OfferDetailsBody(offer: offer),
       ),
-      bottomNavigationBar: offerAsync.whenOrNull(
-        data: (offer) => OfferBottomBar(offer: offer),
-      ),
+      data: (offer) {
+        final strings = OfferDetailsStrings(context);
+
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(strings.screenTitle(offer.offerKey.kind)),
+          ),
+          body: _OfferDetailsBody(offer: offer),
+          bottomNavigationBar: offer.user != null
+              ? OfferBottomBar(offer: offer)
+              : null,
+        );
+      },
     );
   }
 }
@@ -51,7 +61,11 @@ class _ErrorView extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.error_outline, size: 64, color: Theme.of(context).colorScheme.error),
+          Icon(
+            Icons.error_outline,
+            size: 64,
+            color: Theme.of(context).colorScheme.error,
+          ),
           const SizedBox(height: 16),
           Text(failure.message),
           const SizedBox(height: 16),
@@ -73,27 +87,26 @@ class _OfferDetailsBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          OfferRouteHeader(offer: offer),
-          const SizedBox(height: 24),
-          OfferWhenSection(offer: offer),
-          const SizedBox(height: 24),
-          OfferMoneyCountSection(offer: offer),
-          if (offer.description != null && offer.description!.isNotEmpty) ...[
-            const SizedBox(height: 24),
-            OfferDescriptionSection(description: offer.description!),
-          ],
-          if (offer.user != null) ...[
-            const SizedBox(height: 24),
-            OfferUserSection(user: offer.user!),
-          ],
-          const SizedBox(height: 100), // Space for bottom bar
-        ],
-      ),
+    return CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: OfferMasterCard(offer: offer),
+          ),
+        ),
+        const SliverToBoxAdapter(child: SizedBox(height: 32)),
+        if (offer.user != null)
+          SliverToBoxAdapter(
+            child: OfferPersonSection(
+              user: offer.user!,
+              description: offer.description,
+              offerKind: offer.offerKey.kind,
+              isExternalSource: offer.isExternalSource,
+            ),
+          ),
+        const SliverToBoxAdapter(child: SizedBox(height: 8)),
+      ],
     );
   }
 }

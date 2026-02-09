@@ -98,6 +98,7 @@ class OfferUiModel {
   // Source
   final String sourceBadgeText;
   final Color sourceBadgeColor;
+  final bool isExternalSource;
 
   // Status
   final StatusChipSpec? statusChip;
@@ -127,6 +128,7 @@ class OfferUiModel {
     required this.countIcon,
     required this.sourceBadgeText,
     required this.sourceBadgeColor,
+    required this.isExternalSource,
     required this.statusChip,
     required this.isBookable,
     required this.user,

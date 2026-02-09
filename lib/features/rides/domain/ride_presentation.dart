@@ -88,6 +88,7 @@ class RidePresentation {
       countIcon: Icons.airline_seat_recline_normal,
       sourceBadgeText: sourceBadge.text,
       sourceBadgeColor: sourceBadge.color,
+      isExternalSource: !isInternal,
       statusChip: statusChip,
       isBookable: isBookable,
       user: user,

@@ -93,6 +93,7 @@ class SeatPresentation {
       countIcon: Icons.people,
       sourceBadgeText: sourceBadge.text,
       sourceBadgeColor: sourceBadge.color,
+      isExternalSource: !isInternal,
       statusChip: statusChip,
       isBookable: isBookable,
       user: user,

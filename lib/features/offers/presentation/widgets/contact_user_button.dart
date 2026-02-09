@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../domain/offer_models.dart';
+import '../helpers/offer_details_strings.dart';
 import 'contact_user_sheet.dart';
 
 /// Button that opens the contact methods bottom sheet.
@@ -19,11 +20,13 @@ class ContactUserButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final label = OfferDetailsStrings(context).contactLabel(user: user);
+
     if (!user.hasAnyContactAction) {
       return FilledButton.icon(
         onPressed: null,
         icon: const Icon(Icons.phone_disabled),
-        label: const Text('No contact available'),
+        label: Text(label),
       );
     }
 
@@ -31,14 +34,14 @@ class ContactUserButton extends StatelessWidget {
       return FilledButton.tonalIcon(
         onPressed: () => showContactUserSheet(context, user),
         icon: const Icon(Icons.phone),
-        label: const Text('Contact'),
+        label: Text(label),
       );
     }
 
     return FilledButton.icon(
       onPressed: () => showContactUserSheet(context, user),
       icon: const Icon(Icons.phone),
-      label: const Text('Contact'),
+      label: Text(label),
     );
   }
 }
