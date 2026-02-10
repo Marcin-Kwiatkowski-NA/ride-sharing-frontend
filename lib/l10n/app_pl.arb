@@ -68,6 +68,7 @@
   "dateStripDate": "{date}",
 
   "formattedPrice": "{price} PLN",
+  "unknownPrice": "? PLN",
   "seatCount": "{count, plural, one{1 miejsce} few{{count} miejsca} many{{count} miejsc} other{{count} miejsca}}",
   "passengerCount": "{count, plural, one{1 pasażer} few{{count} pasażerów} many{{count} pasażerów} other{{count} pasażerów}}",
   "rideCount": "{count, plural, one{1 przejazd} few{{count} przejazdy} many{{count} przejazdów} other{{count} przejazdu}}",

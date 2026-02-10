@@ -464,6 +464,12 @@ abstract class AppLocalizations {
   /// **'{price} PLN'**
   String formattedPrice(int price);
 
+  /// Shown on offer card when price is not set
+  ///
+  /// In en, this message translates to:
+  /// **'? PLN'**
+  String get unknownPrice;
+
   /// Number of available seats on a ride offer
   ///
   /// In en, this message translates to:

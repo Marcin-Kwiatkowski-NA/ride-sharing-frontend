@@ -225,6 +225,9 @@
     "placeholders": { "price": { "type": "int" } }
   },
 
+  "unknownPrice": "? PLN",
+  "@unknownPrice": { "description": "Shown on offer card when price is not set" },
+
   "seatCount": "{count, plural, one{1 seat} other{{count} seats}}",
   "@seatCount": {
     "description": "Number of available seats on a ride offer",

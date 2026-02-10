@@ -215,6 +215,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get unknownPrice => '? PLN';
+
+  @override
   String seatCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
