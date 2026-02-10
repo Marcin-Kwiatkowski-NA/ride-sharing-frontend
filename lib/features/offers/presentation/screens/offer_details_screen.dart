@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/utils/error_mapper.dart';
 import '../../domain/offer_ui_model.dart';
 import '../helpers/offer_details_strings.dart';
@@ -72,7 +73,7 @@ class _ErrorView extends StatelessWidget {
           FilledButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh),
-            label: const Text('Retry'),
+            label: Text(context.l10n.retry),
           ),
         ],
       ),

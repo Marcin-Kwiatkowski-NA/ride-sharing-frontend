@@ -1,0 +1,766 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "Vamos Ride Sharing",
+  "@appTitle": { "description": "Application title" },
+
+  "retry": "Retry",
+  "@retry": { "description": "Generic retry button label" },
+
+  "cancel": "Cancel",
+  "@cancel": { "description": "Generic cancel button label" },
+
+  "save": "Save",
+  "@save": { "description": "Generic save button label" },
+
+  "comingSoon": "{feature} coming soon!",
+  "@comingSoon": {
+    "description": "Snackbar message for not-yet-implemented features",
+    "placeholders": { "feature": { "type": "String" } }
+  },
+
+  "or": "OR",
+  "@or": { "description": "Divider label between login methods" },
+
+  "required": "Required",
+  "@required": { "description": "Validation message for empty required fields" },
+
+
+
+  "navRides": "Rides",
+  "@navRides": { "description": "Bottom navigation label for Rides tab" },
+
+  "navPackages": "Packages",
+  "@navPackages": { "description": "Bottom navigation label for Packages tab" },
+
+  "navProfile": "Profile",
+  "@navProfile": { "description": "Bottom navigation label for Profile tab" },
+
+  "navMessages": "Messages",
+  "@navMessages": { "description": "Bottom navigation label for Messages tab" },
+
+
+
+  "loginTitle": "Login",
+  "@loginTitle": { "description": "Login screen title and button label" },
+
+  "emailLabel": "Email",
+  "@emailLabel": { "description": "Email text field label" },
+
+  "passwordLabel": "Password",
+  "@passwordLabel": { "description": "Password text field label" },
+
+  "enterEmail": "Enter your email",
+  "@enterEmail": { "description": "Validation message for empty email" },
+
+  "enterValidEmail": "Enter a valid email",
+  "@enterValidEmail": { "description": "Validation message for invalid email format" },
+
+  "enterPassword": "Enter your password",
+  "@enterPassword": { "description": "Validation message for empty password" },
+
+  "continueWithGoogle": "Continue with Google",
+  "@continueWithGoogle": { "description": "Google sign-in button label" },
+
+  "dontHaveAccount": "Don't have an account? ",
+  "@dontHaveAccount": { "description": "Text before the sign-up link on login screen" },
+
+  "signUp": "Sign up",
+  "@signUp": { "description": "Link label to navigate to registration" },
+
+  "createAccountTitle": "Create Account",
+  "@createAccountTitle": { "description": "Registration screen title and button label" },
+
+  "displayNameLabel": "Display Name",
+  "@displayNameLabel": { "description": "Display name text field label" },
+
+  "displayNameHelper": "This is the name other users will see.",
+  "@displayNameHelper": { "description": "Helper text below display name field" },
+
+  "enterDisplayName": "Enter a display name",
+  "@enterDisplayName": { "description": "Validation message for empty display name" },
+
+  "displayNameMinLength": "Display name must be at least 2 characters",
+  "@displayNameMinLength": { "description": "Validation message for short display name" },
+
+  "confirmPasswordLabel": "Confirm Password",
+  "@confirmPasswordLabel": { "description": "Confirm password text field label" },
+
+  "confirmPassword": "Confirm your password",
+  "@confirmPassword": { "description": "Validation message for empty confirm password" },
+
+  "passwordsDoNotMatch": "Passwords do not match",
+  "@passwordsDoNotMatch": { "description": "Validation message when passwords differ" },
+
+  "enterAPassword": "Enter a password",
+  "@enterAPassword": { "description": "Validation message for empty password on registration" },
+
+  "passwordMinLength": "Password must be at least 6 characters",
+  "@passwordMinLength": { "description": "Validation message for short password" },
+
+  "alreadyHaveAccount": "Already have an account? ",
+  "@alreadyHaveAccount": { "description": "Text before login link on registration screen" },
+
+  "googleSignUpComingSoon": "Google sign-up coming soon!",
+  "@googleSignUpComingSoon": { "description": "Snackbar shown when Google sign-up tapped" },
+
+
+
+  "searchSemanticLabel": "Search for rides. {label}",
+  "@searchSemanticLabel": {
+    "description": "Accessibility label for the hero search card",
+    "placeholders": { "label": { "type": "String" } }
+  },
+
+  "swapOriginDestination": "Swap origin and destination",
+  "@swapOriginDestination": { "description": "Tooltip for the swap button on search card" },
+
+  "whereToSearch": "Where to?",
+  "@whereToSearch": { "description": "Default empty search label" },
+
+  "searchFromCity": "From {city}",
+  "@searchFromCity": {
+    "description": "Search label showing origin city only",
+    "placeholders": { "city": { "type": "String" } }
+  },
+
+  "searchToCity": "To {city}",
+  "@searchToCity": {
+    "description": "Search label showing destination city only",
+    "placeholders": { "city": { "type": "String" } }
+  },
+
+  "searchRoute": "{origin} → {destination}",
+  "@searchRoute": {
+    "description": "Search label showing full route (origin to destination)",
+    "placeholders": {
+      "origin": { "type": "String" },
+      "destination": { "type": "String" }
+    }
+  },
+
+  "myRides": "My Rides",
+  "@myRides": { "description": "Button label to view user's own rides" },
+
+  "post": "Post",
+  "@post": { "description": "Button label to open the publish selection sheet" },
+
+  "whatAreYouPosting": "What are you posting?",
+  "@whatAreYouPosting": { "description": "Title of the publish selection bottom sheet" },
+
+  "offerARide": "Offer a Ride",
+  "@offerARide": { "description": "Option to post a ride as driver" },
+
+  "offerARideSubtitle": "I'm driving and have empty seats.",
+  "@offerARideSubtitle": { "description": "Subtitle for the offer-a-ride option" },
+
+  "requestARide": "Request a Ride",
+  "@requestARide": { "description": "Option to post a seat request as passenger" },
+
+  "requestARideSubtitle": "I need a driver for a specific date.",
+  "@requestARideSubtitle": { "description": "Subtitle for the request-a-ride option" },
+
+
+
+  "today": "Today",
+  "@today": { "description": "Label for current date in the date strip" },
+
+  "tomorrow": "Tomorrow",
+  "@tomorrow": { "description": "Label for next day in the date strip" },
+
+  "previousDay": "Previous day",
+  "@previousDay": { "description": "Tooltip for the left arrow in the date strip" },
+
+  "nextDay": "Next day",
+  "@nextDay": { "description": "Tooltip for the right arrow in the date strip" },
+
+  "partOfDayMorning": "Morning",
+  "@partOfDayMorning": { "description": "Time of day label: 05:00–11:59" },
+
+  "partOfDayAfternoon": "Afternoon",
+  "@partOfDayAfternoon": { "description": "Time of day label: 12:00–16:59" },
+
+  "partOfDayEvening": "Evening",
+  "@partOfDayEvening": { "description": "Time of day label: 17:00–21:59" },
+
+  "partOfDayNight": "Night",
+  "@partOfDayNight": { "description": "Time of day label: 22:00–04:59" },
+
+  "anyTime": "Any time",
+  "@anyTime": { "description": "Shown when departure time is undefined" },
+
+  "flexible": "Flexible",
+  "@flexible": { "description": "Shown when departure time is approximate / budget is unset" },
+
+  "askDriver": "Ask driver",
+  "@askDriver": { "description": "Shown when time info should be asked from driver" },
+
+  "askAboutPrice": "Ask about price",
+  "@askAboutPrice": { "description": "Shown on ride card when price is unknown" },
+
+  "askPassenger": "Ask passenger",
+  "@askPassenger": { "description": "Shown when time info should be asked from passenger" },
+
+
+
+  "offerDate": "{date}",
+  "@offerDate": {
+    "description": "Formatted departure date on offer cards and details",
+    "placeholders": {
+      "date": { "type": "DateTime", "format": "MMMEd" }
+    }
+  },
+
+  "dateStripDate": "{date}",
+  "@dateStripDate": {
+    "description": "Formatted date in the date strip selector",
+    "placeholders": {
+      "date": { "type": "DateTime", "format": "MMMEd" }
+    }
+  },
+
+  "formattedPrice": "{price} PLN",
+  "@formattedPrice": {
+    "description": "Price display with PLN currency",
+    "placeholders": { "price": { "type": "int" } }
+  },
+
+  "seatCount": "{count, plural, one{1 seat} other{{count} seats}}",
+  "@seatCount": {
+    "description": "Number of available seats on a ride offer",
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "passengerCount": "{count, plural, one{1 passenger} other{{count} passengers}}",
+  "@passengerCount": {
+    "description": "Number of passengers needed for a seat request",
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "rideCount": "{count, plural, one{1 ride} other{{count} rides}}",
+  "@rideCount": {
+    "description": "Number of completed rides shown in user ratings",
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "pricePerSeat": "Price per seat",
+  "@pricePerSeat": { "description": "Label for the price field on ride offers" },
+
+  "availableSeats": "Available seats",
+  "@availableSeats": { "description": "Label for the seat count field on ride offers" },
+
+  "budget": "Budget",
+  "@budget": { "description": "Label for the budget field on seat requests" },
+
+  "passengers": "Passengers",
+  "@passengers": { "description": "Label for the passenger count on seat requests" },
+
+  "passengersNeeded": "Passengers Needed",
+  "@passengersNeeded": { "description": "Form field label for number of passengers" },
+
+  "verifiedMember": "Verified member",
+  "@verifiedMember": { "description": "Badge text for internal (verified) source offers" },
+
+  "communityListing": "Community listing",
+  "@communityListing": { "description": "Badge text for external (Facebook) source offers" },
+
+  "sourceFacebook": "Source: Facebook",
+  "@sourceFacebook": { "description": "Chip label indicating offer comes from Facebook" },
+
+  "callLabel": "Call",
+  "@callLabel": { "description": "Contact method label for phone calls" },
+
+  "openFacebookPost": "Open Facebook post",
+  "@openFacebookPost": { "description": "Contact method label for Facebook links" },
+
+  "sendEmail": "Send email",
+  "@sendEmail": { "description": "Contact method label for email" },
+
+  "rideDetails": "Ride Details",
+  "@rideDetails": { "description": "Screen title for viewing a ride offer" },
+
+  "rideRequest": "Ride Request",
+  "@rideRequest": { "description": "Screen title for viewing a seat request" },
+
+  "offeringARide": "Offering a ride",
+  "@offeringARide": { "description": "Role label shown on ride offer details" },
+
+  "lookingForARide": "Looking for a ride",
+  "@lookingForARide": { "description": "Role label shown on seat request details" },
+
+  "contactUser": "Contact {name}",
+  "@contactUser": {
+    "description": "Button label to contact a user",
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "facebookUser": "Facebook User",
+  "@facebookUser": { "description": "Fallback subtitle for external source users" },
+
+  "priceLabel": "Price",
+  "@priceLabel": { "description": "Section label for price on offer details" },
+
+  "availabilityLabel": "Availability",
+  "@availabilityLabel": { "description": "Section label for availability on offer details" },
+
+  "driverLabel": "DRIVER",
+  "@driverLabel": { "description": "Section title for driver info on ride offers" },
+
+  "passengerLabel": "PASSENGER",
+  "@passengerLabel": { "description": "Section title for passenger info on seat requests" },
+
+  "driverFallbackName": "Driver",
+  "@driverFallbackName": { "description": "Fallback display name when driver name is missing" },
+
+  "passengerFallbackName": "Passenger",
+  "@passengerFallbackName": { "description": "Fallback display name when passenger name is missing" },
+
+  "ratingDisplay": "{rating} ({count})",
+  "@ratingDisplay": {
+    "description": "Rating with ride count displayed next to user name",
+    "placeholders": {
+      "rating": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+
+  "statusOpen": "Open",
+  "@statusOpen": { "description": "Ride status chip label: accepting passengers" },
+
+  "statusFull": "Full",
+  "@statusFull": { "description": "Ride status chip label: no seats left" },
+
+  "statusCompleted": "Completed",
+  "@statusCompleted": { "description": "Ride status chip label: ride finished" },
+
+  "statusCancelled": "Cancelled",
+  "@statusCancelled": { "description": "Status chip label: ride or seat cancelled" },
+
+  "statusSearching": "Searching",
+  "@statusSearching": { "description": "Seat status chip label: looking for a driver" },
+
+  "statusBooked": "Booked",
+  "@statusBooked": { "description": "Seat status chip label: driver found" },
+
+  "statusExpired": "Expired",
+  "@statusExpired": { "description": "Seat status chip label: request expired" },
+
+  "statusBanned": "Banned",
+  "@statusBanned": { "description": "Seat status chip label: user banned" },
+
+  "noRidesFound": "No rides found matching your criteria.",
+  "@noRidesFound": { "description": "Empty state for rides search results" },
+
+  "noPassengerRequests": "No passenger requests found matching your criteria.",
+  "@noPassengerRequests": { "description": "Empty state for seats search results" },
+
+  "myOffers": "My Offers",
+  "@myOffers": { "description": "Screen title for user's own offers" },
+
+  "filterAll": "All",
+  "@filterAll": { "description": "Segmented button label: show all offer types" },
+
+  "filterRides": "Rides",
+  "@filterRides": { "description": "Segmented button label: show only ride offers" },
+
+  "filterPassengers": "Passengers",
+  "@filterPassengers": { "description": "Segmented button label: show only seat requests" },
+
+  "failedToLoadOffers": "Failed to load offers",
+  "@failedToLoadOffers": { "description": "Error message when offers fail to load" },
+
+  "noOffersYet": "No offers yet",
+  "@noOffersYet": { "description": "Empty state when user has no offers" },
+
+
+
+  "postYourRide": "Post Your Ride",
+  "@postYourRide": { "description": "AppBar title for ride creation screen" },
+
+  "offerARideHeader": "Offer a Ride",
+  "@offerARideHeader": { "description": "Header text on ride creation form" },
+
+  "originCityLabel": "Origin City",
+  "@originCityLabel": { "description": "Text field label for departure city" },
+
+  "destinationCityLabel": "Destination City",
+  "@destinationCityLabel": { "description": "Text field label for arrival city" },
+
+  "originRequired": "Origin City is required",
+  "@originRequired": { "description": "Validation message for empty origin" },
+
+  "destinationRequired": "Destination City is required",
+  "@destinationRequired": { "description": "Validation message for empty destination" },
+
+  "selectOriginFromSuggestions": "Select origin from suggestions",
+  "@selectOriginFromSuggestions": { "description": "Validation message when origin not picked from autocomplete" },
+
+  "selectDestinationFromSuggestions": "Select destination from suggestions",
+  "@selectDestinationFromSuggestions": { "description": "Validation message when destination not picked from autocomplete" },
+
+  "mustDifferFromOrigin": "Must differ from origin",
+  "@mustDifferFromOrigin": { "description": "Validation message when destination equals origin" },
+
+  "dateOfDeparture": "Date of Departure",
+  "@dateOfDeparture": { "description": "Form field label for departure date" },
+
+  "selectDepartureDate": "Select departure date",
+  "@selectDepartureDate": { "description": "Validation message for empty departure date" },
+
+  "timeOfDay": "Time of Day",
+  "@timeOfDay": { "description": "Label for the part-of-day selector" },
+
+  "timeOfDeparture": "Time of Departure",
+  "@timeOfDeparture": { "description": "Form field label for departure time" },
+
+  "selectDepartureTime": "Select departure time",
+  "@selectDepartureTime": { "description": "Validation message for empty departure time" },
+
+  "availableSeatsLabel": "Available Seats",
+  "@availableSeatsLabel": { "description": "Form field label for number of seats" },
+
+  "seatsRange": "1-8 seats allowed",
+  "@seatsRange": { "description": "Validation message for seat count out of range" },
+
+  "pricePerSeatLabel": "Price per Seat",
+  "@pricePerSeatLabel": { "description": "Form field label for price input" },
+
+  "priceRange": "1-999 PLN",
+  "@priceRange": { "description": "Validation message for price out of range" },
+
+  "rideDescriptionOptional": "Ride Description (Optional)",
+  "@rideDescriptionOptional": { "description": "Form field label for ride description" },
+
+  "maxCharacters": "Max {count} characters",
+  "@maxCharacters": {
+    "description": "Validation message for text exceeding character limit",
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "postRide": "Post Ride",
+  "@postRide": { "description": "Submit button label for ride creation" },
+
+  "postSeatRequest": "Post Seat Request",
+  "@postSeatRequest": { "description": "AppBar title and submit button for seat request creation" },
+
+  "findARideHeader": "Find a Ride",
+  "@findARideHeader": { "description": "Header text on seat request creation form" },
+
+  "passengersRange": "1-8 passengers allowed",
+  "@passengersRange": { "description": "Validation message for passenger count out of range" },
+
+  "budgetOptional": "Budget (Optional)",
+  "@budgetOptional": { "description": "Form field label for budget input" },
+
+  "descriptionOptional": "Description (Optional)",
+  "@descriptionOptional": { "description": "Form field label for seat request description" },
+
+  "seatRequestCreated": "Seat request created successfully!",
+  "@seatRequestCreated": { "description": "Snackbar message after successful seat request creation" },
+
+
+
+  "profileTitle": "Profile",
+  "@profileTitle": { "description": "Profile screen and AppBar title" },
+
+  "logInToSeeProfile": "Log in to see your profile",
+  "@logInToSeeProfile": { "description": "Message shown to unauthenticated users on profile tab" },
+
+  "logInSignUp": "Log In / Sign Up",
+  "@logInSignUp": { "description": "Button to navigate to login from profile tab" },
+
+  "trustAndVerification": "Trust & Verification",
+  "@trustAndVerification": { "description": "Section title for verification badges" },
+
+  "emailVerification": "Email verification",
+  "@emailVerification": { "description": "Feature name for the coming-soon email verification" },
+
+  "phoneVerification": "Phone verification",
+  "@phoneVerification": { "description": "Feature name for the coming-soon phone verification" },
+
+  "phoneLabel": "Phone",
+  "@phoneLabel": { "description": "Verification badge and form label for phone" },
+
+  "statistics": "Statistics",
+  "@statistics": { "description": "Section title for user stats" },
+
+  "ridesGiven": "Rides Given",
+  "@ridesGiven": { "description": "Stats card label for rides as driver" },
+
+  "ridesTaken": "Rides Taken",
+  "@ridesTaken": { "description": "Stats card label for rides as passenger" },
+
+  "rating": "Rating",
+  "@rating": { "description": "Stats card label for user rating" },
+
+  "editProfile": "Edit Profile",
+  "@editProfile": { "description": "Action tile title and AppBar title for edit profile" },
+
+  "updatePersonalInfo": "Update your personal information",
+  "@updatePersonalInfo": { "description": "Subtitle for edit profile action tile" },
+
+  "viewRideHistory": "View your ride history",
+  "@viewRideHistory": { "description": "Subtitle for my rides action tile" },
+
+  "logout": "Logout",
+  "@logout": { "description": "Logout button label" },
+
+  "phoneNumberLabel": "Phone Number",
+  "@phoneNumberLabel": { "description": "Form field label for phone number" },
+
+  "phoneHint": "Enter your phone number (optional)",
+  "@phoneHint": { "description": "Hint text for phone number field" },
+
+  "bioLabel": "Bio",
+  "@bioLabel": { "description": "Form field label for bio" },
+
+  "bioHint": "Tell others about yourself (optional)",
+  "@bioHint": { "description": "Hint text for bio field" },
+
+  "displayNameRequired": "Display name is required",
+  "@displayNameRequired": { "description": "Validation message for empty display name on edit" },
+
+  "saveChanges": "Save Changes",
+  "@saveChanges": { "description": "Submit button for profile edit form" },
+
+  "profileUpdatedSuccess": "Profile updated successfully",
+  "@profileUpdatedSuccess": { "description": "Snackbar after successful profile update" },
+
+  "failedToUpdateProfile": "Failed to update profile",
+  "@failedToUpdateProfile": { "description": "Snackbar prefix when profile update fails" },
+
+  "profileCompleteness": "Profile Completeness",
+  "@profileCompleteness": { "description": "Card title for profile completion tracker" },
+
+  "profileComplete": "Profile complete!",
+  "@profileComplete": { "description": "Shown when profile is 100% complete" },
+
+  "percentComplete": "{percent}% complete",
+  "@percentComplete": {
+    "description": "Profile completion percentage label",
+    "placeholders": { "percent": { "type": "int" } }
+  },
+
+  "complete": "Complete",
+  "@complete": { "description": "Button to navigate to edit profile to complete it" },
+
+  "profileNotAvailable": "Profile not available",
+  "@profileNotAvailable": { "description": "Title when public profile cannot be loaded" },
+
+  "profileNotAvailableMessage": "This profile cannot be displayed right now.",
+  "@profileNotAvailableMessage": { "description": "Message when public profile cannot be loaded" },
+
+  "about": "About",
+  "@about": { "description": "Section title for bio on public profile" },
+
+  "noBioYet": "No bio added yet.",
+  "@noBioYet": { "description": "Placeholder when user has no bio" },
+
+  "rides": "Rides",
+  "@rides": { "description": "Stats label for ride count on public profile" },
+
+  "reviews": "Reviews",
+  "@reviews": { "description": "Stats label for review count on public profile" },
+
+  "vehicle": "Vehicle",
+  "@vehicle": { "description": "Section title and fallback name for vehicle on public profile" },
+
+  "myBookings": "My Bookings",
+  "@myBookings": { "description": "Screen title for bookings list" },
+
+  "bookingsComingSoon": "Bookings Coming Soon",
+  "@bookingsComingSoon": { "description": "Title for bookings placeholder screen" },
+
+  "bookingsComingSoonMessage": "The booking feature is being redesigned. Check back later!",
+  "@bookingsComingSoonMessage": { "description": "Message for bookings placeholder screen" },
+
+
+
+  "messagesTitle": "Messages",
+  "@messagesTitle": { "description": "Messages tab header" },
+
+  "chatTitle": "Chat",
+  "@chatTitle": { "description": "Chat screen AppBar title" },
+
+  "couldNotLoadMessages": "Could not load messages",
+  "@couldNotLoadMessages": { "description": "Error message when messages fail to load" },
+
+  "noMessagesYet": "No messages yet",
+  "@noMessagesYet": { "description": "Empty state title for messages" },
+
+  "startConversation": "Start a conversation from a ride listing",
+  "@startConversation": { "description": "Empty state subtitle for messages tab" },
+
+  "sendMessageToStart": "Send a message to start the conversation",
+  "@sendMessageToStart": { "description": "Empty state in a new chat conversation" },
+
+  "typeAMessage": "Type a message...",
+  "@typeAMessage": { "description": "Hint text in chat message input field" },
+
+  "timeNow": "now",
+  "@timeNow": { "description": "Time-ago label for messages less than 1 minute old" },
+
+  "timeMinutesAgo": "{count}m",
+  "@timeMinutesAgo": {
+    "description": "Abbreviated time-ago label for minutes",
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "timeHoursAgo": "{count}h",
+  "@timeHoursAgo": {
+    "description": "Abbreviated time-ago label for hours",
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "timeDaysAgo": "{count}d",
+  "@timeDaysAgo": {
+    "description": "Abbreviated time-ago label for days",
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+
+
+  "packagesTitle": "Packages",
+  "@packagesTitle": { "description": "Packages tab title" },
+
+  "packagesComingSoon": "Coming soon",
+  "@packagesComingSoon": { "description": "Placeholder subtitle for packages tab" },
+
+
+
+  "errorTitle": "Error",
+  "@errorTitle": { "description": "Error screen AppBar title" },
+
+  "pageNotFound": "Page not found",
+  "@pageNotFound": { "description": "Title when navigating to a non-existent route" },
+
+  "pageNotFoundMessage": "The page you are looking for does not exist.",
+  "@pageNotFoundMessage": { "description": "Message when navigating to a non-existent route" },
+
+  "goHome": "Go Home",
+  "@goHome": { "description": "Button to return to the home screen from error" },
+
+
+
+  "settingsLanguage": "Language",
+  "@settingsLanguage": { "description": "Section title for language settings" },
+
+  "languageSystem": "System",
+  "@languageSystem": { "description": "Language option: follow device locale" },
+
+  "languageEnglish": "English",
+  "@languageEnglish": { "description": "Language option: force English" },
+
+  "languagePolish": "Polski",
+  "@languagePolish": { "description": "Language option: force Polish" },
+
+  "effectiveLanguage": "Currently using: {language}",
+  "@effectiveLanguage": {
+    "description": "Subtitle under System option showing the resolved language",
+    "placeholders": { "language": { "type": "String" } }
+  },
+
+
+
+  "searchRides": "Search Rides",
+  "@searchRides": { "description": "Search button label when in rides mode" },
+
+  "searchPassengers": "Search Passengers",
+  "@searchPassengers": { "description": "Search button label when in passengers mode" },
+
+  "fromLabel": "From",
+  "@fromLabel": { "description": "Short label for origin city in search sheet" },
+
+  "toLabel": "To",
+  "@toLabel": { "description": "Short label for destination city in search sheet" },
+
+  "dateLabel": "Date",
+  "@dateLabel": { "description": "Short label for departure date in search sheet" },
+
+  "anyDate": "Any date",
+  "@anyDate": { "description": "Shown when no departure date is selected" },
+
+  "clearDate": "Clear date",
+  "@clearDate": { "description": "Tooltip for clearing the selected date" },
+
+  "clearAll": "Clear All",
+  "@clearAll": { "description": "Button label to reset all search fields" },
+
+  "chooseCity": "Choose city",
+  "@chooseCity": { "description": "Placeholder when no city is selected in route picker" },
+
+  "searchCity": "Search city",
+  "@searchCity": { "description": "Label for city autocomplete field in picker sheet" },
+
+
+
+  "whereAreYouGoing": "Where are you going?",
+  "@whereAreYouGoing": { "description": "Empty search label on the compact search summary bar" },
+
+  "nudgeRouteTime": "Need a different time for {origin} → {destination}?",
+  "@nudgeRouteTime": {
+    "description": "Nudge card copy when both origin and destination are set",
+    "placeholders": {
+      "origin": { "type": "String" },
+      "destination": { "type": "String" }
+    }
+  },
+
+  "nudgeDateFallback": "Nothing on {date}? Post your own request.",
+  "@nudgeDateFallback": {
+    "description": "Nudge card copy when only date is set",
+    "placeholders": { "date": { "type": "String" } }
+  },
+
+  "nudgeGeneric": "Not finding what you need? Post a request and let drivers come to you.",
+  "@nudgeGeneric": { "description": "Nudge card copy when no search criteria are set" },
+
+  "postARequest": "Post a request",
+  "@postARequest": { "description": "Link label on nudge card" },
+
+  "postRequest": "Post Request",
+  "@postRequest": { "description": "Button label on zero results funnel" },
+
+  "noRidesFoundShort": "No rides found",
+  "@noRidesFoundShort": { "description": "Short empty state label in zero results funnel" },
+
+  "zeroResultsHeadline": "Don't wait. Let drivers find you.",
+  "@zeroResultsHeadline": { "description": "Headline in the zero results funnel card" },
+
+  "zeroResultsRouteDate": "Post a request for {origin} to {destination} on {date}.",
+  "@zeroResultsRouteDate": {
+    "description": "Zero results subtext with full route and date",
+    "placeholders": {
+      "origin": { "type": "String" },
+      "destination": { "type": "String" },
+      "date": { "type": "String" }
+    }
+  },
+
+  "zeroResultsRoute": "Post a request for {origin} to {destination}.",
+  "@zeroResultsRoute": {
+    "description": "Zero results subtext with route only",
+    "placeholders": {
+      "origin": { "type": "String" },
+      "destination": { "type": "String" }
+    }
+  },
+
+  "zeroResultsOriginDate": "Post a request from {origin} on {date}.",
+  "@zeroResultsOriginDate": {
+    "description": "Zero results subtext with origin and date",
+    "placeholders": {
+      "origin": { "type": "String" },
+      "date": { "type": "String" }
+    }
+  },
+
+  "zeroResultsOrigin": "Post a request from {origin} and let drivers find you.",
+  "@zeroResultsOrigin": {
+    "description": "Zero results subtext with origin only",
+    "placeholders": { "origin": { "type": "String" } }
+  },
+
+  "zeroResultsGeneric": "Post a request for your route and let drivers find you.",
+  "@zeroResultsGeneric": { "description": "Zero results subtext with no criteria" }
+}

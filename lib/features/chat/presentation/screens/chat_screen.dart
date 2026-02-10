@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../domain/message_ui_model.dart';
 import '../providers/chat_thread_controller.dart';
 
@@ -55,7 +56,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chat'),
+        title: Text(context.l10n.chatTitle),
       ),
       body: Column(
         children: [
@@ -85,13 +86,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           children: [
             const Icon(Icons.error_outline, size: 48),
             const SizedBox(height: 16),
-            const Text('Could not load messages'),
+            Text(context.l10n.couldNotLoadMessages),
             const SizedBox(height: 8),
             FilledButton.tonal(
               onPressed: () => ref
                   .read(chatThreadProvider(widget.conversationId).notifier)
                   .refresh(),
-              child: const Text('Retry'),
+              child: Text(context.l10n.retry),
             ),
           ],
         ),
@@ -101,7 +102,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     if (state.messages.isEmpty) {
       return Center(
         child: Text(
-          'Send a message to start the conversation',
+          context.l10n.sendMessageToStart,
           style: theme.textTheme.bodyMedium?.copyWith(
             color: theme.colorScheme.outline,
           ),
@@ -222,8 +223,8 @@ class _MessageComposer extends StatelessWidget {
           Expanded(
             child: TextField(
               controller: controller,
-              decoration: const InputDecoration(
-                hintText: 'Type a message...',
+              decoration: InputDecoration(
+                hintText: context.l10n.typeAMessage,
                 border: OutlineInputBorder(),
                 contentPadding: EdgeInsets.symmetric(
                   horizontal: 16,

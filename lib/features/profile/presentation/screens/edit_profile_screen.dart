@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:blablafront/core/l10n/l10n_extension.dart';
 import 'package:blablafront/core/providers/auth_notifier.dart';
 import 'package:blablafront/core/widgets/core_widgets.dart';
 
@@ -50,13 +51,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile updated successfully')),
+        SnackBar(content: Text(context.l10n.profileUpdatedSuccess)),
       );
       Navigator.pop(context);
     } else {
       final errorMessage = ref.read(authProvider).errorMessage;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage ?? 'Failed to update profile')),
+        SnackBar(content: Text(errorMessage ?? context.l10n.failedToUpdateProfile)),
       );
     }
   }
@@ -65,7 +66,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Profile'),
+        title: Text(context.l10n.editProfile),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -76,30 +77,30 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             children: [
               AppTextField(
                 controller: _displayNameController,
-                label: 'Display Name',
+                label: context.l10n.displayNameLabel,
                 prefixIcon: Icons.person,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Display name is required';
+                    return context.l10n.displayNameRequired;
                   }
                   if (value.trim().length < 2) {
-                    return 'Display name must be at least 2 characters';
+                    return context.l10n.displayNameMinLength;
                   }
                   return null;
                 },
               ),
               AppTextField(
                 controller: _phoneController,
-                label: 'Phone Number',
+                label: context.l10n.phoneNumberLabel,
                 prefixIcon: Icons.phone,
                 keyboardType: TextInputType.phone,
-                hint: 'Enter your phone number (optional)',
+                hint: context.l10n.phoneHint,
               ),
               AppTextField(
                 controller: _bioController,
-                label: 'Bio',
+                label: context.l10n.bioLabel,
                 prefixIcon: Icons.info_outline,
-                hint: 'Tell others about yourself (optional)',
+                hint: context.l10n.bioHint,
                 maxLines: 4,
                 minLines: 2,
               ),
@@ -108,7 +109,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 onPressed: _saveProfile,
                 isLoading: _isLoading,
                 width: double.infinity,
-                child: const Text('Save Changes'),
+                child: Text(context.l10n.saveChanges),
               ),
             ],
           ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/providers/auth_notifier.dart';
 import '../../../../core/providers/auth_state.dart';
 import '../../../../routes/routes.dart';
@@ -50,7 +51,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Login'),
+          title: Text(context.l10n.loginTitle),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: _handleBack,
@@ -81,16 +82,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
               autovalidateMode: AutovalidateMode.onUserInteraction,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                prefixIcon: Icon(Icons.email),
+              decoration: InputDecoration(
+                labelText: context.l10n.emailLabel,
+                prefixIcon: const Icon(Icons.email),
               ),
               validator: (text) {
                 if (text == null || text.isEmpty) {
-                  return 'Enter your email';
+                  return context.l10n.enterEmail;
                 }
                 if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(text)) {
-                  return 'Enter a valid email';
+                  return context.l10n.enterValidEmail;
                 }
                 return null;
               },
@@ -102,12 +103,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               controller: _passwordController,
               obscureText: true,
               autovalidateMode: AutovalidateMode.onUserInteraction,
-              decoration: const InputDecoration(
-                labelText: 'Password',
-                prefixIcon: Icon(Icons.lock),
+              decoration: InputDecoration(
+                labelText: context.l10n.passwordLabel,
+                prefixIcon: const Icon(Icons.lock),
               ),
               validator: (text) =>
-                  text!.isEmpty ? 'Enter your password' : null,
+                  text!.isEmpty ? context.l10n.enterPassword : null,
             ),
             const SizedBox(height: 24),
 
@@ -122,7 +123,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         width: 20,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Text('Login'),
+                    : Text(context.l10n.loginTitle),
               ),
             ),
             const SizedBox(height: 30),
@@ -134,7 +135,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
-                    'OR',
+                    context.l10n.or,
                     style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
                 ),
@@ -155,7 +156,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     return const Icon(Icons.g_mobiledata, size: 24);
                   },
                 ),
-                label: const Text('Continue with Google'),
+                label: Text(context.l10n.continueWithGoogle),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   side: BorderSide(color: Theme.of(context).colorScheme.outline),
@@ -168,12 +169,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text("Don't have an account? "),
+                Text(context.l10n.dontHaveAccount),
                 TextButton(
                   onPressed: () {
                     context.pushNamed(RouteNames.createAccount);
                   },
-                  child: const Text('Sign up'),
+                  child: Text(context.l10n.signUp),
                 ),
               ],
             ),

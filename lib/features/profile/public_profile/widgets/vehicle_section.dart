@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../../../rides/data/dto/vehicle_response_dto.dart';
 
@@ -20,7 +21,7 @@ class VehicleSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Vehicle',
+            context.l10n.vehicle,
             style: tt.titleSmall?.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
@@ -77,7 +78,7 @@ class _VehicleCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    vehicleName.isNotEmpty ? vehicleName : 'Vehicle',
+                    vehicleName.isNotEmpty ? vehicleName : context.l10n.vehicle,
                     style: tt.titleSmall?.copyWith(fontWeight: FontWeight.w600),
                   ),
                   if (details.isNotEmpty) ...[

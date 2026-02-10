@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../providers/search_criteria_provider.dart';
 
@@ -35,14 +35,14 @@ class DateStrip extends ConsumerWidget {
                       .setDepartureDate(normalizeDate(prev));
                 }
               : null,
-          tooltip: 'Previous day',
+          tooltip: context.l10n.previousDay,
         ),
         GestureDetector(
           onTap: () => _showDatePicker(context, ref, selectedDate),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Text(
-              _formatLabel(selectedDate, today),
+              _formatLabel(context, selectedDate, today),
               style: theme.textTheme.titleSmall?.copyWith(
                 color: theme.colorScheme.onSurface,
               ),
@@ -57,17 +57,17 @@ class DateStrip extends ConsumerWidget {
                 .read(searchCriteriaProvider.notifier)
                 .setDepartureDate(normalizeDate(next));
           },
-          tooltip: 'Next day',
+          tooltip: context.l10n.nextDay,
         ),
       ],
     );
   }
 
-  String _formatLabel(DateTime selected, DateTime today) {
+  String _formatLabel(BuildContext context, DateTime selected, DateTime today) {
     final tomorrow = today.add(const Duration(days: 1));
-    if (selected == today) return 'Today';
-    if (selected == tomorrow) return 'Tomorrow';
-    return DateFormat('EEE, d MMM').format(selected);
+    if (selected == today) return context.l10n.today;
+    if (selected == tomorrow) return context.l10n.tomorrow;
+    return context.l10n.dateStripDate(selected);
   }
 
   Future<void> _showDatePicker(

@@ -6,6 +6,7 @@ import 'package:blablafront/features/offers/data/contact_method_dto.dart';
 import 'package:blablafront/features/rides/data/dto/user_card_dto.dart';
 import 'package:blablafront/features/rides/data/dto/ride_enums.dart';
 import 'package:blablafront/features/offers/data/offer_enums.dart';
+import 'package:blablafront/features/offers/domain/offer_ui_model.dart';
 import 'package:blablafront/features/offers/domain/part_of_day.dart';
 import 'package:blablafront/features/rides/domain/ride_presentation.dart';
 
@@ -60,7 +61,6 @@ void main() {
 
         expect(uiModel.exactTimeDisplay, '14:30');
         expect(uiModel.partOfDay, PartOfDay.afternoon);
-        expect(uiModel.partOfDayDisplay, 'Afternoon');
         expect(uiModel.isTimeUndefined, false);
       });
 
@@ -74,11 +74,10 @@ void main() {
 
         expect(uiModel.exactTimeDisplay, null);
         expect(uiModel.partOfDay, PartOfDay.afternoon);
-        expect(uiModel.partOfDayDisplay, 'Afternoon');
         expect(uiModel.isTimeUndefined, false);
       });
 
-      test('shows "Ask driver" for 23:57 + approximate', () {
+      test('marks as undefined for 23:57 + approximate', () {
         final dto = createTestRide(
           departureTime: DateTime(2025, 1, 15, 23, 57),
           isApproximate: true,
@@ -87,7 +86,6 @@ void main() {
         final uiModel = RidePresentation.toUiModel(dto);
 
         expect(uiModel.exactTimeDisplay, null);
-        expect(uiModel.partOfDayDisplay, 'Ask driver');
         expect(uiModel.isTimeUndefined, true);
       });
 
@@ -100,7 +98,6 @@ void main() {
         final uiModel = RidePresentation.toUiModel(dto);
 
         expect(uiModel.partOfDay, PartOfDay.morning);
-        expect(uiModel.partOfDayDisplay, 'Morning');
       });
 
       test('classifies evening correctly (17:00-21:59)', () {
@@ -112,7 +109,6 @@ void main() {
         final uiModel = RidePresentation.toUiModel(dto);
 
         expect(uiModel.partOfDay, PartOfDay.evening);
-        expect(uiModel.partOfDayDisplay, 'Evening');
       });
 
       test('classifies night correctly (22:00-04:59)', () {
@@ -124,49 +120,47 @@ void main() {
         final uiModel = RidePresentation.toUiModel(dto);
 
         expect(uiModel.partOfDay, PartOfDay.night);
-        expect(uiModel.partOfDayDisplay, 'Night');
       });
     });
 
-    group('Price formatting', () {
-      test('shows "Ask driver" when price is null', () {
+    group('Price data', () {
+      test('moneyAmount is null when price is null', () {
         final dto = createTestRide(pricePerSeat: null);
 
         final uiModel = RidePresentation.toUiModel(dto);
 
-        expect(uiModel.moneyValue, 'Ask driver');
-        expect(uiModel.moneyHighlight, false);
+        expect(uiModel.moneyAmount, null);
+        expect(uiModel.hasMoneyAmount, false);
       });
 
-      test('formats price with PLN currency (no decimals)', () {
+      test('moneyAmount carries raw price value', () {
         final dto = createTestRide(pricePerSeat: 25.50);
 
         final uiModel = RidePresentation.toUiModel(dto);
 
-        expect(uiModel.moneyValue, '26 PLN');
-        expect(uiModel.moneyHighlight, true);
+        expect(uiModel.moneyAmount, 25.50);
+        expect(uiModel.hasMoneyAmount, true);
       });
 
-      test('formats whole number price', () {
+      test('moneyLabelKind is pricePerSeat for rides', () {
         final dto = createTestRide(pricePerSeat: 30.0);
 
         final uiModel = RidePresentation.toUiModel(dto);
 
-        expect(uiModel.moneyValue, '30 PLN');
+        expect(uiModel.moneyLabelKind, MoneyLabelKind.pricePerSeat);
       });
     });
 
-    group('Source badges', () {
-      test('shows "Verified member" badge for INTERNAL source', () {
+    group('Source data', () {
+      test('isExternalSource is false for INTERNAL source', () {
         final dto = createTestRide(source: RideSource.internal);
 
         final uiModel = RidePresentation.toUiModel(dto);
 
-        expect(uiModel.sourceBadgeText, 'Verified member');
-        expect(uiModel.sourceBadgeColor, Colors.green.shade700);
+        expect(uiModel.isExternalSource, false);
       });
 
-      test('shows "Community listing" badge for FACEBOOK source', () {
+      test('isExternalSource is true for FACEBOOK source', () {
         final dto = createTestRide(
           source: RideSource.facebook,
           contactMethods: [
@@ -179,8 +173,7 @@ void main() {
 
         final uiModel = RidePresentation.toUiModel(dto);
 
-        expect(uiModel.sourceBadgeText, 'Community listing');
-        expect(uiModel.sourceBadgeColor, Colors.orange.shade700);
+        expect(uiModel.isExternalSource, true);
       });
     });
 
@@ -226,7 +219,7 @@ void main() {
         final uiModel = RidePresentation.toUiModel(dto);
         final contacts = uiModel.user!.contactMethods;
 
-        expect(contacts[0].label, 'Call');
+        expect(contacts[0].type, ContactType.phone);
         expect(contacts[0].preview, '+48123456789');
         expect(contacts[0].icon, Icons.phone_outlined);
       });
@@ -244,7 +237,7 @@ void main() {
         final uiModel = RidePresentation.toUiModel(dto);
         final contacts = uiModel.user!.contactMethods;
 
-        expect(contacts[0].label, 'Open Facebook post');
+        expect(contacts[0].type, ContactType.facebookLink);
         expect(contacts[0].icon, Icons.open_in_new);
       });
 
@@ -261,7 +254,7 @@ void main() {
         final uiModel = RidePresentation.toUiModel(dto);
         final contacts = uiModel.user!.contactMethods;
 
-        expect(contacts[0].label, 'Send email');
+        expect(contacts[0].type, ContactType.email);
         expect(contacts[0].preview, 'driver@example.com');
         expect(contacts[0].icon, Icons.email_outlined);
       });
@@ -345,21 +338,22 @@ void main() {
       });
     });
 
-    group('Capacity formatting', () {
-      test('formats single seat correctly', () {
+    group('Capacity raw data', () {
+      test('carries raw count for single seat', () {
         final dto = createTestRide(availableSeats: 1);
 
         final uiModel = RidePresentation.toUiModel(dto);
 
-        expect(uiModel.countDisplay, '1 seat');
+        expect(uiModel.count, 1);
+        expect(uiModel.countLabelKind, CountLabelKind.availableSeats);
       });
 
-      test('formats multiple seats correctly', () {
+      test('carries raw count for multiple seats', () {
         final dto = createTestRide(availableSeats: 3);
 
         final uiModel = RidePresentation.toUiModel(dto);
 
-        expect(uiModel.countDisplay, '3 seats');
+        expect(uiModel.count, 3);
       });
     });
 
@@ -415,25 +409,25 @@ void main() {
       });
     });
 
-    group('Status display', () {
-      test('formats open status', () {
+    group('Status enum mapping', () {
+      test('maps open status', () {
         final dto = createTestRide(rideStatus: RideStatus.open);
-        expect(RidePresentation.toUiModel(dto).statusChip!.label, 'Open');
+        expect(RidePresentation.toUiModel(dto).status, OfferStatus.open);
       });
 
-      test('formats full status', () {
+      test('maps full status', () {
         final dto = createTestRide(rideStatus: RideStatus.full);
-        expect(RidePresentation.toUiModel(dto).statusChip!.label, 'Full');
+        expect(RidePresentation.toUiModel(dto).status, OfferStatus.full);
       });
 
-      test('formats completed status', () {
+      test('maps completed status', () {
         final dto = createTestRide(rideStatus: RideStatus.completed);
-        expect(RidePresentation.toUiModel(dto).statusChip!.label, 'Completed');
+        expect(RidePresentation.toUiModel(dto).status, OfferStatus.completed);
       });
 
-      test('formats cancelled status', () {
+      test('maps cancelled status', () {
         final dto = createTestRide(rideStatus: RideStatus.cancelled);
-        expect(RidePresentation.toUiModel(dto).statusChip!.label, 'Cancelled');
+        expect(RidePresentation.toUiModel(dto).status, OfferStatus.cancelled);
       });
     });
 

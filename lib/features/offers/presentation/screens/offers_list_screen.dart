@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../routes/routes.dart';
 import '../../../rides/presentation/providers/paginated_rides_provider.dart';
 import '../../../rides/presentation/providers/search_criteria_provider.dart';
@@ -98,14 +98,14 @@ class _OffersListScreenState extends ConsumerState<OffersListScreen> {
       hasMore = ridesState.hasMore;
       error = ridesState.error;
       emptyIcon = Icons.directions_car_outlined;
-      emptyMessage = 'No rides found matching your criteria.';
+      emptyMessage = context.l10n.noRidesFound;
     } else {
       items = seatsState.offers;
       isLoading = seatsState.isLoading;
       hasMore = seatsState.hasMore;
       error = seatsState.error;
       emptyIcon = Icons.people_outline;
-      emptyMessage = 'No passenger requests found matching your criteria.';
+      emptyMessage = context.l10n.noPassengerRequests;
     }
 
     return Scaffold(
@@ -147,8 +147,7 @@ class _OffersListScreenState extends ConsumerState<OffersListScreen> {
                         originName: criteria.origin?.name,
                         destinationName: criteria.destination?.name,
                         dateLabel: criteria.departureDate != null
-                            ? DateFormat('EEE, d MMM')
-                                .format(criteria.departureDate!)
+                            ? context.l10n.dateStripDate(criteria.departureDate!)
                             : null,
                         onTap: () {
                           context.pushNamed(
@@ -172,8 +171,7 @@ class _OffersListScreenState extends ConsumerState<OffersListScreen> {
                           originName: criteria.origin?.name,
                           destinationName: criteria.destination?.name,
                           dateLabel: criteria.departureDate != null
-                              ? DateFormat('EEE, d MMM')
-                                  .format(criteria.departureDate!)
+                              ? context.l10n.dateStripDate(criteria.departureDate!)
                               : null,
                           onPostRequest: () {
                             context.pushNamed(

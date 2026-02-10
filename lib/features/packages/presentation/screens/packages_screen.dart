@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n_extension.dart';
+
 /// Placeholder screen for the Packages tab.
 class PackagesScreen extends StatelessWidget {
   const PackagesScreen({super.key});
@@ -19,14 +21,14 @@ class PackagesScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Packages',
+            context.l10n.packagesTitle,
             style: theme.textTheme.headlineSmall?.copyWith(
               color: theme.colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Coming soon',
+            context.l10n.packagesComingSoon,
             style: theme.textTheme.bodyLarge?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),

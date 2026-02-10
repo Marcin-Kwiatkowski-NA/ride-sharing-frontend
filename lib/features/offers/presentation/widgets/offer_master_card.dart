@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../../domain/offer_ui_model.dart';
+import '../helpers/offer_l10n.dart';
 
 /// The trip details card for offer details.
 ///
@@ -46,6 +48,7 @@ class _DateStatusHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final l10n = context.l10n;
 
     return Column(
       children: [
@@ -55,12 +58,12 @@ class _DateStatusHeader extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  offer.dateDisplay,
+                  offer.localizedDate(l10n),
                   style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w600),
                 ),
               ),
-              if (offer.statusChip != null)
-                _StatusChip(spec: offer.statusChip!),
+              if (offer.status != null)
+                _StatusChip(status: offer.status!),
             ],
           ),
         ),
@@ -71,28 +74,30 @@ class _DateStatusHeader extends StatelessWidget {
 }
 
 class _StatusChip extends StatelessWidget {
-  const _StatusChip({required this.spec});
+  const _StatusChip({required this.status});
 
-  final StatusChipSpec spec;
+  final OfferStatus status;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: spec.color.withValues(alpha: 0.1),
+        color: status.color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(AppTokens.radiusMD),
-        border: Border.all(color: spec.color.withValues(alpha: 0.3)),
+        border: Border.all(color: status.color.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(spec.icon, size: 14, color: spec.color),
+          Icon(status.icon, size: 14, color: status.color),
           const SizedBox(width: 4),
           Text(
-            spec.label,
+            status.localizedLabel(l10n),
             style: TextStyle(
-              color: spec.color,
+              color: status.color,
               fontSize: 12,
               fontWeight: FontWeight.w500,
             ),
@@ -114,8 +119,9 @@ class _RouteTimeline extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final l10n = context.l10n;
 
-    final timeDisplay = offer.exactTimeDisplay ?? offer.partOfDayDisplay;
+    final timeDisplay = offer.exactTimeDisplay ?? offer.localizedPartOfDay(l10n);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -196,6 +202,7 @@ class _PriceSeatsRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final l10n = context.l10n;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
@@ -212,7 +219,7 @@ class _PriceSeatsRow extends StatelessWidget {
                 const SizedBox(width: 6),
                 Flexible(
                   child: Text(
-                    offer.countDisplay,
+                    offer.localizedCountDisplay(l10n),
                     style: tt.titleMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -236,16 +243,18 @@ class _PriceItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final l10n = context.l10n;
+    final moneyText = offer.localizedMoneyValue(l10n);
 
     // Concrete price: icon + value in primary
-    if (offer.moneyHighlight) {
+    if (offer.hasMoneyAmount) {
       return Row(
         children: [
           Icon(Icons.sell, size: 18, color: cs.primary),
           const SizedBox(width: 6),
           Flexible(
             child: Text(
-              offer.moneyValue,
+              moneyText,
               style: tt.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
                 color: cs.primary,
@@ -270,7 +279,7 @@ class _PriceItem extends StatelessWidget {
           const SizedBox(width: 6),
           Flexible(
             child: Text(
-              offer.moneyValue,
+              moneyText,
               style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
             ),
           ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../routes/routes.dart';
 import '../../domain/offer_ui_model.dart';
 import '../providers/my_offers_provider.dart';
@@ -35,27 +36,27 @@ class _MyOffersScreenState extends ConsumerState<MyOffersScreen> {
     final offersAsync = ref.watch(myOffersProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('My Offers')),
+      appBar: AppBar(title: Text(context.l10n.myOffers)),
       body: Column(
         children: [
           // Filter
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: SegmentedButton<_OfferFilter>(
-              segments: const [
+              segments: [
                 ButtonSegment(
                   value: _OfferFilter.all,
-                  label: Text('All'),
+                  label: Text(context.l10n.filterAll),
                 ),
                 ButtonSegment(
                   value: _OfferFilter.rides,
-                  label: Text('Rides'),
-                  icon: Icon(Icons.directions_car_outlined),
+                  label: Text(context.l10n.filterRides),
+                  icon: const Icon(Icons.directions_car_outlined),
                 ),
                 ButtonSegment(
                   value: _OfferFilter.passengers,
-                  label: Text('Passengers'),
-                  icon: Icon(Icons.people_outline),
+                  label: Text(context.l10n.filterPassengers),
+                  icon: const Icon(Icons.people_outline),
                 ),
               ],
               selected: {_filter},
@@ -77,12 +78,12 @@ class _MyOffersScreenState extends ConsumerState<MyOffersScreen> {
                     Icon(Icons.error_outline,
                         size: 48, color: theme.colorScheme.error),
                     const SizedBox(height: 16),
-                    Text('Failed to load offers',
+                    Text(context.l10n.failedToLoadOffers,
                         style: theme.textTheme.bodyLarge),
                     const SizedBox(height: 8),
                     FilledButton(
                       onPressed: () => ref.invalidate(myOffersProvider),
-                      child: const Text('Retry'),
+                      child: Text(context.l10n.retry),
                     ),
                   ],
                 ),
@@ -102,7 +103,7 @@ class _MyOffersScreenState extends ConsumerState<MyOffersScreen> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'No offers yet',
+                          context.l10n.noOffersYet,
                           style: theme.textTheme.titleMedium,
                         ),
                       ],

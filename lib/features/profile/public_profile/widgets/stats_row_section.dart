@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../domain/public_profile_data.dart';
 
@@ -26,7 +27,7 @@ class StatsRowSection extends StatelessWidget {
           children: [
             _StatColumn(
               value: totalRides.toString(),
-              label: 'Rides',
+              label: context.l10n.rides,
               icon: Icons.directions_car,
               iconColor: cs.primary,
               textTheme: tt,
@@ -37,7 +38,7 @@ class StatsRowSection extends StatelessWidget {
               value: profile.ratingCount > 0
                   ? profile.ratingAvg!.toStringAsFixed(1)
                   : '-',
-              label: 'Rating',
+              label: context.l10n.rating,
               icon: Icons.star,
               iconColor: cs.tertiary,
               textTheme: tt,
@@ -46,7 +47,7 @@ class StatsRowSection extends StatelessWidget {
             _divider(cs),
             _StatColumn(
               value: profile.ratingCount.toString(),
-              label: 'Reviews',
+              label: context.l10n.reviews,
               icon: Icons.reviews,
               iconColor: cs.primary,
               textTheme: tt,

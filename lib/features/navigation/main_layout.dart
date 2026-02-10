@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/l10n/l10n_extension.dart';
 import '../../core/providers/auth_notifier.dart';
 import '../../routes/routes.dart';
 
@@ -48,26 +49,26 @@ class MainLayout extends ConsumerWidget {
             initialLocation: index == navigationShell.currentIndex,
           );
         },
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.directions_car_outlined),
-            selectedIcon: Icon(Icons.directions_car),
-            label: 'Rides',
+            icon: const Icon(Icons.directions_car_outlined),
+            selectedIcon: const Icon(Icons.directions_car),
+            label: context.l10n.navRides,
           ),
           NavigationDestination(
-            icon: Icon(Icons.inventory_2_outlined),
-            selectedIcon: Icon(Icons.inventory_2),
-            label: 'Packages',
+            icon: const Icon(Icons.inventory_2_outlined),
+            selectedIcon: const Icon(Icons.inventory_2),
+            label: context.l10n.navPackages,
           ),
           NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: 'Profile',
+            icon: const Icon(Icons.person_outline),
+            selectedIcon: const Icon(Icons.person),
+            label: context.l10n.navProfile,
           ),
           NavigationDestination(
-            icon: Icon(Icons.chat_outlined),
-            selectedIcon: Icon(Icons.chat),
-            label: 'Messages',
+            icon: const Icon(Icons.chat_outlined),
+            selectedIcon: const Icon(Icons.chat),
+            label: context.l10n.navMessages,
           ),
         ],
       ),

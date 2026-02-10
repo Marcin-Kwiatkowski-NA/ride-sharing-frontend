@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../config/environment_config.dart';
+import '../../l10n/app_locale_provider.dart';
 import '../data/city_search_client.dart';
 import '../data/photon_city_search_client.dart';
 import '../repository/city_repository.dart';
@@ -72,9 +73,12 @@ Future<CityRepository> cityRepository(Ref ref) async {
   return CityRepository(client, config: config);
 }
 
-/// Auto-detected search language based on device locale
+/// Search language derived from the app's effective locale preference.
+///
+/// Uses [effectiveLocaleProvider] which accounts for the user's language
+/// setting (System / EN / PL) rather than the raw device locale.
 @riverpod
 String citySearchLang(Ref ref) {
-  final locale = WidgetsBinding.instance.platformDispatcher.locale;
+  final locale = ref.watch(effectiveLocaleProvider);
   return locale.languageCode == 'pl' ? 'pl' : 'en';
 }

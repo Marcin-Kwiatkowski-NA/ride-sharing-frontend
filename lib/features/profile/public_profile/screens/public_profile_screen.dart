@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/l10n/l10n_extension.dart';
 import '../domain/public_profile_data.dart';
 import '../providers/public_profile_cache.dart';
 import '../widgets/about_section.dart';
@@ -51,7 +52,7 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(profile?.displayName ?? 'Profile'),
+        title: Text(profile?.displayName ?? context.l10n.profileTitle),
       ),
       body: profile == null
           ? const _UnavailablePlaceholder()
@@ -105,12 +106,12 @@ class _UnavailablePlaceholder extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Profile not available',
+            context.l10n.profileNotAvailable,
             style: tt.titleMedium?.copyWith(color: cs.onSurfaceVariant),
           ),
           const SizedBox(height: 8),
           Text(
-            'This profile cannot be displayed right now.',
+            context.l10n.profileNotAvailableMessage,
             style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
           ),
         ],

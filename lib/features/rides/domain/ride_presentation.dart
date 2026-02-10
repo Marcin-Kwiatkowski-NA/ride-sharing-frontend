@@ -12,36 +12,25 @@ import '../data/dto/ride_response_dto.dart';
 /// Pure function mapper: RideResponseDto -> OfferUiModel.
 ///
 /// Stateless, no side effects, easily testable.
-/// All formatting logic is centralized here.
+/// All display strings are resolved by widgets via AppLocalizations.
 class RidePresentation {
-  /// Convert DTO to unified offer UI model with all precomputed display values.
+  /// Convert DTO to unified offer UI model with raw data fields.
   static OfferUiModel toUiModel(RideResponseDto dto) {
     final isInternal = dto.source == RideSource.internal;
 
     // Contact methods (ordered: PHONE, FACEBOOK_LINK, EMAIL)
     final contactMethods = OfferFormatting.buildContactMethods(dto.contactMethods);
 
-    // Time formatting
+    // Time
     final timeUndefined = isTimeUndefined(dto.departureTime, dto.isApproximate);
     final partOfDay = getPartOfDay(dto.departureTime);
-    final partOfDayDisplay = timeUndefined
-        ? 'Ask driver'
-        : partOfDayLabel(partOfDay);
     final exactTimeDisplay = OfferFormatting.formatExactTime(
       dto.departureTime,
       dto.isApproximate,
     );
 
-    // Money & Count
-    final moneyHighlight = dto.pricePerSeat != null;
-    final moneyValue = OfferFormatting.formatPrice(dto.pricePerSeat);
-    final countDisplay = OfferFormatting.formatCapacity(dto.availableSeats);
-
-    // Source badge
-    final sourceBadge = OfferFormatting.formatSourceBadge(dto.source);
-
-    // Status chip
-    final statusChip = _buildStatusChip(dto.rideStatus);
+    // Status
+    final status = _mapStatus(dto.rideStatus);
     final isBookable =
         dto.rideStatus == RideStatus.open && dto.availableSeats > 0;
 
@@ -54,13 +43,11 @@ class RidePresentation {
         driverCompletedRides > 0 &&
         driverRating != null;
     final driverId = dto.driver?.id;
-    final driverDisplayName = _hasContent(driverName) ? driverName! : 'Driver';
     final canUseInAppChat = isInternal && driverId != null;
 
     final OfferUserUi? user = dto.driver != null
         ? OfferUserUi(
-            sectionTitle: 'DRIVER',
-            displayName: driverDisplayName,
+            displayName: _hasContent(driverName) ? driverName! : '',
             rating: driverRating,
             completedTrips: driverCompletedRides,
             showRating: showRating,
@@ -77,21 +64,17 @@ class RidePresentation {
       originName: dto.origin.name,
       destinationName: dto.destination.name,
       routeDisplay: '${dto.origin.name} -> ${dto.destination.name}',
-      dateDisplay: OfferFormatting.formatDate(dto.departureTime),
+      departureTime: dto.departureTime,
       exactTimeDisplay: exactTimeDisplay,
       partOfDay: partOfDay,
-      partOfDayDisplay: partOfDayDisplay,
       isTimeUndefined: timeUndefined,
-      moneyLabel: 'Price per seat',
-      moneyValue: moneyValue,
-      moneyHighlight: moneyHighlight,
-      countLabel: 'Available seats',
-      countDisplay: countDisplay,
+      moneyLabelKind: MoneyLabelKind.pricePerSeat,
+      moneyAmount: dto.pricePerSeat,
+      countLabelKind: CountLabelKind.availableSeats,
+      count: dto.availableSeats,
       countIcon: Icons.airline_seat_recline_normal,
-      sourceBadgeText: sourceBadge.text,
-      sourceBadgeColor: sourceBadge.color,
       isExternalSource: !isInternal,
-      statusChip: statusChip,
+      status: status,
       isBookable: isBookable,
       user: user,
       description: dto.description,
@@ -103,15 +86,12 @@ class RidePresentation {
     return dtos.map(toUiModel).toList();
   }
 
-  static StatusChipSpec _buildStatusChip(RideStatus status) {
-    final (label, color, icon) = switch (status) {
-      RideStatus.open => ('Open', Colors.green, Icons.check_circle_outline),
-      RideStatus.full => ('Full', Colors.orange, Icons.block),
-      RideStatus.completed => ('Completed', Colors.blue, Icons.done_all),
-      RideStatus.cancelled => ('Cancelled', Colors.red, Icons.cancel_outlined),
-    };
-    return StatusChipSpec(label: label, color: color, icon: icon);
-  }
+  static OfferStatus _mapStatus(RideStatus status) => switch (status) {
+    RideStatus.open => OfferStatus.open,
+    RideStatus.full => OfferStatus.full,
+    RideStatus.completed => OfferStatus.completed,
+    RideStatus.cancelled => OfferStatus.cancelled,
+  };
 
   static bool _hasContent(String? s) => s != null && s.trim().isNotEmpty;
 }

@@ -9,14 +9,12 @@ import 'offer_ui_model.dart';
 class ContactMethodUi {
   final ContactType type;
   final String value;
-  final String label;
   final String preview;
   final IconData icon;
 
   const ContactMethodUi({
     required this.type,
     required this.value,
-    required this.label,
     required this.preview,
     required this.icon,
   });
@@ -42,7 +40,6 @@ class ChatContext {
 @immutable
 class OfferUserUi {
   // Display
-  final String sectionTitle;
   final String displayName;
   final double? rating;
   final int? completedTrips;
@@ -58,7 +55,6 @@ class OfferUserUi {
   final PublicProfileData? profileData;
 
   const OfferUserUi({
-    required this.sectionTitle,
     required this.displayName,
     required this.rating,
     required this.completedTrips,

@@ -1,17 +1,20 @@
-/// Builds a human-readable label from origin and destination names.
+import '../../../../l10n/generated/app_localizations.dart';
+
+/// Builds a localized human-readable label from origin and destination names.
 ///
 /// Used by [HeroSearchCard] and [CompactSearchCapsule].
 String buildSearchLabel({
   required String? originName,
   required String? destinationName,
-  String emptyLabel = 'Where to?',
+  required AppLocalizations l10n,
+  String? emptyLabelOverride,
 }) {
   if (originName != null && destinationName != null) {
-    return '$originName \u2192 $destinationName';
+    return l10n.searchRoute(originName, destinationName);
   } else if (originName != null) {
-    return 'From $originName';
+    return l10n.searchFromCity(originName);
   } else if (destinationName != null) {
-    return 'To $destinationName';
+    return l10n.searchToCity(destinationName);
   }
-  return emptyLabel;
+  return emptyLabelOverride ?? l10n.whereToSearch;
 }

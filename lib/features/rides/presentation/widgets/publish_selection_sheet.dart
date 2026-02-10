@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../routes/routes.dart';
 
 /// Opens the publish selection sheet as a modal bottom sheet.
@@ -28,7 +29,7 @@ class PublishSelectionSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'What are you posting?',
+              context.l10n.whatAreYouPosting,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -37,8 +38,8 @@ class PublishSelectionSheet extends StatelessWidget {
             _PublishOption(
               icon: Icons.directions_car,
               iconColor: colorScheme.primary,
-              title: 'Offer a Ride',
-              subtitle: "I'm driving and have empty seats.",
+              title: context.l10n.offerARide,
+              subtitle: context.l10n.offerARideSubtitle,
               onTap: () {
                 Navigator.of(context).pop();
                 context.pushNamed(RouteNames.postRide);
@@ -48,8 +49,8 @@ class PublishSelectionSheet extends StatelessWidget {
             _PublishOption(
               icon: Icons.hail,
               iconColor: colorScheme.tertiary,
-              title: 'Request a Ride',
-              subtitle: 'I need a driver for a specific date.',
+              title: context.l10n.requestARide,
+              subtitle: context.l10n.requestARideSubtitle,
               onTap: () {
                 Navigator.of(context).pop();
                 context.pushNamed(RouteNames.postSeat);

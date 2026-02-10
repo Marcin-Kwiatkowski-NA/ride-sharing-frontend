@@ -6,6 +6,27 @@ import 'part_of_day.dart';
 /// Kind of mobility offer.
 enum OfferKind { ride, seat }
 
+/// Kind-specific label for the money field.
+enum MoneyLabelKind { pricePerSeat, budget }
+
+/// Kind-specific label for the count field.
+enum CountLabelKind { availableSeats, passengers }
+
+/// Unified offer status across ride and seat kinds.
+enum OfferStatus {
+  // Ride statuses
+  open,
+  full,
+  completed,
+  // Seat statuses
+  searching,
+  booked,
+  expired,
+  // Shared
+  cancelled,
+  banned,
+}
+
 /// Composite key identifying a specific offer.
 ///
 /// Route-safe encoding: `r-123` for rides, `s-123` for seats.
@@ -51,24 +72,10 @@ class OfferKey {
   String toString() => 'OfferKey($kind, $id)';
 }
 
-/// Pre-computed status chip display spec.
-@immutable
-class StatusChipSpec {
-  final String label;
-  final Color color;
-  final IconData icon;
-
-  const StatusChipSpec({
-    required this.label,
-    required this.color,
-    required this.icon,
-  });
-}
-
 /// Unified UI model for any mobility offer (ride or seat).
 ///
-/// Contains only pre-computed, UI-ready fields. Widgets should never
-/// branch on [OfferKind] — all kind-specific logic is resolved during mapping.
+/// Contains raw data fields. Widgets are responsible for formatting
+/// display strings using [AppLocalizations] (context.l10n).
 @immutable
 class OfferUiModel {
   final OfferKey offerKey;
@@ -78,30 +85,26 @@ class OfferUiModel {
   final String destinationName;
   final String routeDisplay;
 
-  // Time
-  final String dateDisplay;
+  // Time — raw data; widgets localize via ARB DateTime placeholders
+  final DateTime departureTime;
   final String? exactTimeDisplay;
   final PartOfDay partOfDay;
-  final String partOfDayDisplay;
   final bool isTimeUndefined;
 
-  // Money (price/budget)
-  final String moneyLabel;
-  final String moneyValue;
-  final bool moneyHighlight;
+  // Money (price/budget) — raw data; widgets format via l10n
+  final MoneyLabelKind moneyLabelKind;
+  final double? moneyAmount;
 
-  // Count (seats/passengers)
-  final String countLabel;
-  final String countDisplay;
+  // Count (seats/passengers) — raw data; widgets format via l10n
+  final CountLabelKind countLabelKind;
+  final int count;
   final IconData countIcon;
 
   // Source
-  final String sourceBadgeText;
-  final Color sourceBadgeColor;
   final bool isExternalSource;
 
-  // Status
-  final StatusChipSpec? statusChip;
+  // Status — enum; widgets map to localized label + color + icon
+  final OfferStatus? status;
   final bool isBookable;
 
   // User (nullable — some offers may be anonymous)
@@ -115,25 +118,24 @@ class OfferUiModel {
     required this.originName,
     required this.destinationName,
     required this.routeDisplay,
-    required this.dateDisplay,
+    required this.departureTime,
     required this.exactTimeDisplay,
     required this.partOfDay,
-    required this.partOfDayDisplay,
     required this.isTimeUndefined,
-    required this.moneyLabel,
-    required this.moneyValue,
-    required this.moneyHighlight,
-    required this.countLabel,
-    required this.countDisplay,
+    required this.moneyLabelKind,
+    required this.moneyAmount,
+    required this.countLabelKind,
+    required this.count,
     required this.countIcon,
-    required this.sourceBadgeText,
-    required this.sourceBadgeColor,
     required this.isExternalSource,
-    required this.statusChip,
+    required this.status,
     required this.isBookable,
     required this.user,
     required this.description,
   });
+
+  /// Whether the offer has a concrete price/budget set.
+  bool get hasMoneyAmount => moneyAmount != null;
 }
 
 /// Derive a topicKey for messaging from an OfferKey.

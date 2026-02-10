@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:blablafront/core/l10n/l10n_extension.dart';
 import 'package:blablafront/core/models/user_profile.dart';
 
 class ProfileCompletenessCard extends StatelessWidget {
@@ -24,10 +25,10 @@ class ProfileCompletenessCard extends StatelessWidget {
     return filled / total;
   }
 
-  String get _completionLabel {
+  String _completionLabel(BuildContext context) {
     final percent = (_completionPercentage * 100).round();
-    if (percent >= 100) return 'Profile complete!';
-    return '$percent% complete';
+    if (percent >= 100) return context.l10n.profileComplete;
+    return context.l10n.percentComplete(percent);
   }
 
   @override
@@ -49,7 +50,7 @@ class ProfileCompletenessCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Profile Completeness',
+                  context.l10n.profileCompleteness,
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -73,7 +74,7 @@ class ProfileCompletenessCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  _completionLabel,
+                  _completionLabel(context),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -81,7 +82,7 @@ class ProfileCompletenessCard extends StatelessWidget {
                 if (progress < 1.0)
                   TextButton(
                     onPressed: onCompleteProfile,
-                    child: const Text('Complete'),
+                    child: Text(context.l10n.complete),
                   ),
               ],
             ),

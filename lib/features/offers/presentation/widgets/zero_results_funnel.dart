@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_tokens.dart';
 
 /// Conversion funnel shown when ride search returns zero results.
@@ -21,24 +22,24 @@ class ZeroResultsFunnel extends StatelessWidget {
     required this.onPostRequest,
   });
 
-  String _buildSubtext() {
+  String _buildSubtext(BuildContext context) {
     final hasOrigin = originName != null && originName!.isNotEmpty;
     final hasDestination = destinationName != null && destinationName!.isNotEmpty;
     final hasDate = dateLabel != null && dateLabel!.isNotEmpty;
 
     if (hasOrigin && hasDestination && hasDate) {
-      return 'Post a request for $originName to $destinationName on $dateLabel.';
+      return context.l10n.zeroResultsRouteDate(originName!, destinationName!, dateLabel!);
     }
     if (hasOrigin && hasDestination) {
-      return 'Post a request for $originName to $destinationName.';
+      return context.l10n.zeroResultsRoute(originName!, destinationName!);
     }
     if (hasOrigin && hasDate) {
-      return 'Post a request from $originName on $dateLabel.';
+      return context.l10n.zeroResultsOriginDate(originName!, dateLabel!);
     }
     if (hasOrigin) {
-      return 'Post a request from $originName and let drivers find you.';
+      return context.l10n.zeroResultsOrigin(originName!);
     }
-    return 'Post a request for your route and let drivers find you.';
+    return context.l10n.zeroResultsGeneric;
   }
 
   @override
@@ -60,7 +61,7 @@ class ZeroResultsFunnel extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'No rides found',
+              context.l10n.noRidesFoundShort,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
@@ -78,7 +79,7 @@ class ZeroResultsFunnel extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      "Don't wait. Let drivers find you.",
+                      context.l10n.zeroResultsHeadline,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -86,7 +87,7 @@ class ZeroResultsFunnel extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      _buildSubtext(),
+                      _buildSubtext(context),
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                       ),
@@ -98,7 +99,7 @@ class ZeroResultsFunnel extends StatelessWidget {
                       child: FilledButton(
                         onPressed: onPostRequest,
                         style: tokens.brandCtaStyle,
-                        child: const Text('Post Request'),
+                        child: Text(context.l10n.postRequest),
                       ),
                     ),
                   ],

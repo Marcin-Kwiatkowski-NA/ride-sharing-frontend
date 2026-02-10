@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import '../../../../core/cities/domain/city.dart';
 import '../../../../core/cities/widgets/city_autocomplete_field.dart';
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../routes/routes.dart';
@@ -140,7 +141,7 @@ class _SearchSheetContentState extends ConsumerState<_SearchSheetContent> {
       backgroundColor: Colors.transparent,
       builder: (_) => _CityPickerSheet(
         controller: controller,
-        label: isOrigin ? 'From' : 'To',
+        label: isOrigin ? context.l10n.fromLabel : context.l10n.toLabel,
       ),
     );
 
@@ -192,8 +193,10 @@ class _SearchSheetContentState extends ConsumerState<_SearchSheetContent> {
     final hasDate = _draft.departureDate != null;
     final hasBothCities = _draft.origin != null && _draft.destination != null;
 
-    final searchLabel =
-        mode == SearchMode.passengers ? 'Search Passengers' : 'Search Rides';
+    final l10n = context.l10n;
+    final searchLabel = mode == SearchMode.passengers
+        ? l10n.searchPassengers
+        : l10n.searchRides;
 
     final colorScheme = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
@@ -237,16 +240,16 @@ class _SearchSheetContentState extends ConsumerState<_SearchSheetContent> {
             children: [
               Expanded(
                 child: SegmentedButton<SearchMode>(
-                  segments: const [
+                  segments: [
                     ButtonSegment(
                       value: SearchMode.rides,
-                      label: Text('Rides'),
-                      icon: Icon(Icons.directions_car_outlined),
+                      label: Text(l10n.navRides),
+                      icon: const Icon(Icons.directions_car_outlined),
                     ),
                     ButtonSegment(
                       value: SearchMode.passengers,
-                      label: Text('Passengers'),
-                      icon: Icon(Icons.hail),
+                      label: Text(l10n.passengers),
+                      icon: const Icon(Icons.hail),
                     ),
                   ],
                   selected: {mode},
@@ -297,7 +300,7 @@ class _SearchSheetContentState extends ConsumerState<_SearchSheetContent> {
             child: TextButton.icon(
               onPressed: _onClear,
               icon: const Icon(Icons.clear_all, size: 18),
-              label: const Text('Clear All'),
+              label: Text(l10n.clearAll),
             ),
           ),
 
@@ -312,6 +315,7 @@ class _SearchSheetContentState extends ConsumerState<_SearchSheetContent> {
     ColorScheme colorScheme,
     bool hasDate,
   ) {
+    final l10n = context.l10n;
     return Material(
       color: colorScheme.surface,
       borderRadius: BorderRadius.circular(AppTokens.radiusLG),
@@ -334,7 +338,7 @@ class _SearchSheetContentState extends ConsumerState<_SearchSheetContent> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Date',
+                      l10n.dateLabel,
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                       ),
@@ -344,7 +348,7 @@ class _SearchSheetContentState extends ConsumerState<_SearchSheetContent> {
                       hasDate
                           ? DateFormat('EEE, d MMM yyyy')
                               .format(_draft.departureDate!)
-                          : 'Any date',
+                          : l10n.anyDate,
                       style: theme.textTheme.bodyLarge?.copyWith(
                         color: hasDate
                             ? colorScheme.onSurface
@@ -361,7 +365,7 @@ class _SearchSheetContentState extends ConsumerState<_SearchSheetContent> {
                   onPressed: _clearDate,
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
-                  tooltip: 'Clear date',
+                  tooltip: l10n.clearDate,
                 )
               else
                 Icon(
@@ -442,7 +446,7 @@ class _RoutePickerCard extends StatelessWidget {
                   child: IconButton(
                     icon: Icon(Icons.swap_vert, color: colorScheme.primary),
                     onPressed: onSwap,
-                    tooltip: 'Swap cities',
+                    tooltip: context.l10n.swapOriginDestination,
                     iconSize: 20,
                   ),
                 ),
@@ -497,7 +501,7 @@ class _RouteRow extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    hasValue ? value! : 'Choose city',
+                    hasValue ? value! : context.l10n.chooseCity,
                     style: theme.textTheme.bodyLarge?.copyWith(
                       color: hasValue
                           ? colorScheme.onSurface
@@ -597,7 +601,7 @@ class _CityPickerSheetState extends State<_CityPickerSheet> {
                 // Autocomplete field
                 CityAutocompleteField(
                   controller: _pickerController,
-                  labelText: 'Search city',
+                  labelText: context.l10n.searchCity,
                   prefixIcon: Icons.search,
                   onCitySelected: (city) {
                     Navigator.of(context).pop(city);

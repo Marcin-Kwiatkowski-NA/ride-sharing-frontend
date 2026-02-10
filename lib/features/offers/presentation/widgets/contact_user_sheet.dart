@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/utils/launchers.dart';
 import '../../../../routes/routes.dart';
 import '../../../chat/data/chat_repository.dart';
 import '../../data/offer_enums.dart';
 import '../../domain/offer_models.dart';
 import '../../domain/offer_ui_model.dart';
+import '../helpers/offer_l10n.dart';
 
 /// Shows the contact methods bottom sheet.
 Future<void> showContactUserSheet(BuildContext context, OfferUserUi user) {
@@ -211,7 +213,7 @@ class _SourceAwareContactSheetState
       options.add(
         ListTile(
           leading: Icon(contact.icon),
-          title: Text(contact.label),
+          title: Text(contact.type.localizedLabel(context.l10n)),
           subtitle: Text(contact.preview),
           onTap: () => _launchContactMethod(contact),
         ),

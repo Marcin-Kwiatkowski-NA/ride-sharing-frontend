@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../../../../routes/routes.dart';
 import 'publish_selection_sheet.dart';
@@ -30,13 +31,13 @@ class HomeBottomActionBar extends StatelessWidget {
           TextButton.icon(
             onPressed: () => context.pushNamed(RouteNames.myOffers),
             icon: const Icon(Icons.directions_car, size: 20),
-            label: const Text('My Rides'),
+            label: Text(context.l10n.myRides),
           ),
           const Spacer(),
           FilledButton.icon(
             onPressed: () => showPublishSelectionSheet(context),
             icon: const Icon(Icons.add, size: 20),
-            label: const Text('Post'),
+            label: Text(context.l10n.post),
             style: tokens.brandCtaStyle,
           ),
         ],

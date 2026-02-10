@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n_extension.dart';
+
 class MyBookingsScreen extends StatelessWidget {
   const MyBookingsScreen({super.key});
 
@@ -9,7 +11,7 @@ class MyBookingsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Bookings'),
+        title: Text(context.l10n.myBookings),
       ),
       body: Center(
         child: Padding(
@@ -24,12 +26,12 @@ class MyBookingsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               Text(
-                'Bookings Coming Soon',
+                context.l10n.bookingsComingSoon,
                 style: theme.textTheme.headlineSmall,
               ),
               const SizedBox(height: 8),
               Text(
-                'The booking feature is being redesigned. Check back later!',
+                context.l10n.bookingsComingSoonMessage,
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,

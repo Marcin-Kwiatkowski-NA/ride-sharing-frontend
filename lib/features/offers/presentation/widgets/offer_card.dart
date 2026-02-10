@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../../domain/offer_ui_model.dart';
+import '../helpers/offer_l10n.dart';
 
 /// Horizontal offer card with Time | Route+Driver | Price layout.
 ///
@@ -77,6 +79,7 @@ class _TimeAnchor extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = context.l10n;
 
     // Undefined time
     if (offer.isTimeUndefined) {
@@ -85,7 +88,7 @@ class _TimeAnchor extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'Any time',
+            l10n.anyTime,
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -108,7 +111,7 @@ class _TimeAnchor extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           Text(
-            offer.partOfDayDisplay,
+            offer.localizedPartOfDay(l10n),
             style: theme.textTheme.labelSmall?.copyWith(
               color: colorScheme.onSurfaceVariant,
             ),
@@ -123,16 +126,24 @@ class _TimeAnchor extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          offer.partOfDayDisplay,
+          offer.localizedPartOfDay(l10n),
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 2),
-        Text(
-          'Flexible',
-          style: theme.textTheme.labelSmall?.copyWith(
-            color: colorScheme.onSurfaceVariant,
+        const SizedBox(height: 4),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: ShapeDecoration(
+            color: colorScheme.tertiaryContainer,
+            shape: const StadiumBorder(),
+          ),
+          child: Text(
+            l10n.flexible,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: colorScheme.onTertiaryContainer,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ],
@@ -194,17 +205,34 @@ class _PriceSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = context.l10n;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          offer.moneyValue,
-          style: theme.textTheme.titleLarge?.copyWith(
-            color: offer.moneyHighlight ? colorScheme.primary : null,
+        if (offer.hasMoneyAmount)
+          Text(
+            offer.localizedMoneyValue(l10n),
+            style: theme.textTheme.titleLarge?.copyWith(
+              color: colorScheme.primary,
+            ),
+          )
+        else
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: ShapeDecoration(
+              color: colorScheme.tertiaryContainer,
+              shape: const StadiumBorder(),
+            ),
+            child: Text(
+              offer.localizedMoneyValue(l10n),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onTertiaryContainer,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
-        ),
         const SizedBox(height: 4),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -222,7 +250,7 @@ class _PriceSection extends StatelessWidget {
               ),
               const SizedBox(width: 3),
               Text(
-                offer.countDisplay,
+                offer.localizedCountDisplay(l10n),
                 style: theme.textTheme.labelSmall?.copyWith(
                   color: colorScheme.onSurfaceVariant,
                 ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../routes/routes.dart';
 import '../../domain/conversation_ui_model.dart';
 import '../providers/inbox_provider.dart';
@@ -24,7 +25,7 @@ class MessagesTab extends ConsumerWidget {
           // Lightweight header (no AppBar, just styled text)
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Text('Messages', style: theme.textTheme.headlineSmall),
+            child: Text(context.l10n.messagesTitle, style: theme.textTheme.headlineSmall),
           ),
           Expanded(
             child: conversationsAsync.when(
@@ -64,9 +65,9 @@ class _ErrorWithRetry extends StatelessWidget {
         children: [
           const Icon(Icons.error_outline, size: 48),
           const SizedBox(height: 16),
-          const Text('Could not load messages'),
+          Text(context.l10n.couldNotLoadMessages),
           const SizedBox(height: 8),
-          FilledButton.tonal(onPressed: onRetry, child: const Text('Retry')),
+          FilledButton.tonal(onPressed: onRetry, child: Text(context.l10n.retry)),
         ],
       ),
     );
@@ -91,14 +92,14 @@ class _EmptyMessages extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'No messages yet',
+            context.l10n.noMessagesYet,
             style: theme.textTheme.titleMedium?.copyWith(
               color: theme.colorScheme.outline,
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Start a conversation from a ride listing',
+            context.l10n.startConversation,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.outline,
             ),

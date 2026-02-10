@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../../../../routes/routes.dart';
 import '../../domain/offer_models.dart';
@@ -92,7 +93,10 @@ class OfferPersonSection extends StatelessWidget {
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                '${user.rating!.toStringAsFixed(1)} (${user.completedTrips} rides)',
+                                context.l10n.ratingDisplay(
+                                  user.rating!.toStringAsFixed(1),
+                                  user.completedTrips ?? 0,
+                                ),
                                 style: tt.bodySmall?.copyWith(
                                   color: cs.onSurfaceVariant,
                                 ),
@@ -167,7 +171,7 @@ class _SourceChip extends StatelessWidget {
         ),
       ),
       child: Text(
-        'Source: Facebook',
+        context.l10n.sourceFacebook,
         style: tt.labelSmall?.copyWith(color: cs.onTertiaryContainer),
       ),
     );

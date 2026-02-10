@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 
 import '../../../../core/cities/domain/city.dart';
 import '../../../../core/cities/widgets/city_autocomplete_field.dart';
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/widgets/core_widgets.dart';
 import '../../../../routes/routes.dart';
 import '../../../offers/domain/offer_ui_model.dart';
@@ -193,7 +194,7 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
     });
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Post Your Ride')),
+      appBar: AppBar(title: Text(context.l10n.postYourRide)),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
@@ -212,7 +213,7 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 24.0, top: 8.0),
                     child: Text(
-                      'Offer a Ride',
+                      context.l10n.offerARideHeader,
                       style: textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: colorScheme.primary,
@@ -226,7 +227,7 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 10.0),
                     child: CityAutocompleteField(
                       controller: _originController,
-                      labelText: 'Origin City',
+                      labelText: context.l10n.originCityLabel,
                       prefixIcon: Icons.trip_origin,
                       onCitySelected: (city) {
                         _originController.text = city.name;
@@ -239,10 +240,10 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Origin City is required';
+                          return context.l10n.originRequired;
                         }
                         if (state.origin == null) {
-                          return 'Select origin from suggestions';
+                          return context.l10n.selectOriginFromSuggestions;
                         }
                         return null;
                       },
@@ -254,7 +255,7 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 10.0),
                     child: CityAutocompleteField(
                       controller: _destinationController,
-                      labelText: 'Destination City',
+                      labelText: context.l10n.destinationCityLabel,
                       prefixIcon: Icons.flag_outlined,
                       onCitySelected: (city) {
                         _destinationController.text = city.name;
@@ -267,16 +268,16 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Destination City is required';
+                          return context.l10n.destinationRequired;
                         }
                         if (state.destination == null) {
-                          return 'Select destination from suggestions';
+                          return context.l10n.selectDestinationFromSuggestions;
                         }
                         if (state.origin != null &&
                             state.destination != null &&
                             state.origin!.placeId ==
                                 state.destination!.placeId) {
-                          return 'Must differ from origin';
+                          return context.l10n.mustDifferFromOrigin;
                         }
                         return null;
                       },
@@ -286,13 +287,13 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
                   // Date
                   AppTextField(
                     controller: _dateController,
-                    label: 'Date of Departure',
+                    label: context.l10n.dateOfDeparture,
                     prefixIcon: Icons.calendar_today_outlined,
                     suffixIcon: Icons.arrow_drop_down,
                     onTap: () => _pickDate(context),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Select departure date';
+                        return context.l10n.selectDepartureDate;
                       }
                       return null;
                     },
@@ -315,7 +316,7 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Time of Day',
+                            context.l10n.timeOfDay,
                             style: textTheme.titleSmall?.copyWith(
                               color: colorScheme.onSurfaceVariant,
                             ),
@@ -331,13 +332,13 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
                   ] else ...[
                     AppTextField(
                       controller: _timeController,
-                      label: 'Time of Departure',
+                      label: context.l10n.timeOfDeparture,
                       prefixIcon: Icons.access_time_outlined,
                       suffixIcon: Icons.arrow_drop_down,
                       onTap: () => _pickTime(context),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Select departure time';
+                          return context.l10n.selectDepartureTime;
                         }
                         return null;
                       },
@@ -351,15 +352,15 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
                       controller: _seatsController,
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      decoration: const InputDecoration(
-                        labelText: 'Available Seats',
-                        prefixIcon: Icon(Icons.airline_seat_recline_normal),
+                      decoration: InputDecoration(
+                        labelText: context.l10n.availableSeatsLabel,
+                        prefixIcon: const Icon(Icons.airline_seat_recline_normal),
                       ),
                       validator: (value) {
-                        if (value?.isEmpty ?? true) return 'Required';
+                        if (value?.isEmpty ?? true) return context.l10n.required;
                         final n = int.tryParse(value!);
                         if (n == null || n < 1 || n > 8) {
-                          return '1-8 seats allowed';
+                          return context.l10n.seatsRange;
                         }
                         return null;
                       },
@@ -373,15 +374,15 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
                       controller: _priceController,
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      decoration: const InputDecoration(
-                        labelText: 'Price per Seat',
+                      decoration: InputDecoration(
+                        labelText: context.l10n.pricePerSeatLabel,
                         suffixText: 'PLN',
                       ),
                       validator: (value) {
-                        if (value?.isEmpty ?? true) return 'Required';
+                        if (value?.isEmpty ?? true) return context.l10n.required;
                         final n = int.tryParse(value!);
                         if (n == null || n < 1 || n > 999) {
-                          return '1-999 PLN';
+                          return context.l10n.priceRange;
                         }
                         return null;
                       },
@@ -391,13 +392,13 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
                   // Description
                   AppTextField(
                     controller: _descriptionController,
-                    label: 'Ride Description (Optional)',
+                    label: context.l10n.rideDescriptionOptional,
                     prefixIcon: Icons.notes_outlined,
                     maxLines: 4,
                     minLines: 2,
                     validator: (value) {
                       if (value != null && value.length > 500) {
-                        return 'Max 500 characters';
+                        return context.l10n.maxCharacters(500);
                       }
                       return null;
                     },
@@ -409,7 +410,7 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
                   PrimaryButton(
                     onPressed: state.isSubmitting ? null : _onSubmit,
                     isLoading: state.isSubmitting,
-                    child: const Text('Post Ride'),
+                    child: Text(context.l10n.postRide),
                   ),
                 ],
               ),

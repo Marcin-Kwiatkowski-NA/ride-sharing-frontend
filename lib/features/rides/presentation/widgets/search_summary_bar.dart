@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/l10n/l10n_extension.dart';
 import '../providers/search_criteria_provider.dart';
 import 'search_label.dart';
 import 'search_sheet.dart';
@@ -19,7 +20,8 @@ class SearchSummaryBar extends ConsumerWidget {
     final label = buildSearchLabel(
       originName: criteria.origin?.name,
       destinationName: criteria.destination?.name,
-      emptyLabel: 'Where are you going?',
+      l10n: context.l10n,
+      emptyLabelOverride: context.l10n.whereAreYouGoing,
     );
     final hasRoute = criteria.origin != null || criteria.destination != null;
     final theme = Theme.of(context);

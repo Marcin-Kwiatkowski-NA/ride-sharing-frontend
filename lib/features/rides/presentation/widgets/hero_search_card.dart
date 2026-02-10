@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../providers/search_criteria_provider.dart';
 import 'search_label.dart';
@@ -31,11 +32,12 @@ class HeroSearchCard extends ConsumerWidget {
     final label = buildSearchLabel(
       originName: origin?.name,
       destinationName: destination?.name,
+      l10n: context.l10n,
     );
 
     return Semantics(
       button: true,
-      label: 'Search for rides. $label',
+      label: context.l10n.searchSemanticLabel(label),
       child: Material(
         color: colorScheme.surfaceContainerHigh,
         elevation: AppTokens.elevationHigh,
@@ -69,7 +71,7 @@ class HeroSearchCard extends ConsumerWidget {
                           .read(searchCriteriaProvider.notifier)
                           .swapOriginDestination();
                     },
-                    tooltip: 'Swap origin and destination',
+                    tooltip: context.l10n.swapOriginDestination,
                   ),
               ],
             ),

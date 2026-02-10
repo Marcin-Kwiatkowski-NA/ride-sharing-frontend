@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/providers/auth_notifier.dart';
 import '../../../../core/providers/auth_state.dart';
 import '../../../../routes/routes.dart';
@@ -36,7 +37,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
     });
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Create Account')),
+      appBar: AppBar(title: Text(context.l10n.createAccountTitle)),
       body: Center(child: _buildForm()),
     );
   }
@@ -64,17 +65,17 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
             TextFormField(
               controller: _displayNameController,
               autovalidateMode: AutovalidateMode.onUserInteraction,
-              decoration: const InputDecoration(
-                labelText: 'Display Name',
-                prefixIcon: Icon(Icons.person),
-                helperText: 'This is the name other users will see.',
+              decoration: InputDecoration(
+                labelText: context.l10n.displayNameLabel,
+                prefixIcon: const Icon(Icons.person),
+                helperText: context.l10n.displayNameHelper,
               ),
               validator: (text) {
                 if (text == null || text.isEmpty) {
-                  return 'Enter a display name';
+                  return context.l10n.enterDisplayName;
                 }
                 if (text.length < 2) {
-                  return 'Display name must be at least 2 characters';
+                  return context.l10n.displayNameMinLength;
                 }
                 return null;
               },
@@ -86,16 +87,16 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
               autovalidateMode: AutovalidateMode.onUserInteraction,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                prefixIcon: Icon(Icons.email),
+              decoration: InputDecoration(
+                labelText: context.l10n.emailLabel,
+                prefixIcon: const Icon(Icons.email),
               ),
               validator: (text) {
                 if (text == null || text.isEmpty) {
-                  return 'Enter your email';
+                  return context.l10n.enterEmail;
                 }
                 if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(text)) {
-                  return 'Enter a valid email';
+                  return context.l10n.enterValidEmail;
                 }
                 return null;
               },
@@ -107,16 +108,16 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
               controller: _passwordController,
               obscureText: true,
               autovalidateMode: AutovalidateMode.onUserInteraction,
-              decoration: const InputDecoration(
-                labelText: 'Password',
-                prefixIcon: Icon(Icons.lock),
+              decoration: InputDecoration(
+                labelText: context.l10n.passwordLabel,
+                prefixIcon: const Icon(Icons.lock),
               ),
               validator: (text) {
                 if (text == null || text.isEmpty) {
-                  return 'Enter a password';
+                  return context.l10n.enterAPassword;
                 }
                 if (text.length < 6) {
-                  return 'Password must be at least 6 characters';
+                  return context.l10n.passwordMinLength;
                 }
                 return null;
               },
@@ -128,16 +129,16 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
               controller: _confirmPasswordController,
               obscureText: true,
               autovalidateMode: AutovalidateMode.onUserInteraction,
-              decoration: const InputDecoration(
-                labelText: 'Confirm Password',
-                prefixIcon: Icon(Icons.lock_outline),
+              decoration: InputDecoration(
+                labelText: context.l10n.confirmPasswordLabel,
+                prefixIcon: const Icon(Icons.lock_outline),
               ),
               validator: (text) {
                 if (text == null || text.isEmpty) {
-                  return 'Confirm your password';
+                  return context.l10n.confirmPassword;
                 }
                 if (text != _passwordController.text) {
-                  return 'Passwords do not match';
+                  return context.l10n.passwordsDoNotMatch;
                 }
                 return null;
               },
@@ -155,7 +156,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                         width: 20,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Text('Create Account'),
+                    : Text(context.l10n.createAccountTitle),
               ),
             ),
             const SizedBox(height: 30),
@@ -167,7 +168,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
-                    'OR',
+                    context.l10n.or,
                     style: TextStyle(color: Colors.grey.shade600),
                   ),
                 ),
@@ -188,7 +189,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                     return const Icon(Icons.g_mobiledata, size: 24);
                   },
                 ),
-                label: const Text('Continue with Google'),
+                label: Text(context.l10n.continueWithGoogle),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   side: BorderSide(color: Colors.grey.shade400),
@@ -201,12 +202,12 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text('Already have an account? '),
+                Text(context.l10n.alreadyHaveAccount),
                 TextButton(
                   onPressed: () {
                     context.pop();
                   },
-                  child: const Text('Login'),
+                  child: Text(context.l10n.loginTitle),
                 ),
               ],
             ),
@@ -237,9 +238,9 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
 
   void _handleGoogleSignUp() {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Google sign-up coming soon!'),
-        duration: Duration(seconds: 2),
+      SnackBar(
+        content: Text(context.l10n.googleSignUpComingSoon),
+        duration: const Duration(seconds: 2),
       ),
     );
   }

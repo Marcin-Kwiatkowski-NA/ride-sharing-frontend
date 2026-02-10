@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../seats/presentation/providers/paginated_seats_provider.dart';
 import '../providers/paginated_rides_provider.dart';
 import '../providers/search_mode_provider.dart';
@@ -17,8 +18,8 @@ class ModeSegmentBar extends ConsumerWidget {
     final ridesState = ref.watch(paginatedRidesProvider);
     final seatsState = ref.watch(paginatedSeatsProvider);
 
-    final ridesLabel = _labelWithCount('Rides', ridesState.totalElements, ridesState.isLoading);
-    final requestsLabel = _labelWithCount('Passengers', seatsState.totalElements, seatsState.isLoading);
+    final ridesLabel = _labelWithCount(context.l10n.filterRides, ridesState.totalElements, ridesState.isLoading);
+    final requestsLabel = _labelWithCount(context.l10n.filterPassengers, seatsState.totalElements, seatsState.isLoading);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),

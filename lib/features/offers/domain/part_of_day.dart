@@ -24,20 +24,6 @@ PartOfDay getPartOfDay(DateTime time) {
   }
 }
 
-/// Get localized label for part-of-day.
-String partOfDayLabel(PartOfDay pod) {
-  switch (pod) {
-    case PartOfDay.morning:
-      return 'Morning';
-    case PartOfDay.afternoon:
-      return 'Afternoon';
-    case PartOfDay.evening:
-      return 'Evening';
-    case PartOfDay.night:
-      return 'Night';
-  }
-}
-
 /// Get icon for part-of-day.
 IconData partOfDayIcon(PartOfDay pod) {
   switch (pod) {

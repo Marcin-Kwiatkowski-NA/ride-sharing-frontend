@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../presentation/widgets/verification_badge.dart';
 
 class VerificationChipsSection extends StatelessWidget {
@@ -21,11 +22,11 @@ class VerificationChipsSection extends StatelessWidget {
         runSpacing: 8,
         children: [
           VerificationBadge(
-            label: 'Phone',
+            label: context.l10n.phoneLabel,
             isVerified: isPhoneVerified,
           ),
           VerificationBadge(
-            label: 'Email',
+            label: context.l10n.emailLabel,
             isVerified: isEmailVerified,
           ),
         ],

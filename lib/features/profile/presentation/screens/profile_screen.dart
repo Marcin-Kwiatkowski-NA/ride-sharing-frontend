@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/models/user_profile.dart';
 import '../../../../core/providers/auth_notifier.dart';
 import '../../../../core/widgets/core_widgets.dart';
 import '../../../../routes/routes.dart';
 import '../widgets.dart';
+import '../widgets/language_selector.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -18,20 +20,25 @@ class ProfileScreen extends ConsumerWidget {
 
     if (user == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Profile')),
+        appBar: AppBar(title: Text(context.l10n.profileTitle)),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.account_circle, size: 100, color: Theme.of(context).colorScheme.onSurfaceVariant),
               const SizedBox(height: 16),
-              const Text('Log in to see your profile'),
+              Text(context.l10n.logInToSeeProfile),
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () {
                   context.pushNamed(RouteNames.login);
                 },
-                child: const Text('Log In / Sign Up'),
+                child: Text(context.l10n.logInSignUp),
+              ),
+              const SizedBox(height: 32),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: LanguageSelector(),
               ),
             ],
           ),
@@ -113,7 +120,7 @@ class _ProfileDashboard extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Trust & Verification',
+                    context.l10n.trustAndVerification,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -124,18 +131,18 @@ class _ProfileDashboard extends ConsumerWidget {
                     runSpacing: 8,
                     children: [
                       VerificationBadge(
-                        label: 'Email',
+                        label: context.l10n.emailLabel,
                         isVerified: user.isEmailVerified,
                         onTap: user.isEmailVerified
                             ? null
-                            : () => _showComingSoon(context, 'Email verification'),
+                            : () => _showComingSoon(context, context.l10n.emailVerification),
                       ),
                       VerificationBadge(
-                        label: 'Phone',
+                        label: context.l10n.phoneLabel,
                         isVerified: user.isPhoneVerified,
                         onTap: user.isPhoneVerified
                             ? null
-                            : () => _showComingSoon(context, 'Phone verification'),
+                            : () => _showComingSoon(context, context.l10n.phoneVerification),
                       ),
                     ],
                   ),
@@ -165,7 +172,7 @@ class _ProfileDashboard extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Statistics',
+                    context.l10n.statistics,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -177,7 +184,7 @@ class _ProfileDashboard extends ConsumerWidget {
                         child: StatsCard(
                           icon: Icons.directions_car,
                           value: user.stats.ridesGiven.toString(),
-                          label: 'Rides Given',
+                          label: context.l10n.ridesGiven,
                           accentColor: theme.colorScheme.primary,
                         ),
                       ),
@@ -186,7 +193,7 @@ class _ProfileDashboard extends ConsumerWidget {
                         child: StatsCard(
                           icon: Icons.airline_seat_recline_normal,
                           value: user.stats.ridesTaken.toString(),
-                          label: 'Rides Taken',
+                          label: context.l10n.ridesTaken,
                           accentColor: theme.colorScheme.tertiary,
                         ),
                       ),
@@ -197,7 +204,7 @@ class _ProfileDashboard extends ConsumerWidget {
                           value: user.stats.ratingCount > 0
                               ? user.stats.ratingAvg.toStringAsFixed(1)
                               : '-',
-                          label: 'Rating',
+                          label: context.l10n.rating,
                           accentColor: theme.colorScheme.tertiary,
                         ),
                       ),
@@ -217,8 +224,8 @@ class _ProfileDashboard extends ConsumerWidget {
                   children: [
                     ProfileActionTile(
                       icon: Icons.edit,
-                      title: 'Edit Profile',
-                      subtitle: 'Update your personal information',
+                      title: context.l10n.editProfile,
+                      subtitle: context.l10n.updatePersonalInfo,
                       onTap: () {
                         context.pushNamed(RouteNames.editProfile);
                       },
@@ -226,13 +233,21 @@ class _ProfileDashboard extends ConsumerWidget {
                     const Divider(height: 1),
                     ProfileActionTile(
                       icon: Icons.history,
-                      title: 'My Rides',
-                      subtitle: 'View your ride history',
-                      onTap: () => _showComingSoon(context, 'My Rides'),
+                      title: context.l10n.myRides,
+                      subtitle: context.l10n.viewRideHistory,
+                      onTap: () => _showComingSoon(context, context.l10n.myRides),
                     ),
                   ],
                 ),
               ),
+            ),
+          ),
+
+          // Language selector
+          const SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: LanguageSelector(),
             ),
           ),
 
@@ -245,7 +260,7 @@ class _ProfileDashboard extends ConsumerWidget {
                 child: ElevatedButton.icon(
                   onPressed: () => _handleLogout(context, ref),
                   icon: const Icon(Icons.logout),
-                  label: const Text('Logout'),
+                  label: Text(context.l10n.logout),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: theme.colorScheme.error,
                     foregroundColor: theme.colorScheme.onError,
@@ -264,7 +279,7 @@ class _ProfileDashboard extends ConsumerWidget {
 
   void _showComingSoon(BuildContext context, String feature) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$feature coming soon!')),
+      SnackBar(content: Text(context.l10n.comingSoon(feature))),
     );
   }
 

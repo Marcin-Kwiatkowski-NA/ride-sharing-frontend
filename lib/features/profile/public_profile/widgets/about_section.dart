@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_tokens.dart';
 
 class AboutSection extends StatelessWidget {
@@ -18,7 +19,7 @@ class AboutSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'About',
+            context.l10n.about,
             style: tt.titleSmall?.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
@@ -50,7 +51,7 @@ class AboutSection extends StatelessWidget {
             )
           else
             Text(
-              'No bio added yet.',
+              context.l10n.noBioYet,
               style: tt.bodyMedium?.copyWith(
                 color: cs.onSurfaceVariant,
                 fontStyle: FontStyle.italic,

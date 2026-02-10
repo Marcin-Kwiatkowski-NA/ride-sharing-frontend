@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_tokens.dart';
 
 /// Nudge card shown at the end of ride search results, prompting users
@@ -23,18 +24,18 @@ class PostRequestNudgeCard extends StatelessWidget {
     required this.onDismissed,
   });
 
-  String _buildCopy() {
+  String _buildCopy(BuildContext context) {
     final hasOrigin = originName != null && originName!.isNotEmpty;
     final hasDestination = destinationName != null && destinationName!.isNotEmpty;
     final hasDate = dateLabel != null && dateLabel!.isNotEmpty;
 
     if (hasOrigin && hasDestination) {
-      return 'Need a different time for $originName \u2192 $destinationName?';
+      return context.l10n.nudgeRouteTime(originName!, destinationName!);
     }
     if (hasDate) {
-      return 'Nothing on $dateLabel? Post your own request.';
+      return context.l10n.nudgeDateFallback(dateLabel!);
     }
-    return 'Not finding what you need? Post a request and let drivers come to you.';
+    return context.l10n.nudgeGeneric;
   }
 
   @override
@@ -85,14 +86,14 @@ class PostRequestNudgeCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _buildCopy(),
+                        _buildCopy(context),
                         style: theme.textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w500,
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Post a request',
+                        context.l10n.postARequest,
                         style: theme.textTheme.labelSmall?.copyWith(
                           color: colorScheme.tertiary,
                           fontWeight: FontWeight.bold,

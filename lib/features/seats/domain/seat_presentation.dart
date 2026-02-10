@@ -13,7 +13,7 @@ import '../data/dto/seat_response_dto.dart';
 ///
 /// Stateless, no side effects, easily testable.
 class SeatPresentation {
-  /// Convert DTO to unified offer UI model with all precomputed display values.
+  /// Convert DTO to unified offer UI model with raw data fields.
   static OfferUiModel toUiModel(SeatResponseDto dto) {
     final isInternal = dto.source == RideSource.internal;
 
@@ -21,33 +21,17 @@ class SeatPresentation {
     final contactMethods =
         OfferFormatting.buildContactMethods(dto.contactMethods);
 
-    // Time formatting
+    // Time
     final timeUndefined =
         isTimeUndefined(dto.departureTime, dto.isApproximate);
     final partOfDay = getPartOfDay(dto.departureTime);
-    final partOfDayDisplay =
-        timeUndefined ? 'Ask passenger' : partOfDayLabel(partOfDay);
     final exactTimeDisplay = OfferFormatting.formatExactTime(
       dto.departureTime,
       dto.isApproximate,
     );
 
-    // Money (budget)
-    final moneyHighlight = dto.priceWillingToPay != null;
-    final moneyValue = OfferFormatting.formatPriceOrFallback(
-      dto.priceWillingToPay,
-      'Flexible',
-    );
-
-    // Count (passengers)
-    final countDisplay =
-        dto.count == 1 ? '1 passenger' : '${dto.count} passengers';
-
-    // Source badge
-    final sourceBadge = OfferFormatting.formatSourceBadge(dto.source);
-
-    // Status chip
-    final statusChip = _buildStatusChip(dto.seatStatus);
+    // Status
+    final status = _mapStatus(dto.seatStatus);
     final isBookable = dto.seatStatus == SeatStatus.searching;
 
     // Passenger / User info
@@ -58,14 +42,11 @@ class SeatPresentation {
         passengerCompletedRides > 0 &&
         passengerRating != null;
     final passengerId = dto.passenger?.id;
-    final passengerDisplayName =
-        _hasContent(passengerName) ? passengerName! : 'Passenger';
     final canUseInAppChat = isInternal && passengerId != null;
 
     final OfferUserUi? user = dto.passenger != null
         ? OfferUserUi(
-            sectionTitle: 'PASSENGER',
-            displayName: passengerDisplayName,
+            displayName: _hasContent(passengerName) ? passengerName! : '',
             rating: passengerRating,
             completedTrips: passengerCompletedRides,
             showRating: showRating,
@@ -82,21 +63,17 @@ class SeatPresentation {
       originName: dto.origin.name,
       destinationName: dto.destination.name,
       routeDisplay: '${dto.origin.name} -> ${dto.destination.name}',
-      dateDisplay: OfferFormatting.formatDate(dto.departureTime),
+      departureTime: dto.departureTime,
       exactTimeDisplay: exactTimeDisplay,
       partOfDay: partOfDay,
-      partOfDayDisplay: partOfDayDisplay,
       isTimeUndefined: timeUndefined,
-      moneyLabel: 'Budget',
-      moneyValue: moneyValue,
-      moneyHighlight: moneyHighlight,
-      countLabel: 'Passengers',
-      countDisplay: countDisplay,
+      moneyLabelKind: MoneyLabelKind.budget,
+      moneyAmount: dto.priceWillingToPay,
+      countLabelKind: CountLabelKind.passengers,
+      count: dto.count,
       countIcon: Icons.people,
-      sourceBadgeText: sourceBadge.text,
-      sourceBadgeColor: sourceBadge.color,
       isExternalSource: !isInternal,
-      statusChip: statusChip,
+      status: status,
       isBookable: isBookable,
       user: user,
       description: dto.description,
@@ -108,17 +85,13 @@ class SeatPresentation {
     return dtos.map(toUiModel).toList();
   }
 
-  static StatusChipSpec _buildStatusChip(SeatStatus status) {
-    final (label, color, icon) = switch (status) {
-      SeatStatus.searching => ('Searching', Colors.green, Icons.search),
-      SeatStatus.booked => ('Booked', Colors.blue, Icons.check_circle_outline),
-      SeatStatus.expired => ('Expired', Colors.grey, Icons.timer_off_outlined),
-      SeatStatus.cancelled =>
-        ('Cancelled', Colors.red, Icons.cancel_outlined),
-      SeatStatus.banned => ('Banned', Colors.red, Icons.block),
-    };
-    return StatusChipSpec(label: label, color: color, icon: icon);
-  }
+  static OfferStatus _mapStatus(SeatStatus status) => switch (status) {
+    SeatStatus.searching => OfferStatus.searching,
+    SeatStatus.booked => OfferStatus.booked,
+    SeatStatus.expired => OfferStatus.expired,
+    SeatStatus.cancelled => OfferStatus.cancelled,
+    SeatStatus.banned => OfferStatus.banned,
+  };
 
   static bool _hasContent(String? s) => s != null && s.trim().isNotEmpty;
 }
