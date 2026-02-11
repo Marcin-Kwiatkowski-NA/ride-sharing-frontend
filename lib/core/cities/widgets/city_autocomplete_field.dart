@@ -8,14 +8,10 @@ import '../domain/city.dart';
 import '../providers/city_providers.dart';
 import '../repository/city_repository.dart';
 
-/// Autocomplete text field for city selection
+/// Inline city search field with results list below.
 ///
-/// Uses [CityRepository] for combined API search and recent cities.
-/// Features:
-/// - Debounced API calls (350ms)
-/// - Request cancellation to prevent race conditions
-/// - Loading, error, and empty states
-/// - Country code display in suggestions
+/// Designed for bottom sheets: no overlay, suggestions appear in a ListView
+/// that you control (pass your own ScrollController if needed).
 class CityAutocompleteField extends ConsumerStatefulWidget {
   final TextEditingController controller;
   final String labelText;
@@ -47,62 +43,70 @@ class _CityAutocompleteFieldState extends ConsumerState<CityAutocompleteField> {
   bool _isLoading = false;
   String? _errorMessage;
   CancelToken? _cancelToken;
-  String? _pendingKey; // '$lang|$query' - prevents duplicate fetches
+  String? _pendingKey;
 
-  // References for focus handling
-  FocusNode? _focusNode;
-  TextEditingController? _fieldControllerRef;
+  final _focusNode = FocusNode();
   CityRepository? _repositoryRef;
   String? _langRef;
 
   static const Duration _debounceDuration = Duration(milliseconds: 350);
 
   @override
+  void initState() {
+    super.initState();
+    _focusNode.addListener(_onFocusChange);
+    widget.controller.addListener(_onTextChanged);
+  }
+
+  @override
   void dispose() {
     _debounce?.cancel();
     _cancelToken?.cancel();
-    _removeFocusListener();
+    _focusNode.removeListener(_onFocusChange);
+    _focusNode.dispose();
+    widget.controller.removeListener(_onTextChanged);
     super.dispose();
   }
 
-  void _removeFocusListener() {
-    _focusNode?.removeListener(_onFocusChange);
-  }
-
   void _onFocusChange() {
-    if (_focusNode?.hasFocus == true &&
-        (_fieldControllerRef?.text.isEmpty ?? true)) {
-      // Focus gained with empty text - fetch recents immediately
+    if (_focusNode.hasFocus && widget.controller.text.isEmpty) {
       _fetchSuggestions('', _repositoryRef, _langRef ?? 'en');
     }
   }
 
-  void _onTextChanged(String query, CityRepository? repository, String lang) {
+  void _onTextChanged() {
+    final query = widget.controller.text;
+    final repository = _repositoryRef;
+    final lang = _langRef ?? 'en';
+
     if (repository == null) return;
 
     final key = '$lang|$query';
-    if (key == _pendingKey) return; // Prevent duplicate fetches
+    if (key == _pendingKey) return;
 
     _pendingKey = key;
     _debounce?.cancel();
+
+    if (query.isEmpty) {
+      widget.onCityCleared?.call();
+    }
+
     _debounce = Timer(_debounceDuration, () {
       _fetchSuggestions(query, repository, lang);
     });
   }
 
   Future<void> _fetchSuggestions(
-    String query,
-    CityRepository? repository,
-    String lang,
-  ) async {
+      String query,
+      CityRepository? repository,
+      String lang,
+      ) async {
     if (repository == null) return;
 
-    // Cancel any pending request
     _cancelToken?.cancel();
     _cancelToken = CancelToken();
 
     if (query.isEmpty) {
-      // Fetch recent cities without loading indicator
       try {
         final recents = await repository.getRecentCities();
         if (mounted) {
@@ -174,131 +178,155 @@ class _CityAutocompleteFieldState extends ConsumerState<CityAutocompleteField> {
         widget.langOverride ?? ref.watch(citySearchLangProvider);
 
     return repositoryAsync.when(
-      loading: () => _buildField(context, theme, null, lang),
-      error: (error, stackTrace) => _buildField(context, theme, null, lang),
-      data: (repository) => _buildField(context, theme, repository, lang),
+      loading: () => _buildContent(context, theme, null, lang),
+      error: (error, stackTrace) => _buildContent(context, theme, null, lang),
+      data: (repository) => _buildContent(context, theme, repository, lang),
     );
   }
 
-  Widget _buildField(
-    BuildContext context,
-    ThemeData theme,
-    CityRepository? repository,
-    String lang,
-  ) {
-    // Store refs for focus handling and lang-change detection
+  Widget _buildContent(
+      BuildContext context,
+      ThemeData theme,
+      CityRepository? repository,
+      String lang,
+      ) {
     _repositoryRef = repository;
 
     // Trigger refetch if lang changed
     if (_langRef != null && _langRef != lang && repository != null) {
-      final currentQuery = _fieldControllerRef?.text ?? '';
-      _onTextChanged(currentQuery, repository, lang);
+      _onTextChanged();
     }
     _langRef = lang;
 
-    return RawAutocomplete<City>(
-      textEditingController: widget.controller,
-      focusNode: _focusNode ??= FocusNode(),
-      optionsBuilder: (TextEditingValue textEditingValue) {
-        final query = textEditingValue.text;
-
-        if (query.isEmpty) return _suggestions;
-
-        final lowerQuery = query.toLowerCase();
-        return _suggestions
-            .where((c) => c.name.toLowerCase().contains(lowerQuery))
-            .toList();
-      },
-      displayStringForOption: (City option) => option.name,
-      onSelected: (City selection) {
-        repository?.addToRecent(selection);
-        widget.onCitySelected(selection);
-
-        // Ensure field displays chosen city
-        widget.controller.text = selection.name;
-
-        FocusScope.of(context).unfocus();
-      },
-      fieldViewBuilder: (context, textController, focusNode, onFieldSubmitted) {
-        // Keep your focus listener behavior
-        if (_focusNode != focusNode) {
-          _removeFocusListener();
-          _focusNode = focusNode;
-          focusNode.addListener(_onFocusChange);
-        }
-
-        return TextFormField(
-          controller: textController,
-          focusNode: focusNode,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Search field
+        TextFormField(
+          controller: widget.controller,
+          focusNode: _focusNode,
           validator: widget.validator,
-          onChanged: (text) {
-            if (text.isEmpty) {
-              widget.onCityCleared?.call();
-            }
-            _onTextChanged(text, repository, lang);
-          },
+          autofocus: true,
           decoration: InputDecoration(
             labelText: widget.labelText,
             prefixIcon: Icon(widget.prefixIcon),
+            suffixIcon: widget.controller.text.isNotEmpty
+                ? IconButton(
+              icon: const Icon(Icons.clear),
+              onPressed: () {
+                widget.controller.clear();
+                widget.onCityCleared?.call();
+              },
+            )
+                : null,
           ),
-        );
-      },
-      optionsViewBuilder: (context, onSelected, options) {
-        Widget content;
+        ),
 
-        if (_isLoading) {
-          content = const Center(
-            child: Padding(
-              padding: EdgeInsets.all(16.0),
-              child: CircularProgressIndicator(),
+        const SizedBox(height: 12),
+
+        // Inline results list (scrollable, Material 3 style)
+        Expanded(
+          child: _buildResultsList(context, theme, repository),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildResultsList(
+      BuildContext context,
+      ThemeData theme,
+      CityRepository? repository,
+      ) {
+    if (_isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    if (_errorMessage != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.error_outline,
+                size: 48,
+                color: theme.colorScheme.error,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                _errorMessage!,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.error,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (_suggestions.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.location_off,
+                size: 48,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'No cities found',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return ListView.separated(
+      padding: EdgeInsets.zero,
+      itemCount: _suggestions.length,
+      separatorBuilder: (_, __) => const Divider(height: 1),
+      itemBuilder: (context, index) {
+        final city = _suggestions[index];
+        return ListTile(
+          title: Text(city.name),
+          trailing: city.countryCode != null
+              ? Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8,
+              vertical: 4,
             ),
-          );
-        } else if (_errorMessage != null) {
-          content = Padding(
-            padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.secondaryContainer,
+              borderRadius: BorderRadius.circular(4),
+            ),
             child: Text(
-              _errorMessage!,
-              style: TextStyle(color: theme.colorScheme.error),
+              city.countryCode!,
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: theme.colorScheme.onSecondaryContainer,
+              ),
             ),
-          );
-        } else if (options.isEmpty) {
-          content = const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text('No cities found'),
-          );
-        } else {
-          content = ListView.builder(
-            padding: EdgeInsets.zero,
-            shrinkWrap: true,
-            itemCount: options.length,
-            itemBuilder: (context, index) {
-              final option = options.elementAt(index);
-              return ListTile(
-                title: Text(option.name),
-                trailing: option.countryCode != null
-                    ? Text(
-                  option.countryCode!,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                )
-                    : null,
-                onTap: () => onSelected(option),
-              );
-            },
-          );
-        }
-
-        return Align(
-          alignment: Alignment.topLeft,
-          child: Material(
-            elevation: 4.0,
-            borderRadius: BorderRadius.circular(12.0),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: 220),
-              child: content,
-            ),
-          ),
+          )
+              : null,
+          onTap: () {
+            repository?.addToRecent(city);
+            widget.controller.text = city.name;
+            widget.onCitySelected(city);
+            FocusScope.of(context).unfocus();
+          },
         );
       },
     );

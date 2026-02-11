@@ -134,30 +134,27 @@ class _SearchSheetContentState extends ConsumerState<_SearchSheetContent> {
   }
 
   Future<void> _pickCity({required bool isOrigin}) async {
-    final controller = isOrigin ? _fromController : _toController;
-    final city = await showModalBottomSheet<City>(
+    final city = await showDialog<City>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => _CityPickerSheet(
-        controller: controller,
-        label: isOrigin ? context.l10n.fromLabel : context.l10n.toLabel,
+      barrierDismissible: true,
+      builder: (ctx) => Dialog.fullscreen(
+        child: _CityPickerPage(
+          title: isOrigin ? context.l10n.fromLabel : context.l10n.toLabel,
+        ),
       ),
     );
 
-    if (!mounted) return;
+    if (!mounted || city == null) return;
 
-    if (city != null) {
-      setState(() {
-        if (isOrigin) {
-          _draft = _draft.copyWith(origin: city);
-          _fromController.text = city.name;
-        } else {
-          _draft = _draft.copyWith(destination: city);
-          _toController.text = city.name;
-        }
-      });
-    }
+    setState(() {
+      if (isOrigin) {
+        _draft = _draft.copyWith(origin: city);
+        _fromController.text = city.name;
+      } else {
+        _draft = _draft.copyWith(destination: city);
+        _toController.text = city.name;
+      }
+    });
   }
 
   Future<void> _pickDate() async {
@@ -379,6 +376,41 @@ class _SearchSheetContentState extends ConsumerState<_SearchSheetContent> {
     );
   }
 }
+
+class _CityPickerPage extends StatelessWidget {
+  final String title;
+  const _CityPickerPage({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    final ctrl = TextEditingController();
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+      body: Padding(
+        padding: EdgeInsets.only(
+          left: 24,
+          right: 24,
+          top: 12,
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: CityAutocompleteField(
+          controller: ctrl,
+          labelText: context.l10n.searchCity,
+          prefixIcon: Icons.search,
+          onCitySelected: (city) => Navigator.of(context).pop(city),
+        ),
+      ),
+    );
+  }
+}
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Route Picker Card
