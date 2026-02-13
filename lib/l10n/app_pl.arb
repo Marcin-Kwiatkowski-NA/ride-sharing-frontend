@@ -233,5 +233,11 @@
   "zeroResultsRoute": "Dodaj ogłoszenie na trasie {origin} do {destination}.",
   "zeroResultsOriginDate": "Dodaj ogłoszenie z {origin} na {date}.",
   "zeroResultsOrigin": "Dodaj ogłoszenie z {origin} i pozwól kierowcom Cię znaleźć.",
-  "zeroResultsGeneric": "Dodaj ogłoszenie na swoją trasę i pozwól kierowcom Cię znaleźć."
+  "zeroResultsGeneric": "Dodaj ogłoszenie na swoją trasę i pozwól kierowcom Cię znaleźć.",
+
+  "negotiablePrice": "Cena do negocjacji",
+  "addStop": "Dodaj przystanek",
+  "removeStop": "Usuń przystanek",
+  "intermediateStopLabel": "Przystanek {number}",
+  "stopDepartureTime": "Godzina odjazdu z przystanku"
 }

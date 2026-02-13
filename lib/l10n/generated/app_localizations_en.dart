@@ -731,4 +731,21 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get zeroResultsGeneric =>
       'Post a request for your route and let drivers find you.';
+
+  @override
+  String get negotiablePrice => 'Price negotiable';
+
+  @override
+  String get addStop => 'Add stop';
+
+  @override
+  String get removeStop => 'Remove stop';
+
+  @override
+  String intermediateStopLabel(int number) {
+    return 'Stop $number';
+  }
+
+  @override
+  String get stopDepartureTime => 'Departure time at stop';
 }

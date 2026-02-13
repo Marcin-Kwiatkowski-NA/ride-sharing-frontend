@@ -1381,6 +1381,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Post a request for your route and let drivers find you.'**
   String get zeroResultsGeneric;
+
+  /// Checkbox label to mark price as negotiable
+  ///
+  /// In en, this message translates to:
+  /// **'Price negotiable'**
+  String get negotiablePrice;
+
+  /// Button label to add intermediate stop
+  ///
+  /// In en, this message translates to:
+  /// **'Add stop'**
+  String get addStop;
+
+  /// Tooltip for removing intermediate stop
+  ///
+  /// In en, this message translates to:
+  /// **'Remove stop'**
+  String get removeStop;
+
+  /// Label for intermediate stop city field
+  ///
+  /// In en, this message translates to:
+  /// **'Stop {number}'**
+  String intermediateStopLabel(int number);
+
+  /// Label for intermediate stop time field
+  ///
+  /// In en, this message translates to:
+  /// **'Departure time at stop'**
+  String get stopDepartureTime;
 }
 
 class _AppLocalizationsDelegate

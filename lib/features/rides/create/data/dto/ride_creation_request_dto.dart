@@ -15,9 +15,11 @@ sealed class RideCreationRequestDto with _$RideCreationRequestDto {
     required String departureTime, // "yyyy-MM-ddTHH:mm:ss" (no timezone)
     @Default(false) bool isApproximate,
     required int availableSeats, // 1-8
-    required int pricePerSeat, // 1-999
+    int? pricePerSeat, // 1-999, null = negotiable
     int? vehicleId,
     String? description, // max 500, null if empty
+    List<int>? intermediateStopPlaceIds,
+    List<String>? intermediateStopDepartureTimes,
   }) = _RideCreationRequestDto;
 
   factory RideCreationRequestDto.fromJson(Map<String, dynamic> json) =>

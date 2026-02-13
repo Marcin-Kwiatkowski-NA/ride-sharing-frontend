@@ -4,6 +4,7 @@ import '../../../offers/data/city_dto.dart';
 import '../../../offers/data/contact_method_dto.dart';
 import '../../../offers/data/offer_enums.dart';
 import 'ride_enums.dart';
+import 'ride_stop_dto.dart';
 import 'user_card_dto.dart';
 import 'vehicle_response_dto.dart';
 
@@ -27,6 +28,8 @@ sealed class RideResponseDto with _$RideResponseDto {
     @Default(RideStatus.open) RideStatus rideStatus,
     String? description,
     @Default([]) List<ContactMethodDto> contactMethods,
+    @Default([]) List<RideStopDto> stops,
+    @Default(0) int totalSeats,
   }) = _RideResponseDto;
 
   factory RideResponseDto.fromJson(Map<String, dynamic> json) =>

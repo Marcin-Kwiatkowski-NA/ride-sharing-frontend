@@ -737,4 +737,21 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get zeroResultsGeneric =>
       'Dodaj ogłoszenie na swoją trasę i pozwól kierowcom Cię znaleźć.';
+
+  @override
+  String get negotiablePrice => 'Cena do negocjacji';
+
+  @override
+  String get addStop => 'Dodaj przystanek';
+
+  @override
+  String get removeStop => 'Usuń przystanek';
+
+  @override
+  String intermediateStopLabel(int number) {
+    return 'Przystanek $number';
+  }
+
+  @override
+  String get stopDepartureTime => 'Godzina odjazdu z przystanku';
 }

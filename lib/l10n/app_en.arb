@@ -765,5 +765,23 @@
   },
 
   "zeroResultsGeneric": "Post a request for your route and let drivers find you.",
-  "@zeroResultsGeneric": { "description": "Zero results subtext with no criteria" }
+  "@zeroResultsGeneric": { "description": "Zero results subtext with no criteria" },
+
+  "negotiablePrice": "Price negotiable",
+  "@negotiablePrice": { "description": "Checkbox label to mark price as negotiable" },
+
+  "addStop": "Add stop",
+  "@addStop": { "description": "Button label to add intermediate stop" },
+
+  "removeStop": "Remove stop",
+  "@removeStop": { "description": "Tooltip for removing intermediate stop" },
+
+  "intermediateStopLabel": "Stop {number}",
+  "@intermediateStopLabel": {
+    "description": "Label for intermediate stop city field",
+    "placeholders": { "number": { "type": "int" } }
+  },
+
+  "stopDepartureTime": "Departure time at stop",
+  "@stopDepartureTime": { "description": "Label for intermediate stop time field" }
 }

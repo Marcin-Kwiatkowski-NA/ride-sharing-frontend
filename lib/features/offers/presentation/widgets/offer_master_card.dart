@@ -129,7 +129,7 @@ class _RouteTimeline extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Visual tracker column
-          _VisualTracker(cs: cs),
+          _VisualTracker(cs: cs, stopCount: offer.intermediateStops.length),
           const SizedBox(width: 12),
           // Text data column
           Expanded(
@@ -150,7 +150,30 @@ class _RouteTimeline extends StatelessWidget {
                   timeDisplay,
                   style: tt.bodyMedium?.copyWith(color: cs.primary),
                 ),
-                const SizedBox(height: 20),
+                // Intermediate stops
+                for (final stop in offer.intermediateStops) ...[
+                  const SizedBox(height: 16),
+                  Text(
+                    stop.cityName,
+                    style: tt.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  if (stop.timeDisplay != null)
+                    Row(
+                      children: [
+                        Text(
+                          stop.timeDisplay!,
+                          style: tt.bodyMedium?.copyWith(color: cs.primary),
+                        ),
+                        if (stop.isNextDay) ...[
+                          const SizedBox(width: 4),
+                          _NextDayBadge(cs: cs, tt: tt),
+                        ],
+                      ],
+                    ),
+                ],
+                const SizedBox(height: 16),
                 // Destination block
                 Semantics(
                   label: 'Destination: ${offer.destinationName}',
@@ -170,10 +193,36 @@ class _RouteTimeline extends StatelessWidget {
   }
 }
 
-class _VisualTracker extends StatelessWidget {
-  const _VisualTracker({required this.cs});
+class _NextDayBadge extends StatelessWidget {
+  const _NextDayBadge({required this.cs, required this.tt});
 
   final ColorScheme cs;
+  final TextTheme tt;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+      decoration: BoxDecoration(
+        color: cs.tertiaryContainer,
+        borderRadius: BorderRadius.circular(AppTokens.radiusXS),
+      ),
+      child: Text(
+        '+1',
+        style: tt.labelSmall?.copyWith(
+          color: cs.onTertiaryContainer,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+}
+
+class _VisualTracker extends StatelessWidget {
+  const _VisualTracker({required this.cs, this.stopCount = 0});
+
+  final ColorScheme cs;
+  final int stopCount;
 
   @override
   Widget build(BuildContext context) {
@@ -181,9 +230,16 @@ class _VisualTracker extends StatelessWidget {
       children: [
         const SizedBox(height: 2),
         Icon(Icons.radio_button_unchecked, size: 16, color: cs.primary),
+        for (int i = 0; i < stopCount; i++) ...[
+          Padding(
+            padding: const EdgeInsets.only(left: 1),
+            child: Container(width: 2, height: 28, color: cs.outlineVariant),
+          ),
+          Icon(Icons.circle, size: 10, color: cs.primary),
+        ],
         Padding(
           padding: const EdgeInsets.only(left: 1),
-          child: Container(width: 2, height: 44, color: cs.outlineVariant),
+          child: Container(width: 2, height: 28, color: cs.outlineVariant),
         ),
         Icon(Icons.location_on, size: 20, color: cs.secondary),
       ],

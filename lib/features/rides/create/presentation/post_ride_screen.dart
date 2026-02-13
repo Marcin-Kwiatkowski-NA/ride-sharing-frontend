@@ -41,6 +41,11 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
   City? _lastSelectedOrigin;
   City? _lastSelectedDestination;
 
+  // Intermediate stop controllers
+  final List<TextEditingController> _stopCityControllers = [];
+  final List<TextEditingController> _stopTimeControllers = [];
+  final List<City?> _lastSelectedStopCities = [];
+
   @override
   void initState() {
     super.initState();
@@ -78,6 +83,19 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
     }
   }
 
+  void _ensureStopControllers(int count) {
+    while (_stopCityControllers.length < count) {
+      _stopCityControllers.add(TextEditingController());
+      _stopTimeControllers.add(TextEditingController());
+      _lastSelectedStopCities.add(null);
+    }
+    while (_stopCityControllers.length > count) {
+      _stopCityControllers.removeLast().dispose();
+      _stopTimeControllers.removeLast().dispose();
+      _lastSelectedStopCities.removeLast();
+    }
+  }
+
   @override
   void dispose() {
     _originController.removeListener(_onOriginTextChanged);
@@ -89,6 +107,12 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
     _seatsController.dispose();
     _priceController.dispose();
     _descriptionController.dispose();
+    for (final c in _stopCityControllers) {
+      c.dispose();
+    }
+    for (final c in _stopTimeControllers) {
+      c.dispose();
+    }
     super.dispose();
   }
 
@@ -128,14 +152,35 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
     }
   }
 
+  Future<void> _pickStopTime(BuildContext context, int index) async {
+    final controller = ref.read(postRideControllerProvider.notifier);
+    final state = ref.read(postRideControllerProvider);
+    final stop = state.intermediateStops[index];
+
+    final TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: stop.departureTime ?? TimeOfDay.now(),
+    );
+
+    if (pickedTime != null && mounted) {
+      controller.setIntermediateStopTime(index, pickedTime);
+      final hour = pickedTime.hourOfPeriod == 0 ? 12 : pickedTime.hourOfPeriod;
+      final minute = pickedTime.minute.toString().padLeft(2, '0');
+      final period = pickedTime.period == DayPeriod.am ? 'AM' : 'PM';
+      _stopTimeControllers[index].text = '$hour:$minute $period';
+    }
+  }
+
   void _onSubmit() {
     final controller = ref.read(postRideControllerProvider.notifier);
 
     // Sync text field values to controller before validation
     final seats = int.tryParse(_seatsController.text);
-    final price = int.tryParse(_priceController.text);
     controller.setAvailableSeats(seats);
-    controller.setPricePerSeat(price);
+    if (!ref.read(postRideControllerProvider).isNegotiablePrice) {
+      final price = int.tryParse(_priceController.text);
+      controller.setPricePerSeat(price);
+    }
     controller.setDescription(_descriptionController.text);
 
     // Submit
@@ -148,6 +193,9 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
     final colorScheme = Theme.of(context).colorScheme;
     final state = ref.watch(postRideControllerProvider);
     final controller = ref.read(postRideControllerProvider.notifier);
+
+    // Keep controllers in sync with state
+    _ensureStopControllers(state.intermediateStops.length);
 
     // Listen for navigation and error events
     ref.listen(postRideControllerProvider, (prev, next) {
@@ -284,6 +332,9 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
                     ),
                   ),
 
+                  // Intermediate Stops Section
+                  ..._buildIntermediateStopsSection(state, controller, colorScheme, textTheme),
+
                   // Date
                   AppTextField(
                     controller: _dateController,
@@ -374,11 +425,13 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
                       controller: _priceController,
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      enabled: !state.isNegotiablePrice,
                       decoration: InputDecoration(
                         labelText: context.l10n.pricePerSeatLabel,
                         suffixText: 'PLN',
                       ),
                       validator: (value) {
+                        if (state.isNegotiablePrice) return null;
                         if (value?.isEmpty ?? true) return context.l10n.required;
                         final n = int.tryParse(value!);
                         if (n == null || n < 1 || n > 999) {
@@ -387,6 +440,15 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
                         return null;
                       },
                     ),
+                  ),
+
+                  // Negotiable price toggle
+                  CheckboxListTile(
+                    title: Text(context.l10n.negotiablePrice),
+                    value: state.isNegotiablePrice,
+                    onChanged: (v) => controller.setNegotiablePrice(v ?? false),
+                    contentPadding: EdgeInsets.zero,
+                    controlAffinity: ListTileControlAffinity.leading,
                   ),
 
                   // Description
@@ -419,5 +481,75 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
         ),
       ),
     );
+  }
+
+  List<Widget> _buildIntermediateStopsSection(
+    PostRideFormState state,
+    PostRideController controller,
+    ColorScheme colorScheme,
+    TextTheme textTheme,
+  ) {
+    return [
+      for (int i = 0; i < state.intermediateStops.length; i++)
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6.0),
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: CityAutocompleteField(
+                          controller: _stopCityControllers[i],
+                          labelText: context.l10n.intermediateStopLabel(i + 1),
+                          prefixIcon: Icons.add_location_alt_outlined,
+                          onCitySelected: (city) {
+                            _stopCityControllers[i].text = city.name;
+                            _lastSelectedStopCities[i] = city;
+                            controller.setIntermediateStopCity(i, city);
+                          },
+                          onCityCleared: () {
+                            _lastSelectedStopCities[i] = null;
+                            controller.clearIntermediateStopCity(i);
+                          },
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.remove_circle_outline),
+                        onPressed: () {
+                          controller.removeIntermediateStop(i);
+                        },
+                        color: colorScheme.error,
+                        tooltip: context.l10n.removeStop,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  AppTextField(
+                    controller: _stopTimeControllers[i],
+                    label: context.l10n.stopDepartureTime,
+                    prefixIcon: Icons.access_time_outlined,
+                    suffixIcon: Icons.arrow_drop_down,
+                    onTap: () => _pickStopTime(context, i),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+
+      // Add stop button
+      if (state.intermediateStops.length < 3)
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: TextButton.icon(
+            onPressed: controller.addIntermediateStop,
+            icon: const Icon(Icons.add_location_alt_outlined),
+            label: Text(context.l10n.addStop),
+          ),
+        ),
+    ];
   }
 }

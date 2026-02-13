@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../../offers/data/offer_enums.dart';
 import '../../offers/domain/offer_formatting.dart';
@@ -59,11 +60,15 @@ class RidePresentation {
           )
         : null;
 
+    // Intermediate stops
+    final intermediateStops = _buildIntermediateStops(dto);
+    final routeDisplay = _buildRouteDisplay(dto, intermediateStops);
+
     return OfferUiModel(
       offerKey: OfferKey(OfferKind.ride, dto.id),
       originName: dto.origin.name,
       destinationName: dto.destination.name,
-      routeDisplay: '${dto.origin.name} -> ${dto.destination.name}',
+      routeDisplay: routeDisplay,
       departureTime: dto.departureTime,
       exactTimeDisplay: exactTimeDisplay,
       partOfDay: partOfDay,
@@ -78,6 +83,7 @@ class RidePresentation {
       isBookable: isBookable,
       user: user,
       description: dto.description,
+      intermediateStops: intermediateStops,
     );
   }
 
@@ -94,4 +100,37 @@ class RidePresentation {
   };
 
   static bool _hasContent(String? s) => s != null && s.trim().isNotEmpty;
+
+  static final _timeFormat = DateFormat('HH:mm');
+
+  static List<IntermediateStopUi> _buildIntermediateStops(RideResponseDto dto) {
+    if (dto.stops.length <= 2) return const [];
+
+    final sorted = [...dto.stops]..sort((a, b) => a.stopOrder.compareTo(b.stopOrder));
+    final originDay = sorted.first.departureTime?.day ?? dto.departureTime.day;
+
+    return sorted
+        .where((s) => s.stopOrder > 0 && s.stopOrder < sorted.length - 1)
+        .map((s) => IntermediateStopUi(
+              cityName: s.city.name,
+              timeDisplay: s.departureTime != null
+                  ? _timeFormat.format(s.departureTime!)
+                  : null,
+              isNextDay: s.departureTime != null &&
+                  s.departureTime!.day != originDay,
+            ))
+        .toList();
+  }
+
+  static String _buildRouteDisplay(
+    RideResponseDto dto,
+    List<IntermediateStopUi> intermediateStops,
+  ) {
+    final parts = [
+      dto.origin.name,
+      ...intermediateStops.map((s) => s.cityName),
+      dto.destination.name,
+    ];
+    return parts.join(' → ');
+  }
 }

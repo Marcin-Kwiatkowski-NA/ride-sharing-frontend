@@ -13,6 +13,15 @@ import '../data/dto/ride_creation_request_dto.dart';
 part 'post_ride_controller.freezed.dart';
 part 'post_ride_controller.g.dart';
 
+/// An intermediate stop entry in the ride creation form.
+@freezed
+sealed class IntermediateStopEntry with _$IntermediateStopEntry {
+  const factory IntermediateStopEntry({
+    City? city,
+    TimeOfDay? departureTime,
+  }) = _IntermediateStopEntry;
+}
+
 /// State for the post ride form.
 @freezed
 sealed class PostRideFormState with _$PostRideFormState {
@@ -32,6 +41,8 @@ sealed class PostRideFormState with _$PostRideFormState {
     String? errorMessage,
     int? createdRideId,
     @Default(false) bool hasNavigated,
+    @Default([]) List<IntermediateStopEntry> intermediateStops,
+    @Default(false) bool isNegotiablePrice,
   }) = _PostRideFormState;
 
   /// Compute the departure DateTime from date and time/partOfDay.
@@ -132,6 +143,41 @@ class PostRideController extends _$PostRideController {
     state = state.copyWith(hasNavigated: true);
   }
 
+  void addIntermediateStop() {
+    if (state.intermediateStops.length >= 3) return;
+    state = state.copyWith(
+      intermediateStops: [...state.intermediateStops, const IntermediateStopEntry()],
+      errorMessage: null,
+    );
+  }
+
+  void removeIntermediateStop(int index) {
+    final stops = [...state.intermediateStops]..removeAt(index);
+    state = state.copyWith(intermediateStops: stops, errorMessage: null);
+  }
+
+  void setIntermediateStopCity(int index, City city) {
+    final stops = [...state.intermediateStops];
+    stops[index] = stops[index].copyWith(city: city);
+    state = state.copyWith(intermediateStops: stops, errorMessage: null);
+  }
+
+  void clearIntermediateStopCity(int index) {
+    final stops = [...state.intermediateStops];
+    stops[index] = stops[index].copyWith(city: null);
+    state = state.copyWith(intermediateStops: stops, errorMessage: null);
+  }
+
+  void setIntermediateStopTime(int index, TimeOfDay time) {
+    final stops = [...state.intermediateStops];
+    stops[index] = stops[index].copyWith(departureTime: time);
+    state = state.copyWith(intermediateStops: stops, errorMessage: null);
+  }
+
+  void setNegotiablePrice(bool value) {
+    state = state.copyWith(isNegotiablePrice: value, errorMessage: null);
+  }
+
   /// Validate the form and return error message if invalid.
   String? validate() {
     if (state.origin == null) {
@@ -168,11 +214,26 @@ class PostRideController extends _$PostRideController {
         state.availableSeats! > 8) {
       return '1-8 seats allowed';
     }
-    if (state.pricePerSeat == null ||
-        state.pricePerSeat! < 1 ||
-        state.pricePerSeat! > 999) {
+    if (!state.isNegotiablePrice &&
+        (state.pricePerSeat == null ||
+            state.pricePerSeat! < 1 ||
+            state.pricePerSeat! > 999)) {
       return '1-999 PLN';
     }
+
+    // Validate intermediate stops
+    final allPlaceIds = <int>{};
+    if (state.origin != null) allPlaceIds.add(state.origin!.placeId);
+    if (state.destination != null) allPlaceIds.add(state.destination!.placeId);
+
+    for (final stop in state.intermediateStops) {
+      if (stop.city == null) return 'Select city for each stop';
+      if (stop.departureTime == null) return 'Select time for each stop';
+      if (!allPlaceIds.add(stop.city!.placeId)) {
+        return 'Duplicate stop city';
+      }
+    }
+
     if (state.description != null && state.description!.length > 500) {
       return 'Max 500 characters';
     }
@@ -212,6 +273,42 @@ class PostRideController extends _$PostRideController {
         "yyyy-MM-dd'T'HH:mm:ss",
       ).format(departureDateTime);
 
+      // Build intermediate stop ISO times with midnight-crossing detection
+      final List<int> stopPlaceIds = [];
+      final List<String> stopDepartureTimes = [];
+
+      if (state.intermediateStops.isNotEmpty) {
+        DateTime currentBaseDate = state.selectedDate!;
+        TimeOfDay previousTime = state.isApproximate
+            ? TimeOfDay(hour: departureDateTime.hour, minute: 0)
+            : state.exactTime!;
+
+        for (final stop in state.intermediateStops) {
+          final stopTime = stop.departureTime!;
+
+          // If stop time is "earlier" than previous, it crossed midnight
+          if (stopTime.hour < previousTime.hour ||
+              (stopTime.hour == previousTime.hour &&
+                  stopTime.minute <= previousTime.minute)) {
+            currentBaseDate = currentBaseDate.add(const Duration(days: 1));
+          }
+
+          final fullDateTime = DateTime(
+            currentBaseDate.year,
+            currentBaseDate.month,
+            currentBaseDate.day,
+            stopTime.hour,
+            stopTime.minute,
+          );
+
+          stopPlaceIds.add(stop.city!.placeId);
+          stopDepartureTimes.add(
+            DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(fullDateTime),
+          );
+          previousTime = stopTime;
+        }
+      }
+
       final dto = RideCreationRequestDto(
         driverId: driverId,
         originPlaceId: state.origin!.placeId,
@@ -219,9 +316,13 @@ class PostRideController extends _$PostRideController {
         departureTime: formattedDepartureTime,
         isApproximate: state.isApproximate,
         availableSeats: state.availableSeats!,
-        pricePerSeat: state.pricePerSeat!,
+        pricePerSeat: state.isNegotiablePrice ? null : state.pricePerSeat,
         vehicleId: null,
         description: state.description,
+        intermediateStopPlaceIds:
+            stopPlaceIds.isNotEmpty ? stopPlaceIds : null,
+        intermediateStopDepartureTimes:
+            stopDepartureTimes.isNotEmpty ? stopDepartureTimes : null,
       );
 
       final dio = ref.read(dioProvider);

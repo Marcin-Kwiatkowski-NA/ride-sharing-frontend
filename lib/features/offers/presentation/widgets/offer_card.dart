@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/l10n/l10n_extension.dart';
-import '../../../../core/theme/app_tokens.dart';
 import '../../domain/offer_ui_model.dart';
 import '../helpers/offer_l10n.dart';
 
@@ -163,7 +162,7 @@ class _RouteTimeline extends StatelessWidget {
                     shape: BoxShape.circle,
                   ),
                 ),
-                // Dashed Line
+                // Dashed Line with intermediate dots
                 Expanded(
                   child: Container(
                     width: 1,
@@ -171,6 +170,8 @@ class _RouteTimeline extends StatelessWidget {
                     child: CustomPaint(
                       painter: _DashedLinePainter(
                         color: colorScheme.outlineVariant,
+                        intermediateDotCount: offer.intermediateStops.length,
+                        dotColor: colorScheme.primary,
                       ),
                     ),
                   ),
@@ -201,7 +202,15 @@ class _RouteTimeline extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
 
-                const SizedBox(height: 16), // Breathing room between cities
+                // Compact intermediate stops display
+                if (offer.intermediateStops.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: _ViaLabel(stops: offer.intermediateStops),
+                  ),
+
+                if (offer.intermediateStops.isEmpty)
+                  const SizedBox(height: 16),
 
                 // Destination Name
                 Text(
@@ -287,10 +296,46 @@ class _PriceAndSeats extends StatelessWidget {
   }
 }
 
+class _ViaLabel extends StatelessWidget {
+  final List<IntermediateStopUi> stops;
+
+  const _ViaLabel({required this.stops});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    final String label;
+    if (stops.length == 1) {
+      label = 'Via ${stops.first.cityName}';
+    } else {
+      label = 'Via ${stops.first.cityName} + ${stops.length - 1}';
+    }
+
+    return Text(
+      label,
+      style: theme.textTheme.bodySmall?.copyWith(
+        color: colorScheme.onSurfaceVariant,
+        fontStyle: FontStyle.italic,
+      ),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+}
+
 // Helper for the dashed line
 class _DashedLinePainter extends CustomPainter {
   final Color color;
-  _DashedLinePainter({required this.color});
+  final int intermediateDotCount;
+  final Color? dotColor;
+
+  _DashedLinePainter({
+    required this.color,
+    this.intermediateDotCount = 0,
+    this.dotColor,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -304,7 +349,19 @@ class _DashedLinePainter extends CustomPainter {
       canvas.drawLine(Offset(0, startY), Offset(0, startY + dashHeight), paint);
       startY += dashHeight + dashSpace;
     }
+
+    // Draw intermediate stop dots
+    if (intermediateDotCount > 0 && size.height > 0) {
+      final dotPaint = Paint()..color = dotColor ?? color;
+      for (int i = 0; i < intermediateDotCount; i++) {
+        final y = size.height * (i + 1) / (intermediateDotCount + 1);
+        canvas.drawCircle(Offset(0, y), 3, dotPaint);
+      }
+    }
   }
+
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _DashedLinePainter oldDelegate) =>
+      intermediateDotCount != oldDelegate.intermediateDotCount ||
+      color != oldDelegate.color;
 }

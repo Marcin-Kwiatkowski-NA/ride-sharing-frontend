@@ -72,6 +72,20 @@ class OfferKey {
   String toString() => 'OfferKey($kind, $id)';
 }
 
+/// Intermediate stop for display in offer cards and details.
+@immutable
+class IntermediateStopUi {
+  final String cityName;
+  final String? timeDisplay; // formatted HH:mm or null
+  final bool isNextDay; // true when stop crosses midnight → show "+1" badge
+
+  const IntermediateStopUi({
+    required this.cityName,
+    this.timeDisplay,
+    this.isNextDay = false,
+  });
+}
+
 /// Unified UI model for any mobility offer (ride or seat).
 ///
 /// Contains raw data fields. Widgets are responsible for formatting
@@ -110,6 +124,9 @@ class OfferUiModel {
   // User (nullable — some offers may be anonymous)
   final OfferUserUi? user;
 
+  // Intermediate stops
+  final List<IntermediateStopUi> intermediateStops;
+
   // Description
   final String? description;
 
@@ -132,6 +149,7 @@ class OfferUiModel {
     required this.isBookable,
     required this.user,
     required this.description,
+    this.intermediateStops = const [],
   });
 
   /// Whether the offer has a concrete price/budget set.
