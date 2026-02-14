@@ -15,7 +15,7 @@ abstract class IAuthRepository {
   Future<AuthResponse> login(LoginRequest request);
   Future<AuthResponse> register(RegisterRequest request);
   Future<AuthResponse> refresh(RefreshTokenRequest request);
-  Future<UserProfile> me();
+  Future<UserProfile> me(String accessToken);
 }
 
 class AuthRepository implements IAuthRepository {
@@ -51,14 +51,19 @@ class AuthRepository implements IAuthRepository {
   }
 
   @override
-  Future<UserProfile> me() async {
-    final response = await _dio.get<Map<String, dynamic>>('/auth/me');
+  Future<UserProfile> me(String accessToken) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/auth/me',
+      options: Options(
+        headers: {'Authorization': 'Bearer $accessToken'},
+      ),
+    );
     return UserProfile.fromJson(response.data!);
   }
 }
 
 @Riverpod(keepAlive: true)
 IAuthRepository authRepository(Ref ref) {
-  final dio = ref.watch(dioProvider);
+  final dio = ref.watch(rawDioProvider);
   return AuthRepository(dio);
 }

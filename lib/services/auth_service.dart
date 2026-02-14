@@ -77,12 +77,10 @@ class AuthService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final newPair = TokenPair(
+        return TokenPair(
           accessToken: data['accessToken'],
           refreshToken: data['refreshToken'],
         );
-        await storeTokenPair(newPair);
-        return newPair;
       }
     } catch (e) {
       debugPrint('Token refresh failed: $e');

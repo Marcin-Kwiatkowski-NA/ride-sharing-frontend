@@ -1,37 +1,40 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../services/auth_service.dart';
 import '../models/token_pair.dart';
 
 part 'auth_token_provider.g.dart';
 
-/// Riverpod provider that caches the auth token pair in memory for fast access.
+/// Single authority for token lifecycle: in-memory cache + secure storage.
 ///
-/// Token pair is synced from FlutterSecureStorage at:
-/// 1. App startup - via [loadTokensFromStorage]
-/// 2. Login - call [setTokenPair] after writing to storage
-/// 3. Logout - call [clear] after clearing storage
-/// 4. Token refresh - call [setTokenPair] with new tokens
+/// All token mutations go through this notifier. It delegates persistent
+/// storage operations to [AuthService] internally.
+///
+/// - [hydrate]: startup only — loads tokens into memory without re-writing storage
+/// - [setTokenPair]: updates memory + writes to secure storage
+/// - [clear]: clears memory + clears secure storage
 @Riverpod(keepAlive: true)
 class AuthToken extends _$AuthToken {
   @override
   TokenPair? build() => null;
 
-  /// Set the auth token pair in memory
+  /// Startup hydration — sets memory state only (tokens are already in storage).
+  void hydrate(TokenPair? pair) => state = pair;
+
+  /// Set tokens: updates memory + writes to secure storage.
   void setTokenPair(TokenPair? pair) {
     state = pair;
+    if (pair != null) {
+      ref.read(authServiceProvider).storeTokenPair(pair);
+    }
   }
 
-  /// Clear the auth token pair from memory
+  /// Clear tokens: clears memory + clears secure storage.
   void clear() {
     state = null;
+    ref.read(authServiceProvider).clearAuthStorage();
   }
-
-  /// Convenience getter for access token (backward compatibility)
-  String? get accessToken => state?.accessToken;
-
-  /// Convenience getter for refresh token
-  String? get refreshToken => state?.refreshToken;
 }
 
 /// Load token pair from secure storage.

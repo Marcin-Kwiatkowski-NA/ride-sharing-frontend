@@ -102,6 +102,6 @@ class RideApiClient {
 /// Uses keepAlive since this is a service that should persist.
 @Riverpod(keepAlive: true)
 RideApiClient rideApiClient(Ref ref) {
-  final dio = ref.watch(dioProvider);
+  final dio = ref.watch(apiDioProvider);
   return RideApiClient(dio);
 }

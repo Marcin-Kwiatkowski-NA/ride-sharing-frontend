@@ -325,7 +325,7 @@ class PostRideController extends _$PostRideController {
             stopDepartureTimes.isNotEmpty ? stopDepartureTimes : null,
       );
 
-      final dio = ref.read(dioProvider);
+      final dio = ref.read(apiDioProvider);
       final response = await dio.post('/rides', data: dto.toJson());
 
       if (response.statusCode == 201 || response.statusCode == 200) {

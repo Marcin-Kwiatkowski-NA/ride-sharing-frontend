@@ -18,17 +18,17 @@ part 'auth_notifier.g.dart';
 ///
 /// Manages global authentication state. Uses `keepAlive: true` to persist
 /// the auth state for the lifetime of the app.
+///
+/// Token persistence is delegated entirely to [authTokenProvider] (single authority).
 @Riverpod(keepAlive: true)
 class Auth extends _$Auth {
   late final AuthService _authService;
   late final IAuthRepository _authRepository;
-  late final IProfileRepository _profileRepository;
 
   @override
   AuthState build() {
     _authService = ref.watch(authServiceProvider);
     _authRepository = ref.watch(authRepositoryProvider);
-    _profileRepository = ref.watch(profileRepositoryProvider);
     // Initialize auth state asynchronously
     Future.microtask(() => _initialize());
     return const AuthState();
@@ -60,7 +60,6 @@ class Auth extends _$Auth {
             tokenPair = refreshed;
           } else {
             // Refresh failed - clear and log out
-            await _authService.clearAuthStorage();
             ref.read(authTokenProvider.notifier).clear();
             if (!ref.mounted) return;
             state = const AuthState(
@@ -71,7 +70,6 @@ class Auth extends _$Auth {
           }
         } else {
           // No refresh token available
-          await _authService.clearAuthStorage();
           ref.read(authTokenProvider.notifier).clear();
           if (!ref.mounted) return;
           state = const AuthState(
@@ -82,12 +80,12 @@ class Auth extends _$Auth {
         }
       }
 
-      // Sync valid tokens to memory
+      // Sync valid tokens to memory + storage (handles refreshed case)
       ref.read(authTokenProvider.notifier).setTokenPair(tokenPair);
 
-      // Hydrate user from API
+      // Hydrate user from API (manual token injection via rawDio)
       try {
-        final userProfile = await _authRepository.me();
+        final userProfile = await _authRepository.me(tokenPair!.accessToken);
         if (!ref.mounted) return;
         state = AuthState(
           status: AuthStatus.authenticated,
@@ -97,7 +95,6 @@ class Auth extends _$Auth {
         if (!ref.mounted) return;
         if (e.response?.statusCode == 401 || e.response?.statusCode == 403) {
           // Session invalid on server - clear everything
-          await _authService.clearAuthStorage();
           ref.read(authTokenProvider.notifier).clear();
           state = const AuthState(
             status: AuthStatus.unauthenticated,
@@ -135,7 +132,6 @@ class Auth extends _$Auth {
         accessToken: response.accessToken,
         refreshToken: response.refreshToken,
       );
-      await _authService.storeTokenPair(tokenPair);
       ref.read(authTokenProvider.notifier).setTokenPair(tokenPair);
 
       if (!ref.mounted) return false;
@@ -175,7 +171,6 @@ class Auth extends _$Auth {
         accessToken: response.accessToken,
         refreshToken: response.refreshToken,
       );
-      await _authService.storeTokenPair(tokenPair);
       ref.read(authTokenProvider.notifier).setTokenPair(tokenPair);
 
       if (!ref.mounted) return false;
@@ -214,6 +209,7 @@ class Auth extends _$Auth {
   /// Sign out current user
   ///
   /// Clears all user data and authentication state.
+  /// Google sign out is handled by AuthService; token cleanup by authTokenProvider.
   Future<void> signOut() async {
     try {
       await _authService.signOut();
@@ -222,7 +218,7 @@ class Auth extends _$Auth {
       debugPrint('Error during sign out: $e');
     }
 
-    // Clear token from memory
+    // Single authority clears both memory and storage
     ref.read(authTokenProvider.notifier).clear();
 
     if (!ref.mounted) return;
@@ -231,21 +227,9 @@ class Auth extends _$Auth {
     );
   }
 
-  /// Handle token expiration
-  ///
-  /// Called when API client detects an expired token after refresh failure.
-  /// Clears authentication state and notifies user.
-  Future<void> handleTokenExpiration() async {
-    try {
-      await _authService.clearAuthStorage();
-    } catch (e) {
-      debugPrint('Error cleaning up expired session: $e');
-    }
-
-    // Clear token from memory
-    ref.read(authTokenProvider.notifier).clear();
-
-    if (!ref.mounted) return;
+  /// Called by the UI auth coordinator when the token store is externally
+  /// cleared (e.g. by the Dio interceptor on unrecoverable auth failure).
+  void onSessionExpired() {
     state = const AuthState(
       status: AuthStatus.unauthenticated,
       errorMessage: 'Your session has expired. Please log in again.',
@@ -257,8 +241,10 @@ class Auth extends _$Auth {
   /// Useful after updating user profile.
   Future<void> refreshUser() async {
     if (state.status == AuthStatus.authenticated) {
+      final tokenPair = ref.read(authTokenProvider);
+      if (tokenPair == null) return;
       try {
-        final userProfile = await _authRepository.me();
+        final userProfile = await _authRepository.me(tokenPair.accessToken);
         if (!ref.mounted) return;
         state = state.copyWith(currentUser: userProfile);
       } catch (e) {
@@ -283,7 +269,8 @@ class Auth extends _$Auth {
         bio: bio,
         phoneNumber: phoneNumber,
       );
-      final updatedUser = await _profileRepository.updateProfile(request);
+      final profileRepo = ref.read(profileRepositoryProvider);
+      final updatedUser = await profileRepo.updateProfile(request);
 
       if (!ref.mounted) return false;
       state = state.copyWith(currentUser: updatedUser);

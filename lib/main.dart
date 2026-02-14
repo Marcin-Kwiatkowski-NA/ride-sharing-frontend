@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'core/l10n/app_locale_provider.dart';
 import 'core/l10n/shared_preferences_provider.dart';
 import 'core/network/auth_token_provider.dart';
+import 'core/providers/auth_notifier.dart';
 import 'core/theme/app_theme.dart';
 import 'l10n/generated/app_localizations.dart';
 import 'routes/router_config.dart';
@@ -42,12 +43,24 @@ class _MyAppState extends ConsumerState<MyApp> {
   Future<void> _initializeToken() async {
     final tokenPair = await loadTokensFromStorage();
     if (mounted) {
-      ref.read(authTokenProvider.notifier).setTokenPair(tokenPair);
+      ref.read(authTokenProvider.notifier).hydrate(tokenPair);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Auth coordinator: when token store is externally cleared (e.g. by
+    // the Dio interceptor on unrecoverable auth failure), transition
+    // auth state to unauthenticated.
+    ref.listen(authTokenProvider, (prev, next) {
+      if (prev != null && next == null) {
+        final authState = ref.read(authProvider);
+        if (authState.isAuthenticated) {
+          ref.read(authProvider.notifier).onSessionExpired();
+        }
+      }
+    });
+
     // Single MaterialApp.router - splash screen handles loading via redirect
     final router = ref.watch(routerProvider);
     final locale = ref.watch(appLocaleProvider);

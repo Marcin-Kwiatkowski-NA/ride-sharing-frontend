@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:blablafront/core/network/dio_provider.dart';
+import 'package:blablafront/core/network/dio_provider.dart' show apiDioProvider;
 import 'package:blablafront/core/models/user_profile.dart';
 import 'dtos/update_profile_request.dart';
 
@@ -27,6 +27,6 @@ class ProfileRepository implements IProfileRepository {
 
 @Riverpod(keepAlive: true)
 IProfileRepository profileRepository(Ref ref) {
-  final dio = ref.watch(dioProvider);
+  final dio = ref.watch(apiDioProvider);
   return ProfileRepository(dio);
 }

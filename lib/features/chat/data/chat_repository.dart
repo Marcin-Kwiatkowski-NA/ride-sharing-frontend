@@ -43,6 +43,6 @@ abstract interface class ChatRepository {
 
 @Riverpod(keepAlive: true)
 ChatRepository chatRepository(Ref ref) {
-  final dio = ref.watch(dioProvider);
+  final dio = ref.watch(apiDioProvider);
   return ApiChatRepository(dio);
 }

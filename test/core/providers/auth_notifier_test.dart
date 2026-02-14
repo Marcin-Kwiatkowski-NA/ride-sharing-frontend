@@ -34,7 +34,7 @@ class FakeAuthRepository implements IAuthRepository {
   }
 
   @override
-  Future<UserProfile> me() async {
+  Future<UserProfile> me(String accessToken) async {
     if (meError != null) throw meError!;
     return meResponse!;
   }

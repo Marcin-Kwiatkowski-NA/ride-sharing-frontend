@@ -100,6 +100,6 @@ class SeatApiClient {
 
 @Riverpod(keepAlive: true)
 SeatApiClient seatApiClient(Ref ref) {
-  final dio = ref.watch(dioProvider);
+  final dio = ref.watch(apiDioProvider);
   return SeatApiClient(dio);
 }

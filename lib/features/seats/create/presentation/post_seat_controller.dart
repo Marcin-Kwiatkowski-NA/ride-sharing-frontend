@@ -194,7 +194,7 @@ class PostSeatController extends _$PostSeatController {
         if (state.description != null) 'description': state.description,
       };
 
-      final dio = ref.read(dioProvider);
+      final dio = ref.read(apiDioProvider);
       final response = await dio.post('/seats', data: data);
 
       if (response.statusCode == 201 || response.statusCode == 200) {
