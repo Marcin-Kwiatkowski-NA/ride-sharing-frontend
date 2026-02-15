@@ -1441,6 +1441,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Departure time at stop'**
   String get stopDepartureTime;
+
+  /// Button label to trigger proximity search
+  ///
+  /// In en, this message translates to:
+  /// **'Expand search'**
+  String get expandSearch;
+
+  /// Helper text below expand search button
+  ///
+  /// In en, this message translates to:
+  /// **'Looks for offers close to your origin and destination.'**
+  String get expandSearchHelper;
+
+  /// Section header for nearby/proximity results
+  ///
+  /// In en, this message translates to:
+  /// **'Approximate matches'**
+  String get approximateMatchesHeader;
+
+  /// Shown when proximity search returns no rides
+  ///
+  /// In en, this message translates to:
+  /// **'No nearby rides found'**
+  String get noNearbyRidesFound;
+
+  /// Shown when proximity search returns no seat requests
+  ///
+  /// In en, this message translates to:
+  /// **'No nearby requests found'**
+  String get noNearbyRequestsFound;
+
+  /// Distance hint shown next to city name on nearby offer cards
+  ///
+  /// In en, this message translates to:
+  /// **'+{km} km'**
+  String distanceHint(int km);
 }
 
 class _AppLocalizationsDelegate

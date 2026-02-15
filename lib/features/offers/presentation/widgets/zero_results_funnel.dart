@@ -2,17 +2,23 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_tokens.dart';
+import '../providers/nearby_offers_provider.dart';
+import 'expand_search_block.dart';
 
 /// Conversion funnel shown when ride search returns zero results.
 ///
 /// Displays a secondary "no rides found" message plus a prominent card
 /// that nudges the user to post a seat request pre-filled with their
-/// search criteria.
+/// search criteria. Optionally shows an "Expand search" block as a
+/// secondary action when proximity search is available.
 class ZeroResultsFunnel extends StatelessWidget {
   final String? originName;
   final String? destinationName;
   final String? dateLabel;
   final VoidCallback onPostRequest;
+  final VoidCallback? onExpandSearch;
+  final NearbyStatus nearbyStatus;
+  final bool isRidesMode;
 
   const ZeroResultsFunnel({
     super.key,
@@ -20,6 +26,9 @@ class ZeroResultsFunnel extends StatelessWidget {
     this.destinationName,
     this.dateLabel,
     required this.onPostRequest,
+    this.onExpandSearch,
+    this.nearbyStatus = NearbyStatus.idle,
+    this.isRidesMode = true,
   });
 
   String _buildSubtext(BuildContext context) {
@@ -106,6 +115,14 @@ class ZeroResultsFunnel extends StatelessWidget {
                 ),
               ),
             ),
+            if (onExpandSearch != null) ...[
+              const SizedBox(height: 24),
+              ExpandSearchBlock(
+                status: nearbyStatus,
+                onTap: onExpandSearch,
+                isRidesMode: isRidesMode,
+              ),
+            ],
           ],
         ),
       ),

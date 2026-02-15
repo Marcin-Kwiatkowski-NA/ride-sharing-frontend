@@ -16,11 +16,19 @@ class RideRepository {
 
   RideRepository(this._apiClient);
 
-  /// Search rides with criteria.
+  /// Search rides with exact location criteria.
   Future<PaginatedResponse<RideResponseDto>> searchRides(
     OfferSearchCriteria criteria,
   ) {
     return _apiClient.searchRides(criteria);
+  }
+
+  /// Search rides by proximity (coordinates + radius).
+  Future<PaginatedResponse<RideResponseDto>> searchRidesNearby(
+    OfferSearchCriteria criteria, {
+    required double radiusKm,
+  }) {
+    return _apiClient.searchRidesNearby(criteria, radiusKm: radiusKm);
   }
 
   /// Get all rides with pagination.

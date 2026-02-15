@@ -14,8 +14,11 @@ import '../../../rides/presentation/widgets/search_summary_bar.dart';
 import '../../../seats/create/domain/seat_prefill.dart';
 import '../../../seats/presentation/providers/paginated_seats_provider.dart';
 import '../../domain/offer_ui_model.dart';
-import '../widgets/offer_card.dart';
+import '../providers/nearby_offers_provider.dart';
 import '../providers/nudge_dismissed_provider.dart';
+import '../widgets/expand_search_block.dart';
+import '../widgets/nearby_section_header.dart';
+import '../widgets/offer_card.dart';
 import '../widgets/paginated_sliver_list.dart';
 import '../widgets/post_request_nudge_card.dart';
 import '../widgets/zero_results_funnel.dart';
@@ -73,9 +76,41 @@ class _OffersListScreenState extends ConsumerState<OffersListScreen> {
     }
   }
 
+  void _triggerNearbySearch() {
+    final mode = ref.read(searchModeProvider);
+    final exactKeys = (mode == SearchMode.rides
+            ? ref.read(paginatedRidesProvider).rides
+            : ref.read(paginatedSeatsProvider).offers)
+        .map((o) => o.offerKey.toRouteParam())
+        .toSet();
+    ref
+        .read(nearbyOffersProvider.notifier)
+        .searchNearby(exactOfferKeys: exactKeys);
+  }
+
+  void _navigateToPostSeat() {
+    final criteria = ref.read(searchCriteriaProvider);
+    context.pushNamed(
+      RouteNames.postSeat,
+      extra: SeatPrefill(
+        origin: criteria.origin,
+        destination: criteria.destination,
+        date: criteria.departureDate,
+      ),
+    );
+  }
+
+  void _navigateToOfferDetails(OfferUiModel offer) {
+    context.pushNamed(
+      RouteNames.offerDetails,
+      pathParameters: {'offerKey': offer.offerKey.toRouteParam()},
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final mode = ref.watch(searchModeProvider);
+    final l10n = context.l10n;
 
     // Eager-load both providers so counts are available for segment badges.
     final ridesState = ref.watch(paginatedRidesProvider);
@@ -91,6 +126,7 @@ class _OffersListScreenState extends ConsumerState<OffersListScreen> {
 
     final criteria = ref.watch(searchCriteriaProvider);
     final nudgeDismissed = ref.watch(nudgeDismissedProvider);
+    final nearbyState = ref.watch(nearbyOffersProvider);
 
     if (mode == SearchMode.rides) {
       items = ridesState.rides;
@@ -98,15 +134,34 @@ class _OffersListScreenState extends ConsumerState<OffersListScreen> {
       hasMore = ridesState.hasMore;
       error = ridesState.error;
       emptyIcon = Icons.directions_car_outlined;
-      emptyMessage = context.l10n.noRidesFound;
+      emptyMessage = l10n.noRidesFound;
     } else {
       items = seatsState.offers;
       isLoading = seatsState.isLoading;
       hasMore = seatsState.hasMore;
       error = seatsState.error;
       emptyIcon = Icons.people_outline;
-      emptyMessage = context.l10n.noPassengerRequests;
+      emptyMessage = l10n.noPassengerRequests;
     }
+
+    final isRidesMode = mode == SearchMode.rides;
+    final canSearchNearby =
+        criteria.origin != null && criteria.destination != null;
+    final exactCount = items.length;
+
+    // Show expand sliver after exact items (1-2 results, not in empty state)
+    final showExpandSliver = canSearchNearby &&
+        exactCount > 0 &&
+        exactCount < 3 &&
+        !isLoading &&
+        nearbyState.status != NearbyStatus.loaded;
+
+    // Nudge card: show when there are items (exact or nearby) in rides mode
+    final showNudge = isRidesMode && !nudgeDismissed && items.isNotEmpty;
+
+    // Show nearby results as separate section
+    final hasNearbyResults = nearbyState.status == NearbyStatus.loaded &&
+        nearbyState.offers.isNotEmpty;
 
     return Scaffold(
       body: RefreshIndicator(
@@ -131,6 +186,8 @@ class _OffersListScreenState extends ConsumerState<OffersListScreen> {
                 ),
               ),
             ),
+
+            // Main exact results
             SliverPadding(
               padding: const EdgeInsets.all(16),
               sliver: PaginatedSliverList(
@@ -142,64 +199,86 @@ class _OffersListScreenState extends ConsumerState<OffersListScreen> {
                 emptyIcon: emptyIcon,
                 emptyMessage: emptyMessage,
                 loadingWidget: const RideSkeletonList(),
-                trailingWidget: mode == SearchMode.rides && !nudgeDismissed
-                    ? PostRequestNudgeCard(
-                        originName: criteria.origin?.name,
-                        destinationName: criteria.destination?.name,
-                        dateLabel: criteria.departureDate != null
-                            ? context.l10n.dateStripDate(criteria.departureDate!)
-                            : null,
-                        onTap: () {
-                          context.pushNamed(
-                            RouteNames.postSeat,
-                            extra: SeatPrefill(
-                              origin: criteria.origin,
-                              destination: criteria.destination,
-                              date: criteria.departureDate,
-                            ),
-                          );
-                        },
-                        onDismissed: () {
-                          ref
-                              .read(nudgeDismissedProvider.notifier)
-                              .dismiss();
-                        },
-                      )
-                    : null,
-                emptyBuilder: mode == SearchMode.rides
+                emptyBuilder: isRidesMode
                     ? (context) => ZeroResultsFunnel(
                           originName: criteria.origin?.name,
                           destinationName: criteria.destination?.name,
                           dateLabel: criteria.departureDate != null
-                              ? context.l10n.dateStripDate(criteria.departureDate!)
+                              ? l10n.dateStripDate(criteria.departureDate!)
                               : null,
-                          onPostRequest: () {
-                            context.pushNamed(
-                              RouteNames.postSeat,
-                              extra: SeatPrefill(
-                                origin: criteria.origin,
-                                destination: criteria.destination,
-                                date: criteria.departureDate,
-                              ),
-                            );
-                          },
+                          onPostRequest: _navigateToPostSeat,
+                          onExpandSearch:
+                              canSearchNearby ? _triggerNearbySearch : null,
+                          nearbyStatus: nearbyState.status,
+                          isRidesMode: isRidesMode,
                         )
                     : null,
                 itemBuilder: (context, offer) {
                   return OfferCard(
                     offer: offer,
-                    onTap: () {
-                      context.pushNamed(
-                        RouteNames.offerDetails,
-                        pathParameters: {
-                          'offerKey': offer.offerKey.toRouteParam(),
-                        },
-                      );
-                    },
+                    onTap: () => _navigateToOfferDetails(offer),
                   );
                 },
               ),
             ),
+
+            // Expand search block (for 1-2 results case)
+            if (showExpandSliver)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: ExpandSearchBlock(
+                    status: nearbyState.status,
+                    onTap: _triggerNearbySearch,
+                    isRidesMode: isRidesMode,
+                  ),
+                ),
+              ),
+
+            // Nearby results section (header + cards)
+            if (hasNearbyResults)
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                sliver: SliverList.builder(
+                  itemCount: nearbyState.offers.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == 0) return const NearbySectionHeader();
+                    final entry = nearbyState.offers[index - 1];
+                    return OfferCard(
+                      offer: entry.offer,
+                      onTap: () => _navigateToOfferDetails(entry.offer),
+                      originDistanceHint: entry.originDistanceKm != null
+                          ? l10n.distanceHint(
+                              entry.originDistanceKm!.round())
+                          : null,
+                      destinationDistanceHint:
+                          entry.destinationDistanceKm != null
+                              ? l10n.distanceHint(
+                                  entry.destinationDistanceKm!.round())
+                              : null,
+                    );
+                  },
+                ),
+              ),
+
+            // Nudge card — always last
+            if (showNudge)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: PostRequestNudgeCard(
+                    originName: criteria.origin?.name,
+                    destinationName: criteria.destination?.name,
+                    dateLabel: criteria.departureDate != null
+                        ? l10n.dateStripDate(criteria.departureDate!)
+                        : null,
+                    onTap: _navigateToPostSeat,
+                    onDismissed: () {
+                      ref.read(nudgeDismissedProvider.notifier).dismiss();
+                    },
+                  ),
+                ),
+              ),
           ],
         ),
       ),

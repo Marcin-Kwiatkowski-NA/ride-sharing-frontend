@@ -763,4 +763,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get stopDepartureTime => 'Departure time at stop';
+
+  @override
+  String get expandSearch => 'Expand search';
+
+  @override
+  String get expandSearchHelper =>
+      'Looks for offers close to your origin and destination.';
+
+  @override
+  String get approximateMatchesHeader => 'Approximate matches';
+
+  @override
+  String get noNearbyRidesFound => 'No nearby rides found';
+
+  @override
+  String get noNearbyRequestsFound => 'No nearby requests found';
+
+  @override
+  String distanceHint(int km) {
+    return '+$km km';
+  }
 }

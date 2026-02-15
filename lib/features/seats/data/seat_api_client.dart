@@ -15,7 +15,7 @@ class SeatApiClient {
 
   SeatApiClient(this._dio);
 
-  /// Search seats with criteria.
+  /// Search seats with exact location criteria.
   ///
   /// Maps OfferSearchCriteria to seat-specific query params.
   /// Note: `minAvailableSeats` maps to `availableSeatsInCar` on the backend.
@@ -36,22 +36,40 @@ class SeatApiClient {
     if (criteria.destination != null) {
       queryParams['destinationOsmId'] = criteria.destination!.osmId;
     }
-    if (criteria.departureDate != null) {
-      queryParams['departureDate'] = criteria.departureDate!
-          .toIso8601String()
-          .split('T')[0];
-    }
-    if (criteria.departureDateTo != null) {
-      queryParams['departureDateTo'] = criteria.departureDateTo!
-          .toIso8601String()
-          .split('T')[0];
-    }
-    if (criteria.departureTimeFrom != null) {
-      final time = criteria.departureTimeFrom!;
-      queryParams['departureTimeFrom'] =
-          '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}:00';
-    }
+    _addDateTimeParams(queryParams, criteria);
 
+    return _executeSearch(queryParams);
+  }
+
+  /// Search seats by proximity (coordinates + radius).
+  ///
+  /// Requires both origin and destination in [criteria].
+  /// Backend may return exact matches too — caller must deduplicate.
+  Future<PaginatedResponse<SeatResponseDto>> searchSeatsNearby(
+    OfferSearchCriteria criteria, {
+    required double radiusKm,
+  }) async {
+    final queryParams = <String, dynamic>{
+      'page': 0,
+      'size': 20,
+      'originLat': criteria.origin!.latitude,
+      'originLon': criteria.origin!.longitude,
+      'destinationLat': criteria.destination!.latitude,
+      'destinationLon': criteria.destination!.longitude,
+      'radiusKm': radiusKm,
+    };
+
+    if (criteria.minAvailableSeats > 0) {
+      queryParams['availableSeatsInCar'] = criteria.minAvailableSeats;
+    }
+    _addDateTimeParams(queryParams, criteria);
+
+    return _executeSearch(queryParams);
+  }
+
+  Future<PaginatedResponse<SeatResponseDto>> _executeSearch(
+    Map<String, dynamic> queryParams,
+  ) async {
     final response = await _dio.get(
       '/seats/search',
       queryParameters: queryParams,
@@ -70,6 +88,27 @@ class SeatApiClient {
       currentPage: data['number'] ?? 0,
       last: data['last'] ?? true,
     );
+  }
+
+  void _addDateTimeParams(
+    Map<String, dynamic> params,
+    OfferSearchCriteria criteria,
+  ) {
+    if (criteria.departureDate != null) {
+      params['departureDate'] = criteria.departureDate!
+          .toIso8601String()
+          .split('T')[0];
+    }
+    if (criteria.departureDateTo != null) {
+      params['departureDateTo'] = criteria.departureDateTo!
+          .toIso8601String()
+          .split('T')[0];
+    }
+    if (criteria.departureTimeFrom != null) {
+      final time = criteria.departureTimeFrom!;
+      params['departureTimeFrom'] =
+          '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}:00';
+    }
   }
 
   /// Get seat by ID.

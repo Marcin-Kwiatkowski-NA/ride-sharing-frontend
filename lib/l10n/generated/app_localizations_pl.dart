@@ -770,4 +770,25 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get stopDepartureTime => 'Godzina odjazdu z przystanku';
+
+  @override
+  String get expandSearch => 'Rozszerz wyszukiwanie';
+
+  @override
+  String get expandSearchHelper =>
+      'Szuka ofert w pobliżu Twojego miejsca wyjazdu i przyjazdu.';
+
+  @override
+  String get approximateMatchesHeader => 'Przybliżone wyniki';
+
+  @override
+  String get noNearbyRidesFound => 'Nie znaleziono przejazdów w pobliżu';
+
+  @override
+  String get noNearbyRequestsFound => 'Nie znaleziono ogłoszeń w pobliżu';
+
+  @override
+  String distanceHint(int km) {
+    return '+$km km';
+  }
 }

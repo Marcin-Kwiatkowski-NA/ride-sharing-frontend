@@ -244,5 +244,12 @@
   "addStop": "Dodaj przystanek",
   "removeStop": "Usuń przystanek",
   "intermediateStopLabel": "Przystanek {number}",
-  "stopDepartureTime": "Godzina odjazdu z przystanku"
+  "stopDepartureTime": "Godzina odjazdu z przystanku",
+
+  "expandSearch": "Rozszerz wyszukiwanie",
+  "expandSearchHelper": "Szuka ofert w pobliżu Twojego miejsca wyjazdu i przyjazdu.",
+  "approximateMatchesHeader": "Przybliżone wyniki",
+  "noNearbyRidesFound": "Nie znaleziono przejazdów w pobliżu",
+  "noNearbyRequestsFound": "Nie znaleziono ogłoszeń w pobliżu",
+  "distanceHint": "+{km} km"
 }

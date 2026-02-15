@@ -7,8 +7,16 @@ import '../helpers/offer_l10n.dart';
 class OfferCard extends StatelessWidget {
   final OfferUiModel offer;
   final VoidCallback? onTap;
+  final String? originDistanceHint;
+  final String? destinationDistanceHint;
 
-  const OfferCard({super.key, required this.offer, this.onTap});
+  const OfferCard({
+    super.key,
+    required this.offer,
+    this.onTap,
+    this.originDistanceHint,
+    this.destinationDistanceHint,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +59,11 @@ class OfferCard extends StatelessWidget {
 
                 // 2. MIDDLE: Visual Route Timeline
                 Expanded(
-                  child: _RouteTimeline(offer: offer),
+                  child: _RouteTimeline(
+                    offer: offer,
+                    originDistanceHint: originDistanceHint,
+                    destinationDistanceHint: destinationDistanceHint,
+                  ),
                 ),
 
                 const SizedBox(width: 12),
@@ -136,8 +148,14 @@ class _TimeDisplay extends StatelessWidget {
 // ──────────────────────────────────────────────────────────────────────────────
 class _RouteTimeline extends StatelessWidget {
   final OfferUiModel offer;
+  final String? originDistanceHint;
+  final String? destinationDistanceHint;
 
-  const _RouteTimeline({required this.offer});
+  const _RouteTimeline({
+    required this.offer,
+    this.originDistanceHint,
+    this.destinationDistanceHint,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -193,13 +211,28 @@ class _RouteTimeline extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 // Origin Name
-                Text(
-                  offer.originName,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        offer.originName,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (originDistanceHint != null) ...[
+                      const SizedBox(width: 4),
+                      Text(
+                        originDistanceHint!,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
 
                 // Compact intermediate stops display
@@ -213,13 +246,28 @@ class _RouteTimeline extends StatelessWidget {
                   const SizedBox(height: 16),
 
                 // Destination Name
-                Text(
-                  offer.destinationName,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        offer.destinationName,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (destinationDistanceHint != null) ...[
+                      const SizedBox(width: 4),
+                      Text(
+                        destinationDistanceHint!,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ],
             ),

@@ -20,6 +20,14 @@ class SeatRepository {
     return _apiClient.searchSeats(criteria);
   }
 
+  /// Search seats by proximity (coordinates + radius).
+  Future<PaginatedResponse<SeatResponseDto>> searchSeatsNearby(
+    OfferSearchCriteria criteria, {
+    required double radiusKm,
+  }) {
+    return _apiClient.searchSeatsNearby(criteria, radiusKm: radiusKm);
+  }
+
   Future<SeatResponseDto> getSeatById(int seatId) {
     return _apiClient.getSeatById(seatId);
   }

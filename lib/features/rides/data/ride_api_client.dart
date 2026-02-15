@@ -14,9 +14,7 @@ class RideApiClient {
 
   RideApiClient(this._dio);
 
-  /// Search rides with criteria.
-  ///
-  /// Returns paginated response with rides and pagination metadata.
+  /// Search rides with exact location criteria.
   Future<PaginatedResponse<RideResponseDto>> searchRides(
     OfferSearchCriteria criteria,
   ) async {
@@ -32,22 +30,37 @@ class RideApiClient {
     if (criteria.destination != null) {
       queryParams['destinationOsmId'] = criteria.destination!.osmId;
     }
-    if (criteria.departureDate != null) {
-      queryParams['departureDate'] = criteria.departureDate!
-          .toIso8601String()
-          .split('T')[0];
-    }
-    if (criteria.departureDateTo != null) {
-      queryParams['departureDateTo'] = criteria.departureDateTo!
-          .toIso8601String()
-          .split('T')[0];
-    }
-    if (criteria.departureTimeFrom != null) {
-      final time = criteria.departureTimeFrom!;
-      queryParams['departureTimeFrom'] =
-          '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}:00';
-    }
+    _addDateTimeParams(queryParams, criteria);
 
+    return _executeSearch(queryParams);
+  }
+
+  /// Search rides by proximity (coordinates + radius).
+  ///
+  /// Requires both origin and destination in [criteria].
+  /// Backend may return exact matches too — caller must deduplicate.
+  Future<PaginatedResponse<RideResponseDto>> searchRidesNearby(
+    OfferSearchCriteria criteria, {
+    required double radiusKm,
+  }) async {
+    final queryParams = <String, dynamic>{
+      'page': 0,
+      'size': 20,
+      'minAvailableSeats': criteria.minAvailableSeats,
+      'originLat': criteria.origin!.latitude,
+      'originLon': criteria.origin!.longitude,
+      'destinationLat': criteria.destination!.latitude,
+      'destinationLon': criteria.destination!.longitude,
+      'radiusKm': radiusKm,
+    };
+    _addDateTimeParams(queryParams, criteria);
+
+    return _executeSearch(queryParams);
+  }
+
+  Future<PaginatedResponse<RideResponseDto>> _executeSearch(
+    Map<String, dynamic> queryParams,
+  ) async {
     final response = await _dio.get(
       '/rides/search',
       queryParameters: queryParams,
@@ -66,6 +79,27 @@ class RideApiClient {
       currentPage: data['number'] ?? 0,
       last: data['last'] ?? true,
     );
+  }
+
+  void _addDateTimeParams(
+    Map<String, dynamic> params,
+    OfferSearchCriteria criteria,
+  ) {
+    if (criteria.departureDate != null) {
+      params['departureDate'] = criteria.departureDate!
+          .toIso8601String()
+          .split('T')[0];
+    }
+    if (criteria.departureDateTo != null) {
+      params['departureDateTo'] = criteria.departureDateTo!
+          .toIso8601String()
+          .split('T')[0];
+    }
+    if (criteria.departureTimeFrom != null) {
+      final time = criteria.departureTimeFrom!;
+      params['departureTimeFrom'] =
+          '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}:00';
+    }
   }
 
   /// Get all rides with pagination.

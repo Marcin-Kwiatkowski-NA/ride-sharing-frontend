@@ -798,5 +798,28 @@
   },
 
   "stopDepartureTime": "Departure time at stop",
-  "@stopDepartureTime": { "description": "Label for intermediate stop time field" }
+  "@stopDepartureTime": { "description": "Label for intermediate stop time field" },
+
+
+
+  "expandSearch": "Expand search",
+  "@expandSearch": { "description": "Button label to trigger proximity search" },
+
+  "expandSearchHelper": "Looks for offers close to your origin and destination.",
+  "@expandSearchHelper": { "description": "Helper text below expand search button" },
+
+  "approximateMatchesHeader": "Approximate matches",
+  "@approximateMatchesHeader": { "description": "Section header for nearby/proximity results" },
+
+  "noNearbyRidesFound": "No nearby rides found",
+  "@noNearbyRidesFound": { "description": "Shown when proximity search returns no rides" },
+
+  "noNearbyRequestsFound": "No nearby requests found",
+  "@noNearbyRequestsFound": { "description": "Shown when proximity search returns no seat requests" },
+
+  "distanceHint": "+{km} km",
+  "@distanceHint": {
+    "description": "Distance hint shown next to city name on nearby offer cards",
+    "placeholders": { "km": { "type": "int" } }
+  }
 }
