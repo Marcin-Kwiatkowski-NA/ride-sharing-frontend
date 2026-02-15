@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../core/cities/domain/city.dart';
+import '../core/locations/domain/location.dart';
 import '../features/auth/presentation/screens/create_account_screen.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/chat/presentation/screens/chat_screen.dart';
@@ -212,7 +211,7 @@ GoRouter router(Ref ref) {
         name: RouteNames.postRide,
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) {
-          final prefillOrigin = state.extra as City?;
+          final prefillOrigin = state.extra as Location?;
           return PostRideScreen(prefillOrigin: prefillOrigin);
         },
       ),

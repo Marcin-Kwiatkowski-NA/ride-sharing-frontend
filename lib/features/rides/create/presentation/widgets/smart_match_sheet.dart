@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
-import '../../../../../core/cities/domain/city.dart';
+import '../../../../../core/locations/domain/location.dart';
 import '../../../../../core/theme/app_tokens.dart';
 import '../../../../../routes/routes.dart';
 import '../../../../offers/domain/offer_ui_model.dart';
@@ -15,8 +15,8 @@ import '../providers/smart_match_provider.dart';
 /// Call via [showSmartMatchSheet] which wraps this in a modal bottom sheet.
 void showSmartMatchSheet(
   BuildContext context, {
-  required City origin,
-  required City destination,
+  required Location origin,
+  required Location destination,
   required DateTime departureDate,
   required int createdRideId,
 }) {
@@ -42,8 +42,8 @@ void showSmartMatchSheet(
 }
 
 class _SmartMatchWrapper extends StatelessWidget {
-  final City origin;
-  final City destination;
+  final Location origin;
+  final Location destination;
   final DateTime departureDate;
   final int createdRideId;
 
@@ -75,8 +75,8 @@ class _SmartMatchWrapper extends StatelessWidget {
 
 class _SmartMatchContent extends ConsumerStatefulWidget {
   final ScrollController scrollController;
-  final City origin;
-  final City destination;
+  final Location origin;
+  final Location destination;
   final DateTime departureDate;
   final int createdRideId;
 

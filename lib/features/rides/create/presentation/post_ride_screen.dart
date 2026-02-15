@@ -4,8 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
-import '../../../../core/cities/domain/city.dart';
-import '../../../../core/cities/widgets/city_autocomplete_field.dart';
+import '../../../../core/locations/domain/location.dart';
+import '../../../../core/locations/widgets/location_autocomplete_field.dart';
 import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/widgets/core_widgets.dart';
 import '../../../../routes/routes.dart';
@@ -18,7 +18,7 @@ import 'widgets/smart_match_sheet.dart';
 import 'widgets/time_mode_selector.dart';
 
 class PostRideScreen extends ConsumerStatefulWidget {
-  final City? prefillOrigin;
+  final Location? prefillOrigin;
 
   const PostRideScreen({super.key, this.prefillOrigin});
 
@@ -37,14 +37,14 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
   final _priceController = TextEditingController();
   final _descriptionController = TextEditingController();
 
-  // Track last selected cities to detect user typing over selection
-  City? _lastSelectedOrigin;
-  City? _lastSelectedDestination;
+  // Track last selected locations to detect user typing over selection
+  Location? _lastSelectedOrigin;
+  Location? _lastSelectedDestination;
 
   // Intermediate stop controllers
   final List<TextEditingController> _stopCityControllers = [];
   final List<TextEditingController> _stopTimeControllers = [];
-  final List<City?> _lastSelectedStopCities = [];
+  final List<Location?> _lastSelectedStopLocations = [];
 
   @override
   void initState() {
@@ -52,17 +52,17 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
     _originController = TextEditingController();
     _destinationController = TextEditingController();
 
-    // Clear placeId if user types after selecting (text no longer matches)
+    // Clear selection if user types after selecting (text no longer matches)
     _originController.addListener(_onOriginTextChanged);
     _destinationController.addListener(_onDestinationTextChanged);
 
     // Prefill origin from navigation extra
     if (widget.prefillOrigin != null) {
-      final city = widget.prefillOrigin!;
-      _originController.text = city.name;
-      _lastSelectedOrigin = city;
+      final location = widget.prefillOrigin!;
+      _originController.text = location.name;
+      _lastSelectedOrigin = location;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(postRideControllerProvider.notifier).setOrigin(city);
+        ref.read(postRideControllerProvider.notifier).setOrigin(location);
       });
     }
   }
@@ -87,12 +87,12 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
     while (_stopCityControllers.length < count) {
       _stopCityControllers.add(TextEditingController());
       _stopTimeControllers.add(TextEditingController());
-      _lastSelectedStopCities.add(null);
+      _lastSelectedStopLocations.add(null);
     }
     while (_stopCityControllers.length > count) {
       _stopCityControllers.removeLast().dispose();
       _stopTimeControllers.removeLast().dispose();
-      _lastSelectedStopCities.removeLast();
+      _lastSelectedStopLocations.removeLast();
     }
   }
 
@@ -270,19 +270,19 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
                     ),
                   ),
 
-                  // Origin City
+                  // Origin Location
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    child: CityAutocompleteField(
+                    child: LocationAutocompleteField(
                       controller: _originController,
                       labelText: context.l10n.originCityLabel,
                       prefixIcon: Icons.trip_origin,
-                      onCitySelected: (city) {
-                        _originController.text = city.name;
-                        _lastSelectedOrigin = city;
-                        controller.setOrigin(city);
+                      onLocationSelected: (location) {
+                        _originController.text = location.name;
+                        _lastSelectedOrigin = location;
+                        controller.setOrigin(location);
                       },
-                      onCityCleared: () {
+                      onLocationCleared: () {
                         _lastSelectedOrigin = null;
                         controller.clearOrigin();
                       },
@@ -298,19 +298,19 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
                     ),
                   ),
 
-                  // Destination City
+                  // Destination Location
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    child: CityAutocompleteField(
+                    child: LocationAutocompleteField(
                       controller: _destinationController,
                       labelText: context.l10n.destinationCityLabel,
                       prefixIcon: Icons.flag_outlined,
-                      onCitySelected: (city) {
-                        _destinationController.text = city.name;
-                        _lastSelectedDestination = city;
-                        controller.setDestination(city);
+                      onLocationSelected: (location) {
+                        _destinationController.text = location.name;
+                        _lastSelectedDestination = location;
+                        controller.setDestination(location);
                       },
-                      onCityCleared: () {
+                      onLocationCleared: () {
                         _lastSelectedDestination = null;
                         controller.clearDestination();
                       },
@@ -323,8 +323,8 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
                         }
                         if (state.origin != null &&
                             state.destination != null &&
-                            state.origin!.placeId ==
-                                state.destination!.placeId) {
+                            state.origin!.osmId ==
+                                state.destination!.osmId) {
                           return context.l10n.mustDifferFromOrigin;
                         }
                         return null;
@@ -501,18 +501,18 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
                   Row(
                     children: [
                       Expanded(
-                        child: CityAutocompleteField(
+                        child: LocationAutocompleteField(
                           controller: _stopCityControllers[i],
                           labelText: context.l10n.intermediateStopLabel(i + 1),
                           prefixIcon: Icons.add_location_alt_outlined,
-                          onCitySelected: (city) {
-                            _stopCityControllers[i].text = city.name;
-                            _lastSelectedStopCities[i] = city;
-                            controller.setIntermediateStopCity(i, city);
+                          onLocationSelected: (location) {
+                            _stopCityControllers[i].text = location.name;
+                            _lastSelectedStopLocations[i] = location;
+                            controller.setIntermediateStopLocation(i, location);
                           },
-                          onCityCleared: () {
-                            _lastSelectedStopCities[i] = null;
-                            controller.clearIntermediateStopCity(i);
+                          onLocationCleared: () {
+                            _lastSelectedStopLocations[i] = null;
+                            controller.clearIntermediateStopLocation(i);
                           },
                         ),
                       ),

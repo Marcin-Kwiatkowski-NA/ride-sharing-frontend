@@ -21,13 +21,13 @@ class OfferCard extends StatelessWidget {
         color: colorScheme.surface, // Clean surface
         borderRadius: BorderRadius.circular(20), // Modern, large radius
         border: Border.all(
-          color: colorScheme.outlineVariant.withOpacity(0.5),
+          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
           width: 1,
         ),
         boxShadow: [
           // Soft, diffused shadow for depth
           BoxShadow(
-            color: colorScheme.shadow.withOpacity(0.05),
+            color: colorScheme.shadow.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -123,7 +123,7 @@ class _TimeDisplay extends StatelessWidget {
         Text(
           l10n.flexible, // "Elastycznie"
           style: theme.textTheme.labelSmall?.copyWith(
-            color: colorScheme.onSurfaceVariant.withOpacity(0.7),
+            color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
           ),
         ),
       ],

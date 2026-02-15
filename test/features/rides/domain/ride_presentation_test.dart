@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:blablafront/features/rides/data/dto/ride_response_dto.dart';
-import 'package:blablafront/features/offers/data/city_dto.dart';
+import 'package:blablafront/features/offers/data/location_dto.dart';
 import 'package:blablafront/features/offers/data/contact_method_dto.dart';
 import 'package:blablafront/features/rides/data/dto/user_card_dto.dart';
 import 'package:blablafront/features/rides/data/dto/ride_enums.dart';
@@ -30,8 +30,8 @@ void main() {
     }) {
       return RideResponseDto(
         id: id,
-        origin: const CityDto(placeId: 3094802, name: 'Krakow'),
-        destination: const CityDto(placeId: 756135, name: 'Warsaw'),
+        origin: const LocationDto(osmId: 3094802, name: 'Krakow'),
+        destination: const LocationDto(osmId: 756135, name: 'Warsaw'),
         departureTime: departureTime ?? DateTime(2025, 1, 15, 14, 30),
         isApproximate: isApproximate,
         source: source,

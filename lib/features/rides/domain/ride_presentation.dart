@@ -112,7 +112,7 @@ class RidePresentation {
     return sorted
         .where((s) => s.stopOrder > 0 && s.stopOrder < sorted.length - 1)
         .map((s) => IntermediateStopUi(
-              cityName: s.city.name,
+              cityName: s.location.name,
               timeDisplay: s.departureTime != null
                   ? _timeFormat.format(s.departureTime!)
                   : null,

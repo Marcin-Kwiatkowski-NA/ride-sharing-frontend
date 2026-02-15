@@ -4,8 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
-import '../../../../core/cities/domain/city.dart';
-import '../../../../core/cities/widgets/city_autocomplete_field.dart';
+import '../../../../core/locations/domain/location.dart';
+import '../../../../core/locations/widgets/location_autocomplete_field.dart';
 import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/widgets/core_widgets.dart';
 import '../../../../routes/routes.dart';
@@ -17,8 +17,8 @@ import '../../../rides/create/presentation/widgets/time_mode_selector.dart';
 import 'post_seat_controller.dart';
 
 class PostSeatScreen extends ConsumerStatefulWidget {
-  final City? prefillOrigin;
-  final City? prefillDestination;
+  final Location? prefillOrigin;
+  final Location? prefillDestination;
   final DateTime? prefillDate;
 
   const PostSeatScreen({
@@ -43,8 +43,8 @@ class _PostSeatScreenState extends ConsumerState<PostSeatScreen> {
   final _budgetController = TextEditingController();
   final _descriptionController = TextEditingController();
 
-  City? _lastSelectedOrigin;
-  City? _lastSelectedDestination;
+  Location? _lastSelectedOrigin;
+  Location? _lastSelectedDestination;
 
   @override
   void initState() {
@@ -56,20 +56,20 @@ class _PostSeatScreenState extends ConsumerState<PostSeatScreen> {
     _destinationController.addListener(_onDestinationTextChanged);
 
     if (widget.prefillOrigin != null) {
-      final city = widget.prefillOrigin!;
-      _originController.text = city.name;
-      _lastSelectedOrigin = city;
+      final location = widget.prefillOrigin!;
+      _originController.text = location.name;
+      _lastSelectedOrigin = location;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(postSeatControllerProvider.notifier).setOrigin(city);
+        ref.read(postSeatControllerProvider.notifier).setOrigin(location);
       });
     }
 
     if (widget.prefillDestination != null) {
-      final city = widget.prefillDestination!;
-      _destinationController.text = city.name;
-      _lastSelectedDestination = city;
+      final location = widget.prefillDestination!;
+      _destinationController.text = location.name;
+      _lastSelectedDestination = location;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(postSeatControllerProvider.notifier).setDestination(city);
+        ref.read(postSeatControllerProvider.notifier).setDestination(location);
       });
     }
 
@@ -227,19 +227,19 @@ class _PostSeatScreenState extends ConsumerState<PostSeatScreen> {
                     ),
                   ),
 
-                  // Origin City
+                  // Origin Location
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    child: CityAutocompleteField(
+                    child: LocationAutocompleteField(
                       controller: _originController,
                       labelText: context.l10n.originCityLabel,
                       prefixIcon: Icons.trip_origin,
-                      onCitySelected: (city) {
-                        _originController.text = city.name;
-                        _lastSelectedOrigin = city;
-                        controller.setOrigin(city);
+                      onLocationSelected: (location) {
+                        _originController.text = location.name;
+                        _lastSelectedOrigin = location;
+                        controller.setOrigin(location);
                       },
-                      onCityCleared: () {
+                      onLocationCleared: () {
                         _lastSelectedOrigin = null;
                         controller.clearOrigin();
                       },
@@ -255,19 +255,19 @@ class _PostSeatScreenState extends ConsumerState<PostSeatScreen> {
                     ),
                   ),
 
-                  // Destination City
+                  // Destination Location
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    child: CityAutocompleteField(
+                    child: LocationAutocompleteField(
                       controller: _destinationController,
                       labelText: context.l10n.destinationCityLabel,
                       prefixIcon: Icons.flag_outlined,
-                      onCitySelected: (city) {
-                        _destinationController.text = city.name;
-                        _lastSelectedDestination = city;
-                        controller.setDestination(city);
+                      onLocationSelected: (location) {
+                        _destinationController.text = location.name;
+                        _lastSelectedDestination = location;
+                        controller.setDestination(location);
                       },
-                      onCityCleared: () {
+                      onLocationCleared: () {
                         _lastSelectedDestination = null;
                         controller.clearDestination();
                       },
@@ -280,8 +280,8 @@ class _PostSeatScreenState extends ConsumerState<PostSeatScreen> {
                         }
                         if (state.origin != null &&
                             state.destination != null &&
-                            state.origin!.placeId ==
-                                state.destination!.placeId) {
+                            state.origin!.osmId ==
+                                state.destination!.osmId) {
                           return context.l10n.mustDifferFromOrigin;
                         }
                         return null;

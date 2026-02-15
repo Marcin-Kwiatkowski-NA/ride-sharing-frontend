@@ -1,7 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../../../offers/data/city_dto.dart';
 import '../../../offers/data/contact_method_dto.dart';
+import '../../../offers/data/location_dto.dart';
 import '../../../offers/data/offer_enums.dart';
 import '../../../rides/data/dto/user_card_dto.dart';
 import 'seat_enums.dart';
@@ -14,8 +14,8 @@ sealed class SeatResponseDto with _$SeatResponseDto {
   const factory SeatResponseDto({
     required int id,
     @Default(RideSource.internal) RideSource source,
-    required CityDto origin,
-    required CityDto destination,
+    required LocationDto origin,
+    required LocationDto destination,
     required DateTime departureTime,
     @Default(false) bool isApproximate,
     required int count,

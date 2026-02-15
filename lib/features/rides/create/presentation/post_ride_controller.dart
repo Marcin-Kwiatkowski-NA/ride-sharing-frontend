@@ -4,10 +4,11 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:intl/intl.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../../../core/cities/domain/city.dart';
+import '../../../../core/locations/domain/location.dart';
 import '../../../../core/network/dio_provider.dart';
 import '../../../../core/providers/auth_notifier.dart';
 import '../../../offers/domain/part_of_day.dart';
+import '../data/dto/intermediate_stop_dto.dart';
 import '../data/dto/ride_creation_request_dto.dart';
 
 part 'post_ride_controller.freezed.dart';
@@ -17,7 +18,7 @@ part 'post_ride_controller.g.dart';
 @freezed
 sealed class IntermediateStopEntry with _$IntermediateStopEntry {
   const factory IntermediateStopEntry({
-    City? city,
+    Location? location,
     TimeOfDay? departureTime,
   }) = _IntermediateStopEntry;
 }
@@ -28,8 +29,8 @@ sealed class PostRideFormState with _$PostRideFormState {
   const PostRideFormState._();
 
   const factory PostRideFormState({
-    City? origin,
-    City? destination,
+    Location? origin,
+    Location? destination,
     DateTime? selectedDate,
     TimeOfDay? exactTime,
     PartOfDay? partOfDay,
@@ -85,16 +86,16 @@ class PostRideController extends _$PostRideController {
     return const PostRideFormState();
   }
 
-  void setOrigin(City city) {
-    state = state.copyWith(origin: city, errorMessage: null);
+  void setOrigin(Location location) {
+    state = state.copyWith(origin: location, errorMessage: null);
   }
 
   void clearOrigin() {
     state = state.copyWith(origin: null, errorMessage: null);
   }
 
-  void setDestination(City city) {
-    state = state.copyWith(destination: city, errorMessage: null);
+  void setDestination(Location location) {
+    state = state.copyWith(destination: location, errorMessage: null);
   }
 
   void clearDestination() {
@@ -146,7 +147,10 @@ class PostRideController extends _$PostRideController {
   void addIntermediateStop() {
     if (state.intermediateStops.length >= 3) return;
     state = state.copyWith(
-      intermediateStops: [...state.intermediateStops, const IntermediateStopEntry()],
+      intermediateStops: [
+        ...state.intermediateStops,
+        const IntermediateStopEntry(),
+      ],
       errorMessage: null,
     );
   }
@@ -156,15 +160,15 @@ class PostRideController extends _$PostRideController {
     state = state.copyWith(intermediateStops: stops, errorMessage: null);
   }
 
-  void setIntermediateStopCity(int index, City city) {
+  void setIntermediateStopLocation(int index, Location location) {
     final stops = [...state.intermediateStops];
-    stops[index] = stops[index].copyWith(city: city);
+    stops[index] = stops[index].copyWith(location: location);
     state = state.copyWith(intermediateStops: stops, errorMessage: null);
   }
 
-  void clearIntermediateStopCity(int index) {
+  void clearIntermediateStopLocation(int index) {
     final stops = [...state.intermediateStops];
-    stops[index] = stops[index].copyWith(city: null);
+    stops[index] = stops[index].copyWith(location: null);
     state = state.copyWith(intermediateStops: stops, errorMessage: null);
   }
 
@@ -186,7 +190,7 @@ class PostRideController extends _$PostRideController {
     if (state.destination == null) {
       return 'Select destination from suggestions';
     }
-    if (state.origin!.placeId == state.destination!.placeId) {
+    if (state.origin!.osmId == state.destination!.osmId) {
       return 'Destination must differ from origin';
     }
     if (state.selectedDate == null) {
@@ -222,15 +226,15 @@ class PostRideController extends _$PostRideController {
     }
 
     // Validate intermediate stops
-    final allPlaceIds = <int>{};
-    if (state.origin != null) allPlaceIds.add(state.origin!.placeId);
-    if (state.destination != null) allPlaceIds.add(state.destination!.placeId);
+    final allOsmIds = <int>{};
+    if (state.origin != null) allOsmIds.add(state.origin!.osmId);
+    if (state.destination != null) allOsmIds.add(state.destination!.osmId);
 
     for (final stop in state.intermediateStops) {
-      if (stop.city == null) return 'Select city for each stop';
+      if (stop.location == null) return 'Select location for each stop';
       if (stop.departureTime == null) return 'Select time for each stop';
-      if (!allPlaceIds.add(stop.city!.placeId)) {
-        return 'Duplicate stop city';
+      if (!allOsmIds.add(stop.location!.osmId)) {
+        return 'Duplicate stop location';
       }
     }
 
@@ -273,15 +277,16 @@ class PostRideController extends _$PostRideController {
         "yyyy-MM-dd'T'HH:mm:ss",
       ).format(departureDateTime);
 
-      // Build intermediate stop ISO times with midnight-crossing detection
-      final List<int> stopPlaceIds = [];
-      final List<String> stopDepartureTimes = [];
+      // Build intermediate stops as unified list
+      List<IntermediateStopDto>? intermediateStops;
 
       if (state.intermediateStops.isNotEmpty) {
         DateTime currentBaseDate = state.selectedDate!;
         TimeOfDay previousTime = state.isApproximate
             ? TimeOfDay(hour: departureDateTime.hour, minute: 0)
             : state.exactTime!;
+
+        intermediateStops = [];
 
         for (final stop in state.intermediateStops) {
           final stopTime = stop.departureTime!;
@@ -301,9 +306,12 @@ class PostRideController extends _$PostRideController {
             stopTime.minute,
           );
 
-          stopPlaceIds.add(stop.city!.placeId);
-          stopDepartureTimes.add(
-            DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(fullDateTime),
+          intermediateStops.add(
+            IntermediateStopDto(
+              location: stop.location!.toLocationRefDto(),
+              departureTime:
+                  DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(fullDateTime),
+            ),
           );
           previousTime = stopTime;
         }
@@ -311,18 +319,16 @@ class PostRideController extends _$PostRideController {
 
       final dto = RideCreationRequestDto(
         driverId: driverId,
-        originPlaceId: state.origin!.placeId,
-        destinationPlaceId: state.destination!.placeId,
+        origin: state.origin!.toLocationRefDto(),
+        destination: state.destination!.toLocationRefDto(),
         departureTime: formattedDepartureTime,
         isApproximate: state.isApproximate,
         availableSeats: state.availableSeats!,
         pricePerSeat: state.isNegotiablePrice ? null : state.pricePerSeat,
         vehicleId: null,
         description: state.description,
-        intermediateStopPlaceIds:
-            stopPlaceIds.isNotEmpty ? stopPlaceIds : null,
-        intermediateStopDepartureTimes:
-            stopDepartureTimes.isNotEmpty ? stopDepartureTimes : null,
+        intermediateStops:
+            intermediateStops?.isNotEmpty == true ? intermediateStops : null,
       );
 
       final dio = ref.read(apiDioProvider);

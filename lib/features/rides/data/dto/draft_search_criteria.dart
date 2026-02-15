@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../../../../core/cities/domain/city.dart';
+import '../../../../core/locations/domain/location.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../offers/data/offer_search_criteria.dart';
 import 'recent_search_snapshot.dart';
@@ -11,8 +11,8 @@ part 'draft_search_criteria.freezed.dart';
 @freezed
 sealed class DraftSearchCriteria with _$DraftSearchCriteria {
   const factory DraftSearchCriteria({
-    City? origin,
-    City? destination,
+    Location? origin,
+    Location? destination,
     DateTime? departureDate,
     TimeOfDay? departureTime,
     @Default(true) bool anyTime,

@@ -4,50 +4,48 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../domain/city.dart';
-import '../providers/city_providers.dart';
-import '../repository/city_repository.dart';
+import '../domain/location.dart';
+import '../providers/location_providers.dart';
+import '../repository/location_repository.dart';
 
-/// Inline city search field with results list below.
+/// Inline location search field with results list below.
 ///
 /// Designed for bottom sheets: no overlay, suggestions appear in a ListView
 /// that you control (pass your own ScrollController if needed).
-class CityAutocompleteField extends ConsumerStatefulWidget {
+class LocationAutocompleteField extends ConsumerStatefulWidget {
   final TextEditingController controller;
   final String labelText;
   final IconData prefixIcon;
-  final void Function(City) onCitySelected;
-  final void Function()? onCityCleared;
+  final void Function(Location) onLocationSelected;
+  final void Function()? onLocationCleared;
   final String? Function(String?)? validator;
-  final String? langOverride;
 
-  const CityAutocompleteField({
+  const LocationAutocompleteField({
     super.key,
     required this.controller,
     required this.labelText,
     required this.prefixIcon,
-    required this.onCitySelected,
-    this.onCityCleared,
+    required this.onLocationSelected,
+    this.onLocationCleared,
     this.validator,
-    this.langOverride,
   });
 
   @override
-  ConsumerState<CityAutocompleteField> createState() =>
-      _CityAutocompleteFieldState();
+  ConsumerState<LocationAutocompleteField> createState() =>
+      _LocationAutocompleteFieldState();
 }
 
-class _CityAutocompleteFieldState extends ConsumerState<CityAutocompleteField> {
+class _LocationAutocompleteFieldState
+    extends ConsumerState<LocationAutocompleteField> {
   Timer? _debounce;
-  List<City> _suggestions = [];
+  List<Location> _suggestions = [];
   bool _isLoading = false;
   String? _errorMessage;
   CancelToken? _cancelToken;
   String? _pendingKey;
 
   final _focusNode = FocusNode();
-  CityRepository? _repositoryRef;
-  String? _langRef;
+  LocationRepository? _repositoryRef;
 
   static const Duration _debounceDuration = Duration(milliseconds: 350);
 
@@ -70,37 +68,34 @@ class _CityAutocompleteFieldState extends ConsumerState<CityAutocompleteField> {
 
   void _onFocusChange() {
     if (_focusNode.hasFocus && widget.controller.text.isEmpty) {
-      _fetchSuggestions('', _repositoryRef, _langRef ?? 'en');
+      _fetchSuggestions('', _repositoryRef);
     }
   }
 
   void _onTextChanged() {
     final query = widget.controller.text;
     final repository = _repositoryRef;
-    final lang = _langRef ?? 'en';
 
     if (repository == null) return;
 
-    final key = '$lang|$query';
-    if (key == _pendingKey) return;
+    if (query == _pendingKey) return;
 
-    _pendingKey = key;
+    _pendingKey = query;
     _debounce?.cancel();
 
     if (query.isEmpty) {
-      widget.onCityCleared?.call();
+      widget.onLocationCleared?.call();
     }
 
     _debounce = Timer(_debounceDuration, () {
-      _fetchSuggestions(query, repository, lang);
+      _fetchSuggestions(query, repository);
     });
   }
 
   Future<void> _fetchSuggestions(
-      String query,
-      CityRepository? repository,
-      String lang,
-      ) async {
+    String query,
+    LocationRepository? repository,
+  ) async {
     if (repository == null) return;
 
     _cancelToken?.cancel();
@@ -108,7 +103,7 @@ class _CityAutocompleteFieldState extends ConsumerState<CityAutocompleteField> {
 
     if (query.isEmpty) {
       try {
-        final recents = await repository.getRecentCities();
+        final recents = await repository.getRecentLocations();
         if (mounted) {
           setState(() {
             _suggestions = recents;
@@ -133,9 +128,8 @@ class _CityAutocompleteFieldState extends ConsumerState<CityAutocompleteField> {
     });
 
     try {
-      final results = await repository.searchCities(
+      final results = await repository.searchLocations(
         query: query,
-        lang: lang,
         cancelToken: _cancelToken,
       );
 
@@ -156,7 +150,7 @@ class _CityAutocompleteFieldState extends ConsumerState<CityAutocompleteField> {
               e.type == DioExceptionType.connectionTimeout) {
             _errorMessage = 'Connection error. Check your network.';
           } else {
-            _errorMessage = 'Failed to load cities';
+            _errorMessage = 'Failed to load locations';
           }
         });
       }
@@ -164,7 +158,7 @@ class _CityAutocompleteFieldState extends ConsumerState<CityAutocompleteField> {
       if (mounted) {
         setState(() {
           _isLoading = false;
-          _errorMessage = 'Failed to load cities';
+          _errorMessage = 'Failed to load locations';
         });
       }
     }
@@ -173,30 +167,21 @@ class _CityAutocompleteFieldState extends ConsumerState<CityAutocompleteField> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final repositoryAsync = ref.watch(cityRepositoryProvider);
-    final String lang =
-        widget.langOverride ?? ref.watch(citySearchLangProvider);
+    final repositoryAsync = ref.watch(locationRepositoryProvider);
 
     return repositoryAsync.when(
-      loading: () => _buildContent(context, theme, null, lang),
-      error: (error, stackTrace) => _buildContent(context, theme, null, lang),
-      data: (repository) => _buildContent(context, theme, repository, lang),
+      loading: () => _buildContent(context, theme, null),
+      error: (error, stackTrace) => _buildContent(context, theme, null),
+      data: (repository) => _buildContent(context, theme, repository),
     );
   }
 
   Widget _buildContent(
-      BuildContext context,
-      ThemeData theme,
-      CityRepository? repository,
-      String lang,
-      ) {
+    BuildContext context,
+    ThemeData theme,
+    LocationRepository? repository,
+  ) {
     _repositoryRef = repository;
-
-    // Trigger refetch if lang changed
-    if (_langRef != null && _langRef != lang && repository != null) {
-      _onTextChanged();
-    }
-    _langRef = lang;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -213,12 +198,12 @@ class _CityAutocompleteFieldState extends ConsumerState<CityAutocompleteField> {
             prefixIcon: Icon(widget.prefixIcon),
             suffixIcon: widget.controller.text.isNotEmpty
                 ? IconButton(
-              icon: const Icon(Icons.clear),
-              onPressed: () {
-                widget.controller.clear();
-                widget.onCityCleared?.call();
-              },
-            )
+                    icon: const Icon(Icons.clear),
+                    onPressed: () {
+                      widget.controller.clear();
+                      widget.onLocationCleared?.call();
+                    },
+                  )
                 : null,
           ),
         ),
@@ -234,10 +219,10 @@ class _CityAutocompleteFieldState extends ConsumerState<CityAutocompleteField> {
   }
 
   Widget _buildResultsList(
-      BuildContext context,
-      ThemeData theme,
-      CityRepository? repository,
-      ) {
+    BuildContext context,
+    ThemeData theme,
+    LocationRepository? repository,
+  ) {
     if (_isLoading) {
       return const Center(
         child: CircularProgressIndicator(),
@@ -284,7 +269,7 @@ class _CityAutocompleteFieldState extends ConsumerState<CityAutocompleteField> {
               ),
               const SizedBox(height: 12),
               Text(
-                'No cities found',
+                'No locations found',
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -298,33 +283,33 @@ class _CityAutocompleteFieldState extends ConsumerState<CityAutocompleteField> {
     return ListView.separated(
       padding: EdgeInsets.zero,
       itemCount: _suggestions.length,
-      separatorBuilder: (_, __) => const Divider(height: 1),
+      separatorBuilder: (_, _) => const Divider(height: 1),
       itemBuilder: (context, index) {
-        final city = _suggestions[index];
+        final location = _suggestions[index];
         return ListTile(
-          title: Text(city.name),
-          trailing: city.countryCode != null
+          title: Text(location.name),
+          trailing: location.countryCode != null
               ? Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 8,
-              vertical: 4,
-            ),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.secondaryContainer,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Text(
-              city.countryCode!,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: theme.colorScheme.onSecondaryContainer,
-              ),
-            ),
-          )
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.secondaryContainer,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    location.countryCode!,
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.onSecondaryContainer,
+                    ),
+                  ),
+                )
               : null,
           onTap: () {
-            repository?.addToRecent(city);
-            widget.controller.text = city.name;
-            widget.onCitySelected(city);
+            repository?.addToRecent(location);
+            widget.controller.text = location.name;
+            widget.onLocationSelected(location);
             FocusScope.of(context).unfocus();
           },
         );

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../../../core/cities/domain/city.dart';
+import '../../../../core/locations/domain/location.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../offers/data/offer_search_criteria.dart';
 import '../../data/dto/draft_search_criteria.dart';
@@ -18,12 +18,12 @@ class SearchCriteria extends _$SearchCriteria {
     return const OfferSearchCriteria();
   }
 
-  void setOrigin(City? city) {
-    state = state.copyWith(origin: city);
+  void setOrigin(Location? location) {
+    state = state.copyWith(origin: location);
   }
 
-  void setDestination(City? city) {
-    state = state.copyWith(destination: city);
+  void setDestination(Location? location) {
+    state = state.copyWith(destination: location);
   }
 
   void setDepartureDate(DateTime? date) {
@@ -54,7 +54,7 @@ class SearchCriteria extends _$SearchCriteria {
     state = const OfferSearchCriteria();
   }
 
-  /// Swap origin and destination cities.
+  /// Swap origin and destination locations.
   void swapOriginDestination() {
     state = state.copyWith(
       origin: state.destination,

@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$RideResponseDto {
 
- int get id; UserCardDto? get driver; CityDto get origin; CityDto get destination; DateTime get departureTime; bool get isApproximate; RideSource get source; int get availableSeats; int get seatsTaken; double? get pricePerSeat; VehicleResponseDto? get vehicle; RideStatus get rideStatus; String? get description; List<ContactMethodDto> get contactMethods; List<RideStopDto> get stops; int get totalSeats;
+ int get id; UserCardDto? get driver; LocationDto get origin; LocationDto get destination; DateTime get departureTime; bool get isApproximate; RideSource get source; int get availableSeats; int get seatsTaken; double? get pricePerSeat; VehicleResponseDto? get vehicle; RideStatus get rideStatus; String? get description; List<ContactMethodDto> get contactMethods; List<RideStopDto> get stops; int get totalSeats;
 /// Create a copy of RideResponseDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,11 +48,11 @@ abstract mixin class $RideResponseDtoCopyWith<$Res>  {
   factory $RideResponseDtoCopyWith(RideResponseDto value, $Res Function(RideResponseDto) _then) = _$RideResponseDtoCopyWithImpl;
 @useResult
 $Res call({
- int id, UserCardDto? driver, CityDto origin, CityDto destination, DateTime departureTime, bool isApproximate, RideSource source, int availableSeats, int seatsTaken, double? pricePerSeat, VehicleResponseDto? vehicle, RideStatus rideStatus, String? description, List<ContactMethodDto> contactMethods, List<RideStopDto> stops, int totalSeats
+ int id, UserCardDto? driver, LocationDto origin, LocationDto destination, DateTime departureTime, bool isApproximate, RideSource source, int availableSeats, int seatsTaken, double? pricePerSeat, VehicleResponseDto? vehicle, RideStatus rideStatus, String? description, List<ContactMethodDto> contactMethods, List<RideStopDto> stops, int totalSeats
 });
 
 
-$UserCardDtoCopyWith<$Res>? get driver;$CityDtoCopyWith<$Res> get origin;$CityDtoCopyWith<$Res> get destination;$VehicleResponseDtoCopyWith<$Res>? get vehicle;
+$UserCardDtoCopyWith<$Res>? get driver;$LocationDtoCopyWith<$Res> get origin;$LocationDtoCopyWith<$Res> get destination;$VehicleResponseDtoCopyWith<$Res>? get vehicle;
 
 }
 /// @nodoc
@@ -70,8 +70,8 @@ class _$RideResponseDtoCopyWithImpl<$Res>
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,driver: freezed == driver ? _self.driver : driver // ignore: cast_nullable_to_non_nullable
 as UserCardDto?,origin: null == origin ? _self.origin : origin // ignore: cast_nullable_to_non_nullable
-as CityDto,destination: null == destination ? _self.destination : destination // ignore: cast_nullable_to_non_nullable
-as CityDto,departureTime: null == departureTime ? _self.departureTime : departureTime // ignore: cast_nullable_to_non_nullable
+as LocationDto,destination: null == destination ? _self.destination : destination // ignore: cast_nullable_to_non_nullable
+as LocationDto,departureTime: null == departureTime ? _self.departureTime : departureTime // ignore: cast_nullable_to_non_nullable
 as DateTime,isApproximate: null == isApproximate ? _self.isApproximate : isApproximate // ignore: cast_nullable_to_non_nullable
 as bool,source: null == source ? _self.source : source // ignore: cast_nullable_to_non_nullable
 as RideSource,availableSeats: null == availableSeats ? _self.availableSeats : availableSeats // ignore: cast_nullable_to_non_nullable
@@ -102,18 +102,18 @@ $UserCardDtoCopyWith<$Res>? get driver {
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$CityDtoCopyWith<$Res> get origin {
+$LocationDtoCopyWith<$Res> get origin {
   
-  return $CityDtoCopyWith<$Res>(_self.origin, (value) {
+  return $LocationDtoCopyWith<$Res>(_self.origin, (value) {
     return _then(_self.copyWith(origin: value));
   });
 }/// Create a copy of RideResponseDto
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$CityDtoCopyWith<$Res> get destination {
+$LocationDtoCopyWith<$Res> get destination {
   
-  return $CityDtoCopyWith<$Res>(_self.destination, (value) {
+  return $LocationDtoCopyWith<$Res>(_self.destination, (value) {
     return _then(_self.copyWith(destination: value));
   });
 }/// Create a copy of RideResponseDto
@@ -207,7 +207,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  UserCardDto? driver,  CityDto origin,  CityDto destination,  DateTime departureTime,  bool isApproximate,  RideSource source,  int availableSeats,  int seatsTaken,  double? pricePerSeat,  VehicleResponseDto? vehicle,  RideStatus rideStatus,  String? description,  List<ContactMethodDto> contactMethods,  List<RideStopDto> stops,  int totalSeats)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  UserCardDto? driver,  LocationDto origin,  LocationDto destination,  DateTime departureTime,  bool isApproximate,  RideSource source,  int availableSeats,  int seatsTaken,  double? pricePerSeat,  VehicleResponseDto? vehicle,  RideStatus rideStatus,  String? description,  List<ContactMethodDto> contactMethods,  List<RideStopDto> stops,  int totalSeats)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RideResponseDto() when $default != null:
 return $default(_that.id,_that.driver,_that.origin,_that.destination,_that.departureTime,_that.isApproximate,_that.source,_that.availableSeats,_that.seatsTaken,_that.pricePerSeat,_that.vehicle,_that.rideStatus,_that.description,_that.contactMethods,_that.stops,_that.totalSeats);case _:
@@ -228,7 +228,7 @@ return $default(_that.id,_that.driver,_that.origin,_that.destination,_that.depar
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  UserCardDto? driver,  CityDto origin,  CityDto destination,  DateTime departureTime,  bool isApproximate,  RideSource source,  int availableSeats,  int seatsTaken,  double? pricePerSeat,  VehicleResponseDto? vehicle,  RideStatus rideStatus,  String? description,  List<ContactMethodDto> contactMethods,  List<RideStopDto> stops,  int totalSeats)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  UserCardDto? driver,  LocationDto origin,  LocationDto destination,  DateTime departureTime,  bool isApproximate,  RideSource source,  int availableSeats,  int seatsTaken,  double? pricePerSeat,  VehicleResponseDto? vehicle,  RideStatus rideStatus,  String? description,  List<ContactMethodDto> contactMethods,  List<RideStopDto> stops,  int totalSeats)  $default,) {final _that = this;
 switch (_that) {
 case _RideResponseDto():
 return $default(_that.id,_that.driver,_that.origin,_that.destination,_that.departureTime,_that.isApproximate,_that.source,_that.availableSeats,_that.seatsTaken,_that.pricePerSeat,_that.vehicle,_that.rideStatus,_that.description,_that.contactMethods,_that.stops,_that.totalSeats);}
@@ -245,7 +245,7 @@ return $default(_that.id,_that.driver,_that.origin,_that.destination,_that.depar
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  UserCardDto? driver,  CityDto origin,  CityDto destination,  DateTime departureTime,  bool isApproximate,  RideSource source,  int availableSeats,  int seatsTaken,  double? pricePerSeat,  VehicleResponseDto? vehicle,  RideStatus rideStatus,  String? description,  List<ContactMethodDto> contactMethods,  List<RideStopDto> stops,  int totalSeats)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  UserCardDto? driver,  LocationDto origin,  LocationDto destination,  DateTime departureTime,  bool isApproximate,  RideSource source,  int availableSeats,  int seatsTaken,  double? pricePerSeat,  VehicleResponseDto? vehicle,  RideStatus rideStatus,  String? description,  List<ContactMethodDto> contactMethods,  List<RideStopDto> stops,  int totalSeats)?  $default,) {final _that = this;
 switch (_that) {
 case _RideResponseDto() when $default != null:
 return $default(_that.id,_that.driver,_that.origin,_that.destination,_that.departureTime,_that.isApproximate,_that.source,_that.availableSeats,_that.seatsTaken,_that.pricePerSeat,_that.vehicle,_that.rideStatus,_that.description,_that.contactMethods,_that.stops,_that.totalSeats);case _:
@@ -265,8 +265,8 @@ class _RideResponseDto implements RideResponseDto {
 
 @override final  int id;
 @override final  UserCardDto? driver;
-@override final  CityDto origin;
-@override final  CityDto destination;
+@override final  LocationDto origin;
+@override final  LocationDto destination;
 @override final  DateTime departureTime;
 @override@JsonKey() final  bool isApproximate;
 @override@JsonKey() final  RideSource source;
@@ -325,11 +325,11 @@ abstract mixin class _$RideResponseDtoCopyWith<$Res> implements $RideResponseDto
   factory _$RideResponseDtoCopyWith(_RideResponseDto value, $Res Function(_RideResponseDto) _then) = __$RideResponseDtoCopyWithImpl;
 @override @useResult
 $Res call({
- int id, UserCardDto? driver, CityDto origin, CityDto destination, DateTime departureTime, bool isApproximate, RideSource source, int availableSeats, int seatsTaken, double? pricePerSeat, VehicleResponseDto? vehicle, RideStatus rideStatus, String? description, List<ContactMethodDto> contactMethods, List<RideStopDto> stops, int totalSeats
+ int id, UserCardDto? driver, LocationDto origin, LocationDto destination, DateTime departureTime, bool isApproximate, RideSource source, int availableSeats, int seatsTaken, double? pricePerSeat, VehicleResponseDto? vehicle, RideStatus rideStatus, String? description, List<ContactMethodDto> contactMethods, List<RideStopDto> stops, int totalSeats
 });
 
 
-@override $UserCardDtoCopyWith<$Res>? get driver;@override $CityDtoCopyWith<$Res> get origin;@override $CityDtoCopyWith<$Res> get destination;@override $VehicleResponseDtoCopyWith<$Res>? get vehicle;
+@override $UserCardDtoCopyWith<$Res>? get driver;@override $LocationDtoCopyWith<$Res> get origin;@override $LocationDtoCopyWith<$Res> get destination;@override $VehicleResponseDtoCopyWith<$Res>? get vehicle;
 
 }
 /// @nodoc
@@ -347,8 +347,8 @@ class __$RideResponseDtoCopyWithImpl<$Res>
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,driver: freezed == driver ? _self.driver : driver // ignore: cast_nullable_to_non_nullable
 as UserCardDto?,origin: null == origin ? _self.origin : origin // ignore: cast_nullable_to_non_nullable
-as CityDto,destination: null == destination ? _self.destination : destination // ignore: cast_nullable_to_non_nullable
-as CityDto,departureTime: null == departureTime ? _self.departureTime : departureTime // ignore: cast_nullable_to_non_nullable
+as LocationDto,destination: null == destination ? _self.destination : destination // ignore: cast_nullable_to_non_nullable
+as LocationDto,departureTime: null == departureTime ? _self.departureTime : departureTime // ignore: cast_nullable_to_non_nullable
 as DateTime,isApproximate: null == isApproximate ? _self.isApproximate : isApproximate // ignore: cast_nullable_to_non_nullable
 as bool,source: null == source ? _self.source : source // ignore: cast_nullable_to_non_nullable
 as RideSource,availableSeats: null == availableSeats ? _self.availableSeats : availableSeats // ignore: cast_nullable_to_non_nullable
@@ -380,18 +380,18 @@ $UserCardDtoCopyWith<$Res>? get driver {
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$CityDtoCopyWith<$Res> get origin {
+$LocationDtoCopyWith<$Res> get origin {
   
-  return $CityDtoCopyWith<$Res>(_self.origin, (value) {
+  return $LocationDtoCopyWith<$Res>(_self.origin, (value) {
     return _then(_self.copyWith(origin: value));
   });
 }/// Create a copy of RideResponseDto
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$CityDtoCopyWith<$Res> get destination {
+$LocationDtoCopyWith<$Res> get destination {
   
-  return $CityDtoCopyWith<$Res>(_self.destination, (value) {
+  return $LocationDtoCopyWith<$Res>(_self.destination, (value) {
     return _then(_self.copyWith(destination: value));
   });
 }/// Create a copy of RideResponseDto

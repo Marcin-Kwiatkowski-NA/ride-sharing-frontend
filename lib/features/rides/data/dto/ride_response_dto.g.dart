@@ -6,42 +6,45 @@ part of 'ride_response_dto.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_RideResponseDto _$RideResponseDtoFromJson(
-  Map<String, dynamic> json,
-) => _RideResponseDto(
-  id: (json['id'] as num).toInt(),
-  driver: json['driver'] == null
-      ? null
-      : UserCardDto.fromJson(json['driver'] as Map<String, dynamic>),
-  origin: CityDto.fromJson(json['origin'] as Map<String, dynamic>),
-  destination: CityDto.fromJson(json['destination'] as Map<String, dynamic>),
-  departureTime: DateTime.parse(json['departureTime'] as String),
-  isApproximate: json['isApproximate'] as bool? ?? false,
-  source:
-      $enumDecodeNullable(_$RideSourceEnumMap, json['source']) ??
-      RideSource.internal,
-  availableSeats: (json['availableSeats'] as num).toInt(),
-  seatsTaken: (json['seatsTaken'] as num?)?.toInt() ?? 0,
-  pricePerSeat: (json['pricePerSeat'] as num?)?.toDouble(),
-  vehicle: json['vehicle'] == null
-      ? null
-      : VehicleResponseDto.fromJson(json['vehicle'] as Map<String, dynamic>),
-  rideStatus:
-      $enumDecodeNullable(_$RideStatusEnumMap, json['rideStatus']) ??
-      RideStatus.open,
-  description: json['description'] as String?,
-  contactMethods:
-      (json['contactMethods'] as List<dynamic>?)
-          ?.map((e) => ContactMethodDto.fromJson(e as Map<String, dynamic>))
-          .toList() ??
-      const [],
-  stops:
-      (json['stops'] as List<dynamic>?)
-          ?.map((e) => RideStopDto.fromJson(e as Map<String, dynamic>))
-          .toList() ??
-      const [],
-  totalSeats: (json['totalSeats'] as num?)?.toInt() ?? 0,
-);
+_RideResponseDto _$RideResponseDtoFromJson(Map<String, dynamic> json) =>
+    _RideResponseDto(
+      id: (json['id'] as num).toInt(),
+      driver: json['driver'] == null
+          ? null
+          : UserCardDto.fromJson(json['driver'] as Map<String, dynamic>),
+      origin: LocationDto.fromJson(json['origin'] as Map<String, dynamic>),
+      destination: LocationDto.fromJson(
+        json['destination'] as Map<String, dynamic>,
+      ),
+      departureTime: DateTime.parse(json['departureTime'] as String),
+      isApproximate: json['isApproximate'] as bool? ?? false,
+      source:
+          $enumDecodeNullable(_$RideSourceEnumMap, json['source']) ??
+          RideSource.internal,
+      availableSeats: (json['availableSeats'] as num).toInt(),
+      seatsTaken: (json['seatsTaken'] as num?)?.toInt() ?? 0,
+      pricePerSeat: (json['pricePerSeat'] as num?)?.toDouble(),
+      vehicle: json['vehicle'] == null
+          ? null
+          : VehicleResponseDto.fromJson(
+              json['vehicle'] as Map<String, dynamic>,
+            ),
+      rideStatus:
+          $enumDecodeNullable(_$RideStatusEnumMap, json['rideStatus']) ??
+          RideStatus.open,
+      description: json['description'] as String?,
+      contactMethods:
+          (json['contactMethods'] as List<dynamic>?)
+              ?.map((e) => ContactMethodDto.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
+      stops:
+          (json['stops'] as List<dynamic>?)
+              ?.map((e) => RideStopDto.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
+      totalSeats: (json['totalSeats'] as num?)?.toInt() ?? 0,
+    );
 
 Map<String, dynamic> _$RideResponseDtoToJson(_RideResponseDto instance) =>
     <String, dynamic>{

@@ -27,10 +27,10 @@ class RideApiClient {
     };
 
     if (criteria.origin != null) {
-      queryParams['originPlaceId'] = criteria.origin!.placeId;
+      queryParams['originOsmId'] = criteria.origin!.osmId;
     }
     if (criteria.destination != null) {
-      queryParams['destinationPlaceId'] = criteria.destination!.placeId;
+      queryParams['destinationOsmId'] = criteria.destination!.osmId;
     }
     if (criteria.departureDate != null) {
       queryParams['departureDate'] = criteria.departureDate!

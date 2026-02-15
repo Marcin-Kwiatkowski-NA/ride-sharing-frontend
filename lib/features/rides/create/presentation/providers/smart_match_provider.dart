@@ -1,6 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../../../../core/cities/domain/city.dart';
+import '../../../../../core/locations/domain/location.dart';
 import '../../../../offers/data/offer_search_criteria.dart';
 import '../../../../offers/domain/offer_ui_model.dart';
 import '../../../../seats/data/seat_repository.dart';
@@ -12,8 +12,8 @@ part 'smart_match_provider.g.dart';
 @riverpod
 Future<List<OfferUiModel>> smartMatch(
   Ref ref, {
-  required City origin,
-  required City destination,
+  required Location origin,
+  required Location destination,
   required DateTime departureDate,
 }) async {
   final repository = ref.read(seatRepositoryProvider);

@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../../../core/cities/domain/city.dart';
+import '../../../core/locations/domain/location.dart';
 
 part 'offer_search_criteria.freezed.dart';
 
 @freezed
 sealed class OfferSearchCriteria with _$OfferSearchCriteria {
   const factory OfferSearchCriteria({
-    City? origin,
-    City? destination,
+    Location? origin,
+    Location? destination,
     DateTime? departureDate,
     DateTime? departureDateTo,
     TimeOfDay? departureTimeFrom,

@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../../../offers/data/city_dto.dart';
+import '../../../offers/data/location_dto.dart';
 
 part 'ride_stop_dto.freezed.dart';
 part 'ride_stop_dto.g.dart';
@@ -9,7 +9,7 @@ part 'ride_stop_dto.g.dart';
 sealed class RideStopDto with _$RideStopDto {
   const factory RideStopDto({
     required int stopOrder,
-    required CityDto city,
+    required LocationDto location,
     DateTime? departureTime,
   }) = _RideStopDto;
 

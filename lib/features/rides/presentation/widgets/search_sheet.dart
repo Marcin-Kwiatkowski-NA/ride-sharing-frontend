@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
-import '../../../../core/cities/domain/city.dart';
-import '../../../../core/cities/widgets/city_autocomplete_field.dart';
+import '../../../../core/locations/domain/location.dart';
+import '../../../../core/locations/widgets/location_autocomplete_field.dart';
 import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../../../../core/utils/date_utils.dart';
@@ -133,26 +133,26 @@ class _SearchSheetContentState extends ConsumerState<_SearchSheetContent> {
     });
   }
 
-  Future<void> _pickCity({required bool isOrigin}) async {
-    final city = await showDialog<City>(
+  Future<void> _pickLocation({required bool isOrigin}) async {
+    final location = await showDialog<Location>(
       context: context,
       barrierDismissible: true,
       builder: (ctx) => Dialog.fullscreen(
-        child: _CityPickerPage(
+        child: _LocationPickerPage(
           title: isOrigin ? context.l10n.fromLabel : context.l10n.toLabel,
         ),
       ),
     );
 
-    if (!mounted || city == null) return;
+    if (!mounted || location == null) return;
 
     setState(() {
       if (isOrigin) {
-        _draft = _draft.copyWith(origin: city);
-        _fromController.text = city.name;
+        _draft = _draft.copyWith(origin: location);
+        _fromController.text = location.name;
       } else {
-        _draft = _draft.copyWith(destination: city);
-        _toController.text = city.name;
+        _draft = _draft.copyWith(destination: location);
+        _toController.text = location.name;
       }
     });
   }
@@ -272,8 +272,8 @@ class _SearchSheetContentState extends ConsumerState<_SearchSheetContent> {
             originName: _draft.origin?.name,
             destinationName: _draft.destination?.name,
             showSwap: hasBothCities,
-            onFromTap: () => _pickCity(isOrigin: true),
-            onToTap: () => _pickCity(isOrigin: false),
+            onFromTap: () => _pickLocation(isOrigin: true),
+            onToTap: () => _pickLocation(isOrigin: false),
             onSwap: _swapCities,
           ),
 
@@ -377,9 +377,9 @@ class _SearchSheetContentState extends ConsumerState<_SearchSheetContent> {
   }
 }
 
-class _CityPickerPage extends StatelessWidget {
+class _LocationPickerPage extends StatelessWidget {
   final String title;
-  const _CityPickerPage({required this.title});
+  const _LocationPickerPage({required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -400,11 +400,11 @@ class _CityPickerPage extends StatelessWidget {
           top: 12,
           bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
-        child: CityAutocompleteField(
+        child: LocationAutocompleteField(
           controller: ctrl,
           labelText: context.l10n.searchCity,
           prefixIcon: Icons.search,
-          onCitySelected: (city) => Navigator.of(context).pop(city),
+          onLocationSelected: (location) => Navigator.of(context).pop(location),
         ),
       ),
     );
@@ -555,23 +555,23 @@ class _RouteRow extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// City Picker Sheet (reuses CityAutocompleteField)
+// Location Picker Sheet (reuses LocationAutocompleteField)
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _CityPickerSheet extends StatefulWidget {
+class _LocationPickerSheet extends StatefulWidget {
   final TextEditingController controller;
   final String label;
 
-  const _CityPickerSheet({
+  const _LocationPickerSheet({
     required this.controller,
     required this.label,
   });
 
   @override
-  State<_CityPickerSheet> createState() => _CityPickerSheetState();
+  State<_LocationPickerSheet> createState() => _LocationPickerSheetState();
 }
 
-class _CityPickerSheetState extends State<_CityPickerSheet> {
+class _LocationPickerSheetState extends State<_LocationPickerSheet> {
   late final TextEditingController _pickerController;
 
   @override
@@ -631,14 +631,14 @@ class _CityPickerSheetState extends State<_CityPickerSheet> {
                 const SizedBox(height: 12),
 
                 // Autocomplete field
-                CityAutocompleteField(
+                LocationAutocompleteField(
                   controller: _pickerController,
                   labelText: context.l10n.searchCity,
                   prefixIcon: Icons.search,
-                  onCitySelected: (city) {
-                    Navigator.of(context).pop(city);
+                  onLocationSelected: (location) {
+                    Navigator.of(context).pop(location);
                   },
-                  onCityCleared: () {
+                  onLocationCleared: () {
                     // Keep picker open — user is clearing to re-search.
                   },
                 ),

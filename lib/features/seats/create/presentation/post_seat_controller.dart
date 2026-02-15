@@ -4,9 +4,10 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:intl/intl.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../../../core/cities/domain/city.dart';
+import '../../../../core/locations/domain/location.dart';
 import '../../../../core/network/dio_provider.dart';
 import '../../../offers/domain/part_of_day.dart';
+import '../../data/dto/seat_creation_request_dto.dart';
 
 part 'post_seat_controller.freezed.dart';
 part 'post_seat_controller.g.dart';
@@ -16,8 +17,8 @@ sealed class PostSeatFormState with _$PostSeatFormState {
   const PostSeatFormState._();
 
   const factory PostSeatFormState({
-    City? origin,
-    City? destination,
+    Location? origin,
+    Location? destination,
     DateTime? selectedDate,
     TimeOfDay? exactTime,
     PartOfDay? partOfDay,
@@ -69,16 +70,16 @@ class PostSeatController extends _$PostSeatController {
     return const PostSeatFormState();
   }
 
-  void setOrigin(City city) {
-    state = state.copyWith(origin: city, errorMessage: null);
+  void setOrigin(Location location) {
+    state = state.copyWith(origin: location, errorMessage: null);
   }
 
   void clearOrigin() {
     state = state.copyWith(origin: null, errorMessage: null);
   }
 
-  void setDestination(City city) {
-    state = state.copyWith(destination: city, errorMessage: null);
+  void setDestination(Location location) {
+    state = state.copyWith(destination: location, errorMessage: null);
   }
 
   void clearDestination() {
@@ -129,7 +130,7 @@ class PostSeatController extends _$PostSeatController {
   String? validate() {
     if (state.origin == null) return 'Select origin from suggestions';
     if (state.destination == null) return 'Select destination from suggestions';
-    if (state.origin!.placeId == state.destination!.placeId) {
+    if (state.origin!.osmId == state.destination!.osmId) {
       return 'Destination must differ from origin';
     }
     if (state.selectedDate == null) return 'Select departure date';
@@ -183,19 +184,18 @@ class PostSeatController extends _$PostSeatController {
         "yyyy-MM-dd'T'HH:mm:ss",
       ).format(departureDateTime);
 
-      final data = <String, dynamic>{
-        'originPlaceId': state.origin!.placeId,
-        'destinationPlaceId': state.destination!.placeId,
-        'departureTime': formattedDepartureTime,
-        'isApproximate': state.isApproximate,
-        'count': state.count!,
-        if (state.priceWillingToPay != null)
-          'priceWillingToPay': state.priceWillingToPay,
-        if (state.description != null) 'description': state.description,
-      };
+      final dto = SeatCreationRequestDto(
+        origin: state.origin!.toLocationRefDto(),
+        destination: state.destination!.toLocationRefDto(),
+        departureTime: formattedDepartureTime,
+        isApproximate: state.isApproximate,
+        count: state.count!,
+        priceWillingToPay: state.priceWillingToPay,
+        description: state.description,
+      );
 
       final dio = ref.read(apiDioProvider);
-      final response = await dio.post('/seats', data: data);
+      final response = await dio.post('/seats', data: dto.toJson());
 
       if (response.statusCode == 201 || response.statusCode == 200) {
         final responseData = response.data as Map<String, dynamic>;

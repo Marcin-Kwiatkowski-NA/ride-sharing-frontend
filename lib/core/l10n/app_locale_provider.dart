@@ -23,7 +23,7 @@ Locale? appLocale(Ref ref) {
 /// else first supported locale).
 ///
 /// Use this when you need the resolved locale outside the widget tree
-/// (e.g. [citySearchLang], settings subtitle).
+/// (e.g. settings subtitle).
 @riverpod
 Locale effectiveLocale(Ref ref) {
   final appLoc = ref.watch(appLocaleProvider);

@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../../../../core/cities/domain/city.dart';
+import '../../../../core/locations/domain/location.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../presentation/providers/search_mode_provider.dart';
 import 'draft_search_criteria.dart';
@@ -12,8 +12,8 @@ sealed class RecentSearchSnapshot with _$RecentSearchSnapshot {
   const RecentSearchSnapshot._();
 
   const factory RecentSearchSnapshot({
-    City? origin,
-    City? destination,
+    Location? origin,
+    Location? destination,
     DateTime? departureDate,
     int? departureTimeHour,
     int? departureTimeMinute,
@@ -50,11 +50,11 @@ sealed class RecentSearchSnapshot with _$RecentSearchSnapshot {
   }
 
   /// Stable equality for deduplication (not Dart ==).
-  /// Compares: origin placeId + destination placeId + normalized date +
+  /// Compares: origin osmId + destination osmId + normalized date +
   /// anyTime + (time hour/min if !anyTime) + mode.
   bool isSameSearch(RecentSearchSnapshot other) {
-    if (origin?.placeId != other.origin?.placeId) return false;
-    if (destination?.placeId != other.destination?.placeId) return false;
+    if (origin?.osmId != other.origin?.osmId) return false;
+    if (destination?.osmId != other.destination?.osmId) return false;
     if (mode != other.mode) return false;
     if (anyTime != other.anyTime) return false;
 
@@ -94,10 +94,11 @@ sealed class RecentSearchSnapshot with _$RecentSearchSnapshot {
   static RecentSearchSnapshot fromStorageJson(Map<String, dynamic> json) {
     return RecentSearchSnapshot(
       origin: json['origin'] != null
-          ? City.fromStorageJson(json['origin'] as Map<String, dynamic>)
+          ? Location.fromStorageJson(json['origin'] as Map<String, dynamic>)
           : null,
       destination: json['destination'] != null
-          ? City.fromStorageJson(json['destination'] as Map<String, dynamic>)
+          ? Location.fromStorageJson(
+              json['destination'] as Map<String, dynamic>)
           : null,
       departureDate: json['departureDate'] != null
           ? DateTime.parse(json['departureDate'] as String)

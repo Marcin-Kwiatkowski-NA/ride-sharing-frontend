@@ -1,7 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../../../offers/data/city_dto.dart';
 import '../../../offers/data/contact_method_dto.dart';
+import '../../../offers/data/location_dto.dart';
 import '../../../offers/data/offer_enums.dart';
 import 'ride_enums.dart';
 import 'ride_stop_dto.dart';
@@ -16,8 +16,8 @@ sealed class RideResponseDto with _$RideResponseDto {
   const factory RideResponseDto({
     required int id,
     UserCardDto? driver,
-    required CityDto origin,
-    required CityDto destination,
+    required LocationDto origin,
+    required LocationDto destination,
     required DateTime departureTime,
     @Default(false) bool isApproximate,
     @Default(RideSource.internal) RideSource source,
