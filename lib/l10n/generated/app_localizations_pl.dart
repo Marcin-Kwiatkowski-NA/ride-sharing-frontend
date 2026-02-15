@@ -289,6 +289,22 @@ class AppLocalizationsPl extends AppLocalizations {
   String get sendEmail => 'Wyślij e-mail';
 
   @override
+  String get sendSmsLabel => 'Wyślij SMS';
+
+  @override
+  String get couldNotOpenLink => 'Nie można otworzyć linku';
+
+  @override
+  String get couldNotOpenDialer => 'Nie można otworzyć dialera';
+
+  @override
+  String get couldNotOpenMessagingApp =>
+      'Nie można otworzyć aplikacji wiadomości';
+
+  @override
+  String get couldNotOpenEmailClient => 'Nie można otworzyć klienta email';
+
+  @override
   String get rideDetails => 'Szczegóły przejazdu';
 
   @override

@@ -10,7 +10,6 @@ import '../../../chat/data/chat_repository.dart';
 import '../../data/offer_enums.dart';
 import '../../domain/offer_models.dart';
 import '../../domain/offer_ui_model.dart';
-import '../helpers/offer_l10n.dart';
 
 /// Shows the contact methods bottom sheet.
 Future<void> showContactUserSheet(BuildContext context, OfferUserUi user) {
@@ -87,39 +86,20 @@ class _SourceAwareContactSheetState
     }
   }
 
-  Future<void> _launchContactMethod(ContactMethodUi method) async {
+  Future<void> _launchAction(
+    Future<bool> Function() action,
+    String errorMessage,
+  ) async {
     Navigator.pop(context);
 
-    final success = await _launch(method);
+    final success = await action();
     if (!success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(_getErrorMessage(method.type)),
+          content: Text(errorMessage),
           behavior: SnackBarBehavior.floating,
         ),
       );
-    }
-  }
-
-  Future<bool> _launch(ContactMethodUi method) async {
-    switch (method.type) {
-      case ContactType.phone:
-        return Launchers.makePhoneCall(method.value);
-      case ContactType.facebookLink:
-        return Launchers.openUrl(method.value);
-      case ContactType.email:
-        return Launchers.sendEmail(method.value);
-    }
-  }
-
-  String _getErrorMessage(ContactType type) {
-    switch (type) {
-      case ContactType.phone:
-        return 'Could not make phone call';
-      case ContactType.facebookLink:
-        return 'Could not open link';
-      case ContactType.email:
-        return 'Could not open email client';
     }
   }
 
@@ -206,18 +186,60 @@ class _SourceAwareContactSheetState
     OfferUserUi user,
     ContactType type,
   ) {
+    final l10n = context.l10n;
     final contact = user.contactMethods
         .where((c) => c.type == type)
         .firstOrNull;
-    if (contact != null) {
-      options.add(
-        ListTile(
-          leading: Icon(contact.icon),
-          title: Text(contact.type.localizedLabel(context.l10n)),
-          subtitle: Text(contact.preview),
-          onTap: () => _launchContactMethod(contact),
-        ),
-      );
+    if (contact == null) return;
+
+    switch (type) {
+      case ContactType.phone:
+        options.add(
+          ListTile(
+            leading: const Icon(Icons.phone_outlined),
+            title: Text(l10n.callLabel),
+            subtitle: Text(contact.preview),
+            onTap: () => _launchAction(
+              () => Launchers.makePhoneCall(contact.value),
+              l10n.couldNotOpenDialer,
+            ),
+          ),
+        );
+        options.add(
+          ListTile(
+            leading: const Icon(Icons.sms_outlined),
+            title: Text(l10n.sendSmsLabel),
+            subtitle: Text(contact.preview),
+            onTap: () => _launchAction(
+              () => Launchers.sendSms(contact.value),
+              l10n.couldNotOpenMessagingApp,
+            ),
+          ),
+        );
+      case ContactType.facebookLink:
+        options.add(
+          ListTile(
+            leading: Icon(contact.icon),
+            title: Text(l10n.openFacebookPost),
+            subtitle: Text(contact.preview),
+            onTap: () => _launchAction(
+              () => Launchers.openUrl(contact.value),
+              l10n.couldNotOpenLink,
+            ),
+          ),
+        );
+      case ContactType.email:
+        options.add(
+          ListTile(
+            leading: Icon(contact.icon),
+            title: Text(l10n.sendEmail),
+            subtitle: Text(contact.preview),
+            onTap: () => _launchAction(
+              () => Launchers.sendEmail(contact.value),
+              l10n.couldNotOpenEmailClient,
+            ),
+          ),
+        );
     }
   }
 }

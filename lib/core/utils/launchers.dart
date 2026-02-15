@@ -18,12 +18,12 @@ class Launchers {
     return false;
   }
 
-  /// Open URL in external browser.
+  /// Open URL in external browser or app.
   ///
   /// Ensures URL has a scheme (prepends https:// if missing).
-  /// Returns true if the URL was opened successfully.
+  /// Launches directly without canLaunchUrl gate to avoid false negatives
+  /// on Android 11+ package visibility restrictions.
   static Future<bool> openUrl(String url) async {
-    // Ensure URL has a scheme
     String normalizedUrl = url;
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
       normalizedUrl = 'https://$url';
@@ -31,10 +31,11 @@ class Launchers {
 
     final uri = Uri.parse(normalizedUrl);
 
-    if (await canLaunchUrl(uri)) {
-      return launchUrl(uri, mode: LaunchMode.externalApplication);
+    try {
+      return await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
+    } catch (_) {
+      return false;
     }
-    return false;
   }
 
   /// Send SMS.

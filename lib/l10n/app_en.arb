@@ -279,6 +279,21 @@
   "sendEmail": "Send email",
   "@sendEmail": { "description": "Contact method label for email" },
 
+  "sendSmsLabel": "Send SMS",
+  "@sendSmsLabel": { "description": "Contact method label for sending an SMS" },
+
+  "couldNotOpenLink": "Could not open link",
+  "@couldNotOpenLink": { "description": "Error when a URL cannot be opened" },
+
+  "couldNotOpenDialer": "Could not open dialer",
+  "@couldNotOpenDialer": { "description": "Error when the phone dialer cannot be opened" },
+
+  "couldNotOpenMessagingApp": "Could not open messaging app",
+  "@couldNotOpenMessagingApp": { "description": "Error when the SMS app cannot be opened" },
+
+  "couldNotOpenEmailClient": "Could not open email client",
+  "@couldNotOpenEmailClient": { "description": "Error when the email client cannot be opened" },
+
   "rideDetails": "Ride Details",
   "@rideDetails": { "description": "Screen title for viewing a ride offer" },
 

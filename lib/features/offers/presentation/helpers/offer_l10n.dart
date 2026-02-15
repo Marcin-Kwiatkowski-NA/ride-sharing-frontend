@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../../l10n/generated/app_localizations.dart';
-import '../../data/offer_enums.dart';
 import '../../domain/offer_ui_model.dart';
 import '../../domain/part_of_day.dart';
 
@@ -96,15 +95,6 @@ extension OfferStatusL10n on OfferStatus {
     OfferStatus.booked => Icons.check_circle_outline,
     OfferStatus.expired => Icons.timer_off_outlined,
     OfferStatus.banned => Icons.block,
-  };
-}
-
-/// Localized contact method label.
-extension ContactTypeL10n on ContactType {
-  String localizedLabel(AppLocalizations l10n) => switch (this) {
-    ContactType.phone => l10n.callLabel,
-    ContactType.facebookLink => l10n.openFacebookPost,
-    ContactType.email => l10n.sendEmail,
   };
 }
 

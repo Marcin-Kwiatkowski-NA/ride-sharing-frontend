@@ -554,6 +554,36 @@ abstract class AppLocalizations {
   /// **'Send email'**
   String get sendEmail;
 
+  /// Contact method label for sending an SMS
+  ///
+  /// In en, this message translates to:
+  /// **'Send SMS'**
+  String get sendSmsLabel;
+
+  /// Error when a URL cannot be opened
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open link'**
+  String get couldNotOpenLink;
+
+  /// Error when the phone dialer cannot be opened
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open dialer'**
+  String get couldNotOpenDialer;
+
+  /// Error when the SMS app cannot be opened
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open messaging app'**
+  String get couldNotOpenMessagingApp;
+
+  /// Error when the email client cannot be opened
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open email client'**
+  String get couldNotOpenEmailClient;
+
   /// Screen title for viewing a ride offer
   ///
   /// In en, this message translates to:

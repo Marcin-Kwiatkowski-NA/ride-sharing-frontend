@@ -284,6 +284,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sendEmail => 'Send email';
 
   @override
+  String get sendSmsLabel => 'Send SMS';
+
+  @override
+  String get couldNotOpenLink => 'Could not open link';
+
+  @override
+  String get couldNotOpenDialer => 'Could not open dialer';
+
+  @override
+  String get couldNotOpenMessagingApp => 'Could not open messaging app';
+
+  @override
+  String get couldNotOpenEmailClient => 'Could not open email client';
+
+  @override
   String get rideDetails => 'Ride Details';
 
   @override
