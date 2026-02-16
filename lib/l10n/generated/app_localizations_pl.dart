@@ -524,6 +524,30 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String get smartMatchExactRoute => 'Dokładna trasa';
+
+  @override
+  String get smartMatchNearby => 'W pobliżu';
+
+  @override
+  String smartMatchLastChecked(int minutes) {
+    return 'Sprawdzono: ${minutes}m temu';
+  }
+
+  @override
+  String smartMatchSubtitle(int count) {
+    return 'Znaleźliśmy $count pasażerów na Twojej trasie';
+  }
+
+  @override
+  String get smartMatchRefreshTooltip => 'Odśwież dopasowania';
+
+  @override
+  String smartMatchDistanceHint(int km) {
+    return '±$km km';
+  }
+
+  @override
   String get profileTitle => 'Profil';
 
   @override

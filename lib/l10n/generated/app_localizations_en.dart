@@ -515,6 +515,30 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get smartMatchExactRoute => 'Exact route';
+
+  @override
+  String get smartMatchNearby => 'Nearby';
+
+  @override
+  String smartMatchLastChecked(int minutes) {
+    return 'Last checked: ${minutes}m ago';
+  }
+
+  @override
+  String smartMatchSubtitle(int count) {
+    return 'We found $count passengers for your route';
+  }
+
+  @override
+  String get smartMatchRefreshTooltip => 'Refresh matches';
+
+  @override
+  String smartMatchDistanceHint(int km) {
+    return '±$km km';
+  }
+
+  @override
   String get profileTitle => 'Profile';
 
   @override

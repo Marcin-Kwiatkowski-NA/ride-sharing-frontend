@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/l10n/l10n_extension.dart';
+import '../../../../core/providers/auth_session_provider.dart';
 import '../../../../core/utils/error_mapper.dart';
+import '../../../rides/details/presentation/widgets/smart_matches_section.dart';
 import '../../domain/offer_ui_model.dart';
 import '../helpers/offer_details_strings.dart';
 import '../providers/offer_detail_provider.dart';
@@ -81,13 +83,17 @@ class _ErrorView extends StatelessWidget {
   }
 }
 
-class _OfferDetailsBody extends StatelessWidget {
+class _OfferDetailsBody extends ConsumerWidget {
   final OfferUiModel offer;
 
   const _OfferDetailsBody({required this.offer});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isOwnRide = offer.offerKey.kind == OfferKind.ride &&
+        offer.user?.userId != null &&
+        offer.user?.userId == ref.watch(authSessionKeyProvider);
+
     return CustomScrollView(
       slivers: [
         SliverPadding(
@@ -103,6 +109,10 @@ class _OfferDetailsBody extends StatelessWidget {
                   offerKind: offer.offerKey.kind,
                   isExternalSource: offer.isExternalSource,
                 ),
+              ],
+              if (isOwnRide) ...[
+                const SizedBox(height: 16),
+                SmartMatchesSection(rideId: offer.offerKey.id),
               ],
             ],
           ),

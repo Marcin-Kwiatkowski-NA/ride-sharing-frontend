@@ -524,7 +524,32 @@
     }
   },
 
+  "smartMatchExactRoute": "Exact route",
+  "@smartMatchExactRoute": { "description": "Chip label for a full-route smart match" },
 
+  "smartMatchNearby": "Nearby",
+  "@smartMatchNearby": { "description": "Chip label for a nearby-segment smart match" },
+
+  "smartMatchLastChecked": "Last checked: {minutes}m ago",
+  "@smartMatchLastChecked": {
+    "description": "Timestamp showing when matches were last refreshed",
+    "placeholders": { "minutes": { "type": "int" } }
+  },
+
+  "smartMatchSubtitle": "We found {count} passengers for your route",
+  "@smartMatchSubtitle": {
+    "description": "Subtitle in smart matches section header",
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "smartMatchRefreshTooltip": "Refresh matches",
+  "@smartMatchRefreshTooltip": { "description": "Tooltip for the refresh button in smart matches section" },
+
+  "smartMatchDistanceHint": "±{km} km",
+  "@smartMatchDistanceHint": {
+    "description": "Distance hint shown next to origin/destination in smart match cards",
+    "placeholders": { "km": { "type": "int" } }
+  },
 
   "profileTitle": "Profile",
   "@profileTitle": { "description": "Profile screen and AppBar title" },

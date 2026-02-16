@@ -165,6 +165,13 @@
   "smartMatchSeeAll": "Zobacz wszystkie ({count})",
   "smartMatchRouteSummary": "{route} — {date}",
 
+  "smartMatchExactRoute": "Dokładna trasa",
+  "smartMatchNearby": "W pobliżu",
+  "smartMatchLastChecked": "Sprawdzono: {minutes}m temu",
+  "smartMatchSubtitle": "Znaleźliśmy {count} pasażerów na Twojej trasie",
+  "smartMatchRefreshTooltip": "Odśwież dopasowania",
+  "smartMatchDistanceHint": "±{km} km",
+
   "profileTitle": "Profil",
   "logInToSeeProfile": "Zaloguj się, aby zobaczyć swój profil",
   "logInSignUp": "Zaloguj / Zarejestruj",

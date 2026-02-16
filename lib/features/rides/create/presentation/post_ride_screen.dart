@@ -13,10 +13,10 @@ import '../../../../shared/widgets/number_stepper.dart';
 import '../../../../shared/widgets/route_timeline_section.dart';
 import '../../../../shared/widgets/time_picker_sheet.dart';
 import '../../../offers/domain/offer_ui_model.dart';
+import '../../../offers/presentation/providers/my_offers_provider.dart';
 import '../../../offers/presentation/providers/offer_detail_provider.dart';
 import '../../presentation/providers/paginated_rides_provider.dart';
 import 'post_ride_controller.dart';
-import 'widgets/smart_match_sheet.dart';
 
 class PostRideScreen extends ConsumerStatefulWidget {
   final Location? prefillOrigin;
@@ -146,30 +146,26 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
 
         final offerKey = OfferKey(OfferKind.ride, next.createdRideId!);
         ref.invalidate(offerDetailProvider(offerKey));
+        ref.invalidate(myOffersProvider);
         ref.read(paginatedRidesProvider.notifier).refresh();
 
-        if (next.origin != null &&
-            next.destination != null &&
-            next.selectedDate != null) {
-          final stops = [
-            next.origin!,
-            ...next.intermediateStops
-                .where((s) => s.location != null)
-                .map((s) => s.location!),
-            next.destination!,
-          ];
-          showSmartMatchSheet(
-            context,
-            stops: stops,
-            departureDate: next.selectedDate!,
-            createdRideId: next.createdRideId!,
-          );
-        } else {
-          context.goNamed(
-            RouteNames.offerDetails,
-            pathParameters: {'offerKey': offerKey.toRouteParam()},
-          );
-        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.check_circle, color: colorScheme.inversePrimary),
+                const SizedBox(width: 8),
+                Text(context.l10n.smartMatchRideLive),
+              ],
+            ),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+
+        context.goNamed(
+          RouteNames.offerDetails,
+          pathParameters: {'offerKey': offerKey.toRouteParam()},
+        );
       }
 
       if (next.errorMessage != null &&

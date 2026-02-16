@@ -992,6 +992,42 @@ abstract class AppLocalizations {
   /// **'{route} on {date}'**
   String smartMatchRouteSummary(String route, String date);
 
+  /// Chip label for a full-route smart match
+  ///
+  /// In en, this message translates to:
+  /// **'Exact route'**
+  String get smartMatchExactRoute;
+
+  /// Chip label for a nearby-segment smart match
+  ///
+  /// In en, this message translates to:
+  /// **'Nearby'**
+  String get smartMatchNearby;
+
+  /// Timestamp showing when matches were last refreshed
+  ///
+  /// In en, this message translates to:
+  /// **'Last checked: {minutes}m ago'**
+  String smartMatchLastChecked(int minutes);
+
+  /// Subtitle in smart matches section header
+  ///
+  /// In en, this message translates to:
+  /// **'We found {count} passengers for your route'**
+  String smartMatchSubtitle(int count);
+
+  /// Tooltip for the refresh button in smart matches section
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh matches'**
+  String get smartMatchRefreshTooltip;
+
+  /// Distance hint shown next to origin/destination in smart match cards
+  ///
+  /// In en, this message translates to:
+  /// **'±{km} km'**
+  String smartMatchDistanceHint(int km);
+
   /// Profile screen and AppBar title
   ///
   /// In en, this message translates to:

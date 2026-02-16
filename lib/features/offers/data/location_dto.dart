@@ -1,5 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../../core/locations/domain/location.dart';
+
 part 'location_dto.freezed.dart';
 part 'location_dto.g.dart';
 
@@ -20,4 +22,24 @@ sealed class LocationDto with _$LocationDto {
 
   factory LocationDto.fromJson(Map<String, dynamic> json) =>
       _$LocationDtoFromJson(json);
+}
+
+/// Converts a backend [LocationDto] to the core [Location] model.
+extension LocationDtoX on LocationDto {
+  Location toLocation() {
+    if (latitude == null || longitude == null) {
+      throw StateError(
+        'LocationDto "$name" (osmId=$osmId) is missing coordinates',
+      );
+    }
+    return Location(
+      osmId: osmId,
+      name: name,
+      latitude: latitude!,
+      longitude: longitude!,
+      country: country,
+      countryCode: countryCode,
+      type: type,
+    );
+  }
 }

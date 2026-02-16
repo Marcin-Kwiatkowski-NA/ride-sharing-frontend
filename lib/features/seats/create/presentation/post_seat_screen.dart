@@ -13,6 +13,7 @@ import '../../../../shared/widgets/number_stepper.dart';
 import '../../../../shared/widgets/route_timeline_section.dart';
 import '../../../../shared/widgets/time_picker_sheet.dart';
 import '../../../offers/domain/offer_ui_model.dart';
+import '../../../offers/presentation/providers/my_offers_provider.dart';
 import '../../../offers/presentation/providers/offer_detail_provider.dart';
 import '../../presentation/providers/paginated_seats_provider.dart';
 import 'post_seat_controller.dart';
@@ -127,6 +128,7 @@ class _PostSeatScreenState extends ConsumerState<PostSeatScreen> {
 
         final offerKey = OfferKey(OfferKind.seat, next.createdSeatId!);
         ref.invalidate(offerDetailProvider(offerKey));
+        ref.invalidate(myOffersProvider);
         ref.read(paginatedSeatsProvider.notifier).refresh();
 
         context.goNamed(
