@@ -55,6 +55,26 @@ class EnvironmentConfig {
     }
   }
 
+  /// Photon geocoding API base URI.
+  ///
+  /// Override via: --dart-define=PHOTON_URL=http://localhost:2322
+  static Uri get photonUri {
+    const override = String.fromEnvironment('PHOTON_URL', defaultValue: '');
+    if (override.isNotEmpty) return _normalizeUri(override);
+
+    return Uri.parse('https://ac.vamigo.app');
+  }
+
+  static Uri _normalizeUri(String raw) {
+    var uri = Uri.parse(raw);
+    if (!uri.hasScheme) uri = Uri.parse('https://$raw');
+    // Strip trailing slash from path
+    if (uri.path.endsWith('/')) {
+      uri = uri.replace(path: uri.path.substring(0, uri.path.length - 1));
+    }
+    return uri;
+  }
+
   /// Print current configuration
   static void printConfig() {
     print('=== Environment Configuration ===');
@@ -63,6 +83,7 @@ class EnvironmentConfig {
     print('Auth Base URL: $authBaseUrl');
     print('API Base URL: $apiBaseUrl');
     print('API Timeout: ${apiTimeoutSeconds}s');
+    print('Photon URI: $photonUri');
     print('================================');
   }
 }

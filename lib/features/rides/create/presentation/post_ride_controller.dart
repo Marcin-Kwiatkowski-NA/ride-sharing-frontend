@@ -1,13 +1,13 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:intl/intl.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../../core/l10n/app_locale_provider.dart';
 import '../../../../core/locations/domain/location.dart';
 import '../../../../core/network/dio_provider.dart';
-import '../../../../core/providers/auth_notifier.dart';
+import '../../../../shared/widgets/departure_picker_helpers.dart';
 import '../../../offers/domain/part_of_day.dart';
 import '../data/dto/intermediate_stop_dto.dart';
 import '../data/dto/ride_creation_request_dto.dart';
@@ -15,10 +15,13 @@ import '../data/dto/ride_creation_request_dto.dart';
 part 'post_ride_controller.freezed.dart';
 part 'post_ride_controller.g.dart';
 
+const _uuid = Uuid();
+
 /// An intermediate stop entry in the ride creation form.
 @freezed
 sealed class IntermediateStopEntry with _$IntermediateStopEntry {
   const factory IntermediateStopEntry({
+    required String id,
     Location? location,
     TimeOfDay? departureTime,
   }) = _IntermediateStopEntry;
@@ -36,7 +39,7 @@ sealed class PostRideFormState with _$PostRideFormState {
     TimeOfDay? exactTime,
     PartOfDay? partOfDay,
     @Default(false) bool isApproximate,
-    int? availableSeats,
+    @Default(1) int availableSeats,
     int? pricePerSeat,
     String? description,
     @Default(false) bool isSubmitting,
@@ -45,7 +48,75 @@ sealed class PostRideFormState with _$PostRideFormState {
     @Default(false) bool hasNavigated,
     @Default([]) List<IntermediateStopEntry> intermediateStops,
     @Default(false) bool isNegotiablePrice,
+    @Default(false) bool hasAttemptedSubmit,
   }) = _PostRideFormState;
+
+  // ── Field-level validation errors ──────────────────────────────────────
+
+  String? get originError =>
+      origin == null ? 'Select origin from suggestions' : null;
+
+  String? get destinationError {
+    if (destination == null) return 'Select destination from suggestions';
+    if (origin != null && origin!.osmId == destination!.osmId) {
+      return 'Destination must differ from origin';
+    }
+    return null;
+  }
+
+  String? get dateError =>
+      selectedDate == null ? 'Select departure date' : null;
+
+  String? get timeError {
+    if (isApproximate && partOfDay == null) return 'Select time of day';
+    if (!isApproximate && exactTime == null) return 'Select departure time';
+    final dt = computedDepartureDateTime;
+    if (dt != null) {
+      final minDeparture = DateTime.now().add(const Duration(minutes: 30));
+      if (dt.isBefore(minDeparture)) {
+        return 'Departure must be at least 30 minutes from now';
+      }
+    }
+    return null;
+  }
+
+  String? get seatsError {
+    if (availableSeats < 1 || availableSeats > 8) return '1-8 seats allowed';
+    return null;
+  }
+
+  String? get priceError {
+    if (isNegotiablePrice) return null;
+    if (pricePerSeat == null || pricePerSeat! < 1 || pricePerSeat! > 999) {
+      return '1-999 PLN';
+    }
+    return null;
+  }
+
+  String? get stopsError {
+    final allOsmIds = <int>{};
+    if (origin != null) allOsmIds.add(origin!.osmId);
+    if (destination != null) allOsmIds.add(destination!.osmId);
+    for (final stop in intermediateStops) {
+      if (stop.location == null) return 'Select location for each stop';
+      if (stop.departureTime == null) return 'Select time for each stop';
+      if (!allOsmIds.add(stop.location!.osmId)) {
+        return 'Duplicate stop location';
+      }
+    }
+    return null;
+  }
+
+  /// True if all fields are valid.
+  bool get isValid =>
+      originError == null &&
+      destinationError == null &&
+      dateError == null &&
+      timeError == null &&
+      seatsError == null &&
+      priceError == null &&
+      stopsError == null &&
+      (description == null || description!.length <= 500);
 
   /// Compute the departure DateTime from date and time/partOfDay.
   DateTime? get computedDepartureDateTime {
@@ -79,58 +150,95 @@ sealed class PostRideFormState with _$PostRideFormState {
   }
 }
 
-/// Controller for the post ride form using Riverpod code generation.
+// ── Draft persistence ────────────────────────────────────────────────────────
+
+@Riverpod(keepAlive: true)
+class PostRideDraft extends _$PostRideDraft {
+  @override
+  PostRideFormState? build() => null;
+
+  void save(PostRideFormState draft) => state = draft;
+  void clear() => state = null;
+}
+
+// ── Controller ───────────────────────────────────────────────────────────────
+
 @riverpod
 class PostRideController extends _$PostRideController {
   @override
   PostRideFormState build() {
+    // Restore draft if available
+    final draft = ref.read(postRideDraftProvider);
+    if (draft != null) {
+      // Clear transient fields
+      return draft.copyWith(
+        isSubmitting: false,
+        errorMessage: null,
+        createdRideId: null,
+        hasNavigated: false,
+        hasAttemptedSubmit: false,
+      );
+    }
     return const PostRideFormState();
+  }
+
+  void _saveDraft() {
+    ref.read(postRideDraftProvider.notifier).save(state);
   }
 
   void setOrigin(Location location) {
     state = state.copyWith(origin: location, errorMessage: null);
+    _saveDraft();
   }
 
   void clearOrigin() {
     state = state.copyWith(origin: null, errorMessage: null);
+    _saveDraft();
   }
 
   void setDestination(Location location) {
     state = state.copyWith(destination: location, errorMessage: null);
+    _saveDraft();
   }
 
   void clearDestination() {
     state = state.copyWith(destination: null, errorMessage: null);
+    _saveDraft();
   }
 
   void setSelectedDate(DateTime date) {
     state = state.copyWith(selectedDate: date, errorMessage: null);
+    _saveDraft();
   }
 
   void setExactTime(TimeOfDay time) {
     state = state.copyWith(exactTime: time, errorMessage: null);
+    _saveDraft();
   }
 
   void setPartOfDay(PartOfDay pod) {
     state = state.copyWith(partOfDay: pod, errorMessage: null);
+    _saveDraft();
   }
 
   void setIsApproximate(bool value) {
     state = state.copyWith(
       isApproximate: value,
-      // Clear the other time field when switching modes
       exactTime: value ? null : state.exactTime,
       partOfDay: value ? state.partOfDay : null,
       errorMessage: null,
     );
+    _saveDraft();
   }
 
-  void setAvailableSeats(int? seats) {
+  void setAvailableSeats(int seats) {
     state = state.copyWith(availableSeats: seats, errorMessage: null);
+    _saveDraft();
   }
 
   void setPricePerSeat(int? price) {
     state = state.copyWith(pricePerSeat: price, errorMessage: null);
+    _saveDraft();
   }
 
   void setDescription(String? description) {
@@ -139,148 +247,90 @@ class PostRideController extends _$PostRideController {
       description: (trimmed?.isEmpty ?? true) ? null : trimmed,
       errorMessage: null,
     );
+    _saveDraft();
   }
 
   void markNavigated() {
     state = state.copyWith(hasNavigated: true);
   }
 
+  void setNegotiablePrice(bool value) {
+    state = state.copyWith(isNegotiablePrice: value, errorMessage: null);
+    _saveDraft();
+  }
+
+  // ── Intermediate stops ─────────────────────────────────────────────────
+
   void addIntermediateStop() {
     if (state.intermediateStops.length >= 3) return;
     state = state.copyWith(
       intermediateStops: [
         ...state.intermediateStops,
-        const IntermediateStopEntry(),
+        IntermediateStopEntry(id: _uuid.v4()),
       ],
       errorMessage: null,
     );
+    _saveDraft();
   }
 
   void removeIntermediateStop(int index) {
     final stops = [...state.intermediateStops]..removeAt(index);
     state = state.copyWith(intermediateStops: stops, errorMessage: null);
+    _saveDraft();
+  }
+
+  void reorderStops(int oldIndex, int newIndex) {
+    final stops = [...state.intermediateStops];
+    if (newIndex > oldIndex) newIndex--;
+    final item = stops.removeAt(oldIndex);
+    stops.insert(newIndex, item);
+    state = state.copyWith(intermediateStops: stops, errorMessage: null);
+    _saveDraft();
   }
 
   void setIntermediateStopLocation(int index, Location location) {
     final stops = [...state.intermediateStops];
     stops[index] = stops[index].copyWith(location: location);
     state = state.copyWith(intermediateStops: stops, errorMessage: null);
+    _saveDraft();
   }
 
   void clearIntermediateStopLocation(int index) {
     final stops = [...state.intermediateStops];
     stops[index] = stops[index].copyWith(location: null);
     state = state.copyWith(intermediateStops: stops, errorMessage: null);
+    _saveDraft();
   }
 
   void setIntermediateStopTime(int index, TimeOfDay time) {
     final stops = [...state.intermediateStops];
     stops[index] = stops[index].copyWith(departureTime: time);
     state = state.copyWith(intermediateStops: stops, errorMessage: null);
+    _saveDraft();
   }
 
-  void setNegotiablePrice(bool value) {
-    state = state.copyWith(isNegotiablePrice: value, errorMessage: null);
-  }
+  // ── Submit ─────────────────────────────────────────────────────────────
 
-  /// Validate the form and return error message if invalid.
-  String? validate() {
-    if (state.origin == null) {
-      return 'Select origin from suggestions';
-    }
-    if (state.destination == null) {
-      return 'Select destination from suggestions';
-    }
-    if (state.origin!.osmId == state.destination!.osmId) {
-      return 'Destination must differ from origin';
-    }
-    if (state.selectedDate == null) {
-      return 'Select departure date';
-    }
-    if (state.isApproximate && state.partOfDay == null) {
-      return 'Select departure time';
-    }
-    if (!state.isApproximate && state.exactTime == null) {
-      return 'Select departure time';
-    }
-
-    final departureDateTime = state.computedDepartureDateTime;
-    if (departureDateTime == null) {
-      return 'Select departure time';
-    }
-
-    final minDeparture = DateTime.now().add(const Duration(minutes: 30));
-    if (departureDateTime.isBefore(minDeparture)) {
-      return 'Departure must be at least 30 minutes from now';
-    }
-
-    if (state.availableSeats == null ||
-        state.availableSeats! < 1 ||
-        state.availableSeats! > 8) {
-      return '1-8 seats allowed';
-    }
-    if (!state.isNegotiablePrice &&
-        (state.pricePerSeat == null ||
-            state.pricePerSeat! < 1 ||
-            state.pricePerSeat! > 999)) {
-      return '1-999 PLN';
-    }
-
-    // Validate intermediate stops
-    final allOsmIds = <int>{};
-    if (state.origin != null) allOsmIds.add(state.origin!.osmId);
-    if (state.destination != null) allOsmIds.add(state.destination!.osmId);
-
-    for (final stop in state.intermediateStops) {
-      if (stop.location == null) return 'Select location for each stop';
-      if (stop.departureTime == null) return 'Select time for each stop';
-      if (!allOsmIds.add(stop.location!.osmId)) {
-        return 'Duplicate stop location';
-      }
-    }
-
-    if (state.description != null && state.description!.length > 500) {
-      return 'Max 500 characters';
-    }
-
-    return null;
-  }
-
-  /// Submit the ride creation request.
   Future<void> submit() async {
-    // Reset navigation state FIRST to allow re-navigation on retry
     state = state.copyWith(
+      hasAttemptedSubmit: true,
       hasNavigated: false,
       createdRideId: null,
       errorMessage: null,
     );
 
-    // Validate
-    final validationError = validate();
-    if (validationError != null) {
-      state = state.copyWith(errorMessage: validationError);
-      return;
-    }
-
-    // Get driver ID from auth
-    final authState = ref.read(authProvider);
-    final driverId = authState.currentUser?.id;
-    if (driverId == null) {
-      state = state.copyWith(errorMessage: 'Not authenticated');
-      return;
-    }
+    if (!state.isValid) return;
 
     state = state.copyWith(isSubmitting: true);
 
     try {
       final departureDateTime = state.computedDepartureDateTime!;
-      final formattedDepartureTime = DateFormat(
-        "yyyy-MM-dd'T'HH:mm:ss",
-      ).format(departureDateTime);
+      final formattedDepartureTime =
+          formatDepartureTimeForApi(departureDateTime);
 
       final lang = ref.read(effectiveLocaleProvider).languageCode;
 
-      // Build intermediate stops as unified list
+      // Build intermediate stops
       List<IntermediateStopDto>? intermediateStops;
 
       if (state.intermediateStops.isNotEmpty) {
@@ -312,8 +362,7 @@ class PostRideController extends _$PostRideController {
           intermediateStops.add(
             IntermediateStopDto(
               location: stop.location!.toLocationRefDto(lang: lang),
-              departureTime:
-                  DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(fullDateTime),
+              departureTime: formatDepartureTimeForApi(fullDateTime),
             ),
           );
           previousTime = stopTime;
@@ -321,12 +370,11 @@ class PostRideController extends _$PostRideController {
       }
 
       final dto = RideCreationRequestDto(
-        driverId: driverId,
         origin: state.origin!.toLocationRefDto(lang: lang),
         destination: state.destination!.toLocationRefDto(lang: lang),
         departureTime: formattedDepartureTime,
         isApproximate: state.isApproximate,
-        availableSeats: state.availableSeats!,
+        availableSeats: state.availableSeats,
         pricePerSeat: state.isNegotiablePrice ? null : state.pricePerSeat,
         vehicleId: null,
         description: state.description,
@@ -342,6 +390,7 @@ class PostRideController extends _$PostRideController {
         final rideId = responseData['id'] as int;
 
         state = state.copyWith(isSubmitting: false, createdRideId: rideId);
+        ref.read(postRideDraftProvider.notifier).clear();
       } else {
         state = state.copyWith(
           isSubmitting: false,

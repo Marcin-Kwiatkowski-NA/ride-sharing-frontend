@@ -11,5 +11,5 @@ abstract class LocationSearchClient {
     CancelToken? cancelToken,
   });
 
-  String get baseUrl;
+  Uri get baseUri;
 }

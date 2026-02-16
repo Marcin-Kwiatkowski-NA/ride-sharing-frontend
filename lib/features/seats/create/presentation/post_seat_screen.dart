@@ -2,18 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
-import '../../../../core/locations/domain/location.dart';
-import '../../../../core/locations/widgets/location_autocomplete_field.dart';
 import '../../../../core/l10n/l10n_extension.dart';
+import '../../../../core/locations/domain/location.dart';
 import '../../../../core/widgets/core_widgets.dart';
 import '../../../../routes/routes.dart';
+import '../../../../shared/widgets/departure_picker_helpers.dart';
+import '../../../../shared/widgets/departure_time_section.dart';
+import '../../../../shared/widgets/location_picker_dialog.dart';
+import '../../../../shared/widgets/number_stepper.dart';
+import '../../../../shared/widgets/route_timeline.dart';
 import '../../../offers/domain/offer_ui_model.dart';
 import '../../../offers/presentation/providers/offer_detail_provider.dart';
 import '../../presentation/providers/paginated_seats_provider.dart';
-import '../../../rides/create/presentation/widgets/part_of_day_selector.dart';
-import '../../../rides/create/presentation/widgets/time_mode_selector.dart';
 import 'post_seat_controller.dart';
 
 class PostSeatScreen extends ConsumerStatefulWidget {
@@ -34,139 +35,66 @@ class PostSeatScreen extends ConsumerStatefulWidget {
 
 class _PostSeatScreenState extends ConsumerState<PostSeatScreen> {
   final _formKey = GlobalKey<FormState>();
-
-  late final TextEditingController _originController;
-  late final TextEditingController _destinationController;
-  final _dateController = TextEditingController();
   final _timeController = TextEditingController();
-  final _countController = TextEditingController();
   final _budgetController = TextEditingController();
   final _descriptionController = TextEditingController();
-
-  Location? _lastSelectedOrigin;
-  Location? _lastSelectedDestination;
 
   @override
   void initState() {
     super.initState();
-    _originController = TextEditingController();
-    _destinationController = TextEditingController();
-
-    _originController.addListener(_onOriginTextChanged);
-    _destinationController.addListener(_onDestinationTextChanged);
-
-    if (widget.prefillOrigin != null) {
-      final location = widget.prefillOrigin!;
-      _originController.text = location.name;
-      _lastSelectedOrigin = location;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(postSeatControllerProvider.notifier).setOrigin(location);
-      });
-    }
-
-    if (widget.prefillDestination != null) {
-      final location = widget.prefillDestination!;
-      _destinationController.text = location.name;
-      _lastSelectedDestination = location;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(postSeatControllerProvider.notifier).setDestination(location);
-      });
-    }
-
-    if (widget.prefillDate != null) {
-      final date = widget.prefillDate!;
-      _dateController.text = DateFormat('yyyy-MM-dd').format(date);
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(postSeatControllerProvider.notifier).setSelectedDate(date);
-      });
-    }
-  }
-
-  void _onOriginTextChanged() {
-    if (_lastSelectedOrigin != null &&
-        _originController.text != _lastSelectedOrigin!.name) {
-      _lastSelectedOrigin = null;
-      ref.read(postSeatControllerProvider.notifier).clearOrigin();
-    }
-  }
-
-  void _onDestinationTextChanged() {
-    if (_lastSelectedDestination != null &&
-        _destinationController.text != _lastSelectedDestination!.name) {
-      _lastSelectedDestination = null;
-      ref.read(postSeatControllerProvider.notifier).clearDestination();
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final controller = ref.read(postSeatControllerProvider.notifier);
+      if (widget.prefillOrigin != null) {
+        controller.setOrigin(widget.prefillOrigin!);
+      }
+      if (widget.prefillDestination != null) {
+        controller.setDestination(widget.prefillDestination!);
+      }
+      if (widget.prefillDate != null) {
+        controller.setSelectedDate(widget.prefillDate!);
+      }
+    });
   }
 
   @override
   void dispose() {
-    _originController.removeListener(_onOriginTextChanged);
-    _destinationController.removeListener(_onDestinationTextChanged);
-    _originController.dispose();
-    _destinationController.dispose();
-    _dateController.dispose();
     _timeController.dispose();
-    _countController.dispose();
     _budgetController.dispose();
     _descriptionController.dispose();
     super.dispose();
-  }
-
-  Future<void> _pickDate(BuildContext context) async {
-    final controller = ref.read(postSeatControllerProvider.notifier);
-    final state = ref.read(postSeatControllerProvider);
-
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: state.selectedDate ?? DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime(DateTime.now().year + 1),
-    );
-
-    if (pickedDate != null) {
-      controller.setSelectedDate(pickedDate);
-      _dateController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
-    }
   }
 
   Future<void> _pickTime(BuildContext context) async {
     final controller = ref.read(postSeatControllerProvider.notifier);
     final state = ref.read(postSeatControllerProvider);
 
-    final TimeOfDay? pickedTime = await showTimePicker(
+    final pickedTime = await showTimePicker(
       context: context,
       initialTime: state.exactTime ?? TimeOfDay.now(),
     );
 
     if (pickedTime != null && mounted) {
       controller.setExactTime(pickedTime);
-      final hour =
-          pickedTime.hourOfPeriod == 0 ? 12 : pickedTime.hourOfPeriod;
-      final minute = pickedTime.minute.toString().padLeft(2, '0');
-      final period = pickedTime.period == DayPeriod.am ? 'AM' : 'PM';
-      _timeController.text = '$hour:$minute $period';
+      _timeController.text = formatPickedTime(pickedTime);
     }
   }
 
   void _onSubmit() {
     final controller = ref.read(postSeatControllerProvider.notifier);
-
-    final count = int.tryParse(_countController.text);
     final budget = int.tryParse(_budgetController.text);
-    controller.setCount(count);
     controller.setPriceWillingToPay(budget);
     controller.setDescription(_descriptionController.text);
-
     controller.submit();
   }
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     final state = ref.watch(postSeatControllerProvider);
     final controller = ref.read(postSeatControllerProvider.notifier);
+    final showErrors = state.hasAttemptedSubmit;
 
+    // Listen for navigation and error events
     ref.listen(postSeatControllerProvider, (prev, next) {
       if (next.createdSeatId != null && !next.hasNavigated) {
         ref.read(postSeatControllerProvider.notifier).markNavigated();
@@ -174,7 +102,7 @@ class _PostSeatScreenState extends ConsumerState<PostSeatScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(context.l10n.seatRequestCreated),
-            backgroundColor: Theme.of(context).colorScheme.primary,
+            backgroundColor: colorScheme.primary,
           ),
         );
 
@@ -202,225 +130,184 @@ class _PostSeatScreenState extends ConsumerState<PostSeatScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(context.l10n.postSeatRequest)),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Container(
-            padding: const EdgeInsets.all(20.0),
-            decoration: BoxDecoration(
-              color: colorScheme.surface.withValues(alpha: 0.9),
-              borderRadius: BorderRadius.circular(16.0),
-            ),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 24.0, top: 8.0),
-                    child: Text(
-                      context.l10n.findARideHeader,
-                      style: textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: colorScheme.primary,
+        bottom: false,
+        child: Form(
+          key: _formKey,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          child: CustomScrollView(
+            slivers: [
+              // ── Route Section ──────────────────────────────────────
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const _SectionHeader(
+                        icon: Icons.route,
+                        title: 'Route',
+                        isFirst: true,
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-
-                  // Origin Location
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    child: LocationAutocompleteField(
-                      controller: _originController,
-                      labelText: context.l10n.originCityLabel,
-                      prefixIcon: Icons.trip_origin,
-                      onLocationSelected: (location) {
-                        _originController.text = location.name;
-                        _lastSelectedOrigin = location;
-                        controller.setOrigin(location);
-                      },
-                      onLocationCleared: () {
-                        _lastSelectedOrigin = null;
-                        controller.clearOrigin();
-                      },
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return context.l10n.originRequired;
-                        }
-                        if (state.origin == null) {
-                          return context.l10n.selectOriginFromSuggestions;
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-
-                  // Destination Location
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    child: LocationAutocompleteField(
-                      controller: _destinationController,
-                      labelText: context.l10n.destinationCityLabel,
-                      prefixIcon: Icons.flag_outlined,
-                      onLocationSelected: (location) {
-                        _destinationController.text = location.name;
-                        _lastSelectedDestination = location;
-                        controller.setDestination(location);
-                      },
-                      onLocationCleared: () {
-                        _lastSelectedDestination = null;
-                        controller.clearDestination();
-                      },
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return context.l10n.destinationRequired;
-                        }
-                        if (state.destination == null) {
-                          return context.l10n.selectDestinationFromSuggestions;
-                        }
-                        if (state.origin != null &&
-                            state.destination != null &&
-                            state.origin!.osmId ==
-                                state.destination!.osmId) {
-                          return context.l10n.mustDifferFromOrigin;
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-
-                  // Date
-                  AppTextField(
-                    controller: _dateController,
-                    label: context.l10n.dateOfDeparture,
-                    prefixIcon: Icons.calendar_today_outlined,
-                    suffixIcon: Icons.arrow_drop_down,
-                    onTap: () => _pickDate(context),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return context.l10n.selectDepartureDate;
-                      }
-                      return null;
-                    },
-                  ),
-
-                  // Time Mode Selector
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
-                    child: TimeModeSelector(
-                      isApproximate: state.isApproximate,
-                      onChanged: controller.setIsApproximate,
-                    ),
-                  ),
-
-                  if (state.isApproximate) ...[
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            context.l10n.timeOfDay,
-                            style: textTheme.titleSmall?.copyWith(
-                              color: colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          PartOfDaySelector(
-                            selected: state.partOfDay,
-                            onSelected: controller.setPartOfDay,
-                          ),
-                        ],
+                      RouteTimeline(
+                        origin: state.origin,
+                        destination: state.destination,
+                        onOriginTap: () async {
+                          final location = await showLocationPickerDialog(
+                            context,
+                            title: context.l10n.fromLabel,
+                          );
+                          if (location != null) controller.setOrigin(location);
+                        },
+                        onDestinationTap: () async {
+                          final location = await showLocationPickerDialog(
+                            context,
+                            title: context.l10n.toLabel,
+                          );
+                          if (location != null) {
+                            controller.setDestination(location);
+                          }
+                        },
+                        originError:
+                            showErrors ? state.originError : null,
+                        destinationError:
+                            showErrors ? state.destinationError : null,
                       ),
-                    ),
-                  ] else ...[
-                    AppTextField(
-                      controller: _timeController,
-                      label: context.l10n.timeOfDeparture,
-                      prefixIcon: Icons.access_time_outlined,
-                      suffixIcon: Icons.arrow_drop_down,
-                      onTap: () => _pickTime(context),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return context.l10n.selectDepartureTime;
-                        }
-                        return null;
-                      },
-                    ),
-                  ],
-
-                  // Passengers needed
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    child: TextFormField(
-                      controller: _countController,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      decoration: InputDecoration(
-                        labelText: context.l10n.passengersNeeded,
-                        prefixIcon: const Icon(Icons.people),
-                      ),
-                      validator: (value) {
-                        if (value?.isEmpty ?? true) return context.l10n.required;
-                        final n = int.tryParse(value!);
-                        if (n == null || n < 1 || n > 8) {
-                          return context.l10n.passengersRange;
-                        }
-                        return null;
-                      },
-                    ),
+                    ],
                   ),
-
-                  // Budget (optional)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    child: TextFormField(
-                      controller: _budgetController,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      decoration: InputDecoration(
-                        labelText: context.l10n.budgetOptional,
-                        suffixText: 'PLN',
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) return null;
-                        final n = int.tryParse(value);
-                        if (n == null || n < 1 || n > 999) {
-                          return '1-999 PLN';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-
-                  // Description
-                  AppTextField(
-                    controller: _descriptionController,
-                    label: context.l10n.descriptionOptional,
-                    prefixIcon: Icons.notes_outlined,
-                    maxLines: 4,
-                    minLines: 2,
-                    validator: (value) {
-                      if (value != null && value.length > 500) {
-                        return context.l10n.maxCharacters(500);
-                      }
-                      return null;
-                    },
-                  ),
-
-                  const SizedBox(height: 28.0),
-
-                  PrimaryButton(
-                    onPressed: state.isSubmitting ? null : _onSubmit,
-                    isLoading: state.isSubmitting,
-                    child: Text(context.l10n.postSeatRequest),
-                  ),
-                ],
+                ),
               ),
+
+              // ── When Section ───────────────────────────────────────
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const _SectionHeader(
+                        icon: Icons.calendar_month,
+                        title: 'When',
+                      ),
+                      DepartureTimeSection(
+                        selectedDate: state.selectedDate,
+                        onDateSelected: controller.setSelectedDate,
+                        dateError: showErrors ? state.dateError : null,
+                        isApproximate: state.isApproximate,
+                        onIsApproximateChanged: controller.setIsApproximate,
+                        exactTime: state.exactTime,
+                        timeController: _timeController,
+                        onPickTime: () => _pickTime(context),
+                        timeError: showErrors ? state.timeError : null,
+                        selectedPartOfDay: state.partOfDay,
+                        onPartOfDaySelected: controller.setPartOfDay,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // ── Details Section ────────────────────────────────────
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const _SectionHeader(
+                        icon: Icons.tune,
+                        title: 'Details',
+                      ),
+                      NumberStepper(
+                        value: state.count,
+                        min: 1,
+                        max: 8,
+                        onChanged: controller.setCount,
+                        label: context.l10n.passengersNeeded,
+                        errorText: showErrors ? state.countError : null,
+                      ),
+                      AppTextField(
+                        controller: _budgetController,
+                        label: context.l10n.budgetOptional,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        suffixText: 'PLN',
+                        errorText: showErrors ? state.priceError : null,
+                      ),
+                      AppTextField(
+                        controller: _descriptionController,
+                        label: context.l10n.descriptionOptional,
+                        prefixIcon: Icons.notes_outlined,
+                        maxLines: 4,
+                        minLines: 2,
+                      ),
+                      const SizedBox(height: 100),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: AnimatedPadding(
+        duration: const Duration(milliseconds: 100),
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.viewInsetsOf(context).bottom,
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            child: PrimaryButton(
+              onPressed: state.isSubmitting ? null : _onSubmit,
+              isLoading: state.isSubmitting,
+              child: Text(context.l10n.postSeatRequest),
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Section Header
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _SectionHeader extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final bool isFirst;
+
+  const _SectionHeader({
+    required this.icon,
+    required this.title,
+    this.isFirst = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      children: [
+        if (!isFirst) const Divider(height: 24),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Row(
+            children: [
+              Icon(icon, size: 20, color: theme.colorScheme.primary),
+              const SizedBox(width: 8),
+              Text(
+                title,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

@@ -10,12 +10,10 @@ import 'location_search_client.dart';
 class PhotonLocationSearchClient implements LocationSearchClient {
   final Dio _dio;
 
-  static const String _defaultBaseUrl = 'https://ac.vamigo.app';
-
-  PhotonLocationSearchClient(this._dio);
-
   @override
-  String get baseUrl => _defaultBaseUrl;
+  final Uri baseUri;
+
+  PhotonLocationSearchClient(this._dio, {required this.baseUri});
 
   @override
   Future<List<Location>> searchLocations({
@@ -24,14 +22,18 @@ class PhotonLocationSearchClient implements LocationSearchClient {
     String? lang,
     CancelToken? cancelToken,
   }) async {
-    final response = await _dio.get<Map<String, dynamic>>(
-      '$_defaultBaseUrl/api',
+    final endpoint = baseUri.replace(
+      path: '/api',
       queryParameters: {
         'q': query,
-        'limit': limit,
+        'limit': '$limit',
         'layer': 'city',
         if (lang != null) 'lang': lang,
       },
+    );
+
+    final response = await _dio.getUri<Map<String, dynamic>>(
+      endpoint,
       cancelToken: cancelToken,
     );
 

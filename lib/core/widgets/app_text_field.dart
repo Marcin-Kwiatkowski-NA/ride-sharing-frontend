@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class AppTextField extends StatelessWidget {
   final TextEditingController controller;
@@ -12,6 +13,10 @@ class AppTextField extends StatelessWidget {
   final int maxLines;
   final int minLines;
   final TextInputType? keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
+  final bool enabled;
+  final String? suffixText;
+  final String? errorText;
 
   const AppTextField({
     super.key,
@@ -26,6 +31,10 @@ class AppTextField extends StatelessWidget {
     this.maxLines = 1,
     this.minLines = 1,
     this.keyboardType,
+    this.inputFormatters,
+    this.enabled = true,
+    this.suffixText,
+    this.errorText,
   });
 
   TextInputType _effectiveKeyboardType() {
@@ -42,15 +51,19 @@ class AppTextField extends StatelessWidget {
       child: TextFormField(
         controller: controller,
         keyboardType: _effectiveKeyboardType(),
+        inputFormatters: inputFormatters,
         minLines: maxLines > 1 ? minLines : null,
         maxLines: maxLines > 1 ? maxLines : 1,
         readOnly: onTap != null,
+        enabled: enabled,
         onTap: onTap,
         decoration: InputDecoration(
           labelText: label,
           hintText: hint ?? 'Enter $label',
+          errorText: errorText,
           prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
           suffixIcon: suffixIcon != null ? Icon(suffixIcon) : null,
+          suffixText: suffixText,
         ),
         validator: validator,
       ),

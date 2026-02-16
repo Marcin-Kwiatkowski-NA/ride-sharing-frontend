@@ -67,7 +67,7 @@ Future<Dio> locationSearchDio(Ref ref) async {
 @Riverpod(keepAlive: true)
 Future<LocationSearchClient> locationSearchClient(Ref ref) async {
   final dio = await ref.watch(locationSearchDioProvider.future);
-  return PhotonLocationSearchClient(dio);
+  return PhotonLocationSearchClient(dio, baseUri: EnvironmentConfig.photonUri);
 }
 
 /// Location repository provider.

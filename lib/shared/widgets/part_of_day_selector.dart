@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../../../core/l10n/l10n_extension.dart';
-import '../../../../../l10n/generated/app_localizations.dart';
-import '../../../../offers/domain/part_of_day.dart';
+import '../../core/l10n/l10n_extension.dart';
+import '../../l10n/generated/app_localizations.dart';
+import '../../features/offers/domain/part_of_day.dart';
 
 /// Material 3 Wrap + ChoiceChip selector for part-of-day selection.
 class PartOfDaySelector extends StatelessWidget {

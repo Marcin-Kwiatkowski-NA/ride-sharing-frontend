@@ -13,7 +13,6 @@ part 'ride_creation_request_dto.g.dart';
 @freezed
 sealed class RideCreationRequestDto with _$RideCreationRequestDto {
   const factory RideCreationRequestDto({
-    required int driverId,
     required LocationRefDto origin,
     required LocationRefDto destination,
     required String departureTime, // "yyyy-MM-ddTHH:mm:ss" (no timezone)

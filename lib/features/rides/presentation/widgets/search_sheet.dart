@@ -3,9 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
-import '../../../../core/locations/domain/location.dart';
-import '../../../../core/locations/widgets/location_autocomplete_field.dart';
 import '../../../../core/l10n/l10n_extension.dart';
+import '../../../../shared/widgets/location_picker_dialog.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../routes/routes.dart';
@@ -134,14 +133,9 @@ class _SearchSheetContentState extends ConsumerState<_SearchSheetContent> {
   }
 
   Future<void> _pickLocation({required bool isOrigin}) async {
-    final location = await showDialog<Location>(
-      context: context,
-      barrierDismissible: true,
-      builder: (ctx) => Dialog.fullscreen(
-        child: _LocationPickerPage(
-          title: isOrigin ? context.l10n.fromLabel : context.l10n.toLabel,
-        ),
-      ),
+    final location = await showLocationPickerDialog(
+      context,
+      title: isOrigin ? context.l10n.fromLabel : context.l10n.toLabel,
     );
 
     if (!mounted || location == null) return;
@@ -377,41 +371,6 @@ class _SearchSheetContentState extends ConsumerState<_SearchSheetContent> {
   }
 }
 
-class _LocationPickerPage extends StatelessWidget {
-  final String title;
-  const _LocationPickerPage({required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    final ctrl = TextEditingController();
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        leading: IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-      ),
-      body: Padding(
-        padding: EdgeInsets.only(
-          left: 24,
-          right: 24,
-          top: 12,
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: LocationAutocompleteField(
-          controller: ctrl,
-          labelText: context.l10n.searchCity,
-          prefixIcon: Icons.search,
-          onLocationSelected: (location) => Navigator.of(context).pop(location),
-        ),
-      ),
-    );
-  }
-}
-
-
 // ─────────────────────────────────────────────────────────────────────────────
 // Route Picker Card
 // ─────────────────────────────────────────────────────────────────────────────
@@ -554,102 +513,3 @@ class _RouteRow extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Location Picker Sheet (reuses LocationAutocompleteField)
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _LocationPickerSheet extends StatefulWidget {
-  final TextEditingController controller;
-  final String label;
-
-  const _LocationPickerSheet({
-    required this.controller,
-    required this.label,
-  });
-
-  @override
-  State<_LocationPickerSheet> createState() => _LocationPickerSheetState();
-}
-
-class _LocationPickerSheetState extends State<_LocationPickerSheet> {
-  late final TextEditingController _pickerController;
-
-  @override
-  void initState() {
-    super.initState();
-    // Start with fresh text so the autocomplete opens clean.
-    _pickerController = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _pickerController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Padding(
-      padding:
-          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      child: Material(
-        color: colorScheme.surfaceContainer,
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(AppTokens.radiusXL),
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Handle
-                Center(
-                  child: Container(
-                    width: 32,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: colorScheme.onSurfaceVariant
-                          .withValues(alpha: 0.4),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Title
-                Text(
-                  widget.label,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                // Autocomplete field
-                LocationAutocompleteField(
-                  controller: _pickerController,
-                  labelText: context.l10n.searchCity,
-                  prefixIcon: Icons.search,
-                  onLocationSelected: (location) {
-                    Navigator.of(context).pop(location);
-                  },
-                  onLocationCleared: () {
-                    // Keep picker open — user is clearing to re-search.
-                  },
-                ),
-
-                // Give space for the dropdown suggestions
-                const SizedBox(height: 240),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}

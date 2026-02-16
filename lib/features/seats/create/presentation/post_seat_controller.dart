@@ -1,12 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:intl/intl.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../core/l10n/app_locale_provider.dart';
 import '../../../../core/locations/domain/location.dart';
 import '../../../../core/network/dio_provider.dart';
+import '../../../../shared/widgets/departure_picker_helpers.dart';
 import '../../../offers/domain/part_of_day.dart';
 import '../../data/dto/seat_creation_request_dto.dart';
 
@@ -24,14 +24,66 @@ sealed class PostSeatFormState with _$PostSeatFormState {
     TimeOfDay? exactTime,
     PartOfDay? partOfDay,
     @Default(false) bool isApproximate,
-    int? count,
+    @Default(1) int count,
     int? priceWillingToPay,
     String? description,
     @Default(false) bool isSubmitting,
     String? errorMessage,
     int? createdSeatId,
     @Default(false) bool hasNavigated,
+    @Default(false) bool hasAttemptedSubmit,
   }) = _PostSeatFormState;
+
+  // ── Field-level validation errors ──────────────────────────────────────
+
+  String? get originError =>
+      origin == null ? 'Select origin from suggestions' : null;
+
+  String? get destinationError {
+    if (destination == null) return 'Select destination from suggestions';
+    if (origin != null && origin!.osmId == destination!.osmId) {
+      return 'Destination must differ from origin';
+    }
+    return null;
+  }
+
+  String? get dateError =>
+      selectedDate == null ? 'Select departure date' : null;
+
+  String? get timeError {
+    if (isApproximate && partOfDay == null) return 'Select time of day';
+    if (!isApproximate && exactTime == null) return 'Select departure time';
+    final dt = computedDepartureDateTime;
+    if (dt != null) {
+      final minDeparture = DateTime.now().add(const Duration(minutes: 30));
+      if (dt.isBefore(minDeparture)) {
+        return 'Departure must be at least 30 minutes from now';
+      }
+    }
+    return null;
+  }
+
+  String? get countError {
+    if (count < 1 || count > 8) return '1-8 passengers allowed';
+    return null;
+  }
+
+  String? get priceError {
+    if (priceWillingToPay != null &&
+        (priceWillingToPay! < 1 || priceWillingToPay! > 999)) {
+      return 'Budget must be 1-999 PLN';
+    }
+    return null;
+  }
+
+  bool get isValid =>
+      originError == null &&
+      destinationError == null &&
+      dateError == null &&
+      timeError == null &&
+      countError == null &&
+      priceError == null &&
+      (description == null || description!.length <= 500);
 
   DateTime? get computedDepartureDateTime {
     if (selectedDate == null) return null;
@@ -64,39 +116,73 @@ sealed class PostSeatFormState with _$PostSeatFormState {
   }
 }
 
+// ── Draft persistence ────────────────────────────────────────────────────────
+
+@Riverpod(keepAlive: true)
+class PostSeatDraft extends _$PostSeatDraft {
+  @override
+  PostSeatFormState? build() => null;
+
+  void save(PostSeatFormState draft) => state = draft;
+  void clear() => state = null;
+}
+
+// ── Controller ───────────────────────────────────────────────────────────────
+
 @riverpod
 class PostSeatController extends _$PostSeatController {
   @override
   PostSeatFormState build() {
+    final draft = ref.read(postSeatDraftProvider);
+    if (draft != null) {
+      return draft.copyWith(
+        isSubmitting: false,
+        errorMessage: null,
+        createdSeatId: null,
+        hasNavigated: false,
+        hasAttemptedSubmit: false,
+      );
+    }
     return const PostSeatFormState();
+  }
+
+  void _saveDraft() {
+    ref.read(postSeatDraftProvider.notifier).save(state);
   }
 
   void setOrigin(Location location) {
     state = state.copyWith(origin: location, errorMessage: null);
+    _saveDraft();
   }
 
   void clearOrigin() {
     state = state.copyWith(origin: null, errorMessage: null);
+    _saveDraft();
   }
 
   void setDestination(Location location) {
     state = state.copyWith(destination: location, errorMessage: null);
+    _saveDraft();
   }
 
   void clearDestination() {
     state = state.copyWith(destination: null, errorMessage: null);
+    _saveDraft();
   }
 
   void setSelectedDate(DateTime date) {
     state = state.copyWith(selectedDate: date, errorMessage: null);
+    _saveDraft();
   }
 
   void setExactTime(TimeOfDay time) {
     state = state.copyWith(exactTime: time, errorMessage: null);
+    _saveDraft();
   }
 
   void setPartOfDay(PartOfDay pod) {
     state = state.copyWith(partOfDay: pod, errorMessage: null);
+    _saveDraft();
   }
 
   void setIsApproximate(bool value) {
@@ -106,14 +192,17 @@ class PostSeatController extends _$PostSeatController {
       partOfDay: value ? state.partOfDay : null,
       errorMessage: null,
     );
+    _saveDraft();
   }
 
-  void setCount(int? count) {
+  void setCount(int count) {
     state = state.copyWith(count: count, errorMessage: null);
+    _saveDraft();
   }
 
   void setPriceWillingToPay(int? price) {
     state = state.copyWith(priceWillingToPay: price, errorMessage: null);
+    _saveDraft();
   }
 
   void setDescription(String? description) {
@@ -122,68 +211,29 @@ class PostSeatController extends _$PostSeatController {
       description: (trimmed?.isEmpty ?? true) ? null : trimmed,
       errorMessage: null,
     );
+    _saveDraft();
   }
 
   void markNavigated() {
     state = state.copyWith(hasNavigated: true);
   }
 
-  String? validate() {
-    if (state.origin == null) return 'Select origin from suggestions';
-    if (state.destination == null) return 'Select destination from suggestions';
-    if (state.origin!.osmId == state.destination!.osmId) {
-      return 'Destination must differ from origin';
-    }
-    if (state.selectedDate == null) return 'Select departure date';
-    if (state.isApproximate && state.partOfDay == null) {
-      return 'Select departure time';
-    }
-    if (!state.isApproximate && state.exactTime == null) {
-      return 'Select departure time';
-    }
-
-    final departureDateTime = state.computedDepartureDateTime;
-    if (departureDateTime == null) return 'Select departure time';
-
-    final minDeparture = DateTime.now().add(const Duration(minutes: 30));
-    if (departureDateTime.isBefore(minDeparture)) {
-      return 'Departure must be at least 30 minutes from now';
-    }
-
-    if (state.count == null || state.count! < 1 || state.count! > 8) {
-      return '1-8 passengers allowed';
-    }
-    if (state.priceWillingToPay != null &&
-        (state.priceWillingToPay! < 1 || state.priceWillingToPay! > 999)) {
-      return 'Budget must be 1-999 PLN';
-    }
-    if (state.description != null && state.description!.length > 500) {
-      return 'Max 500 characters';
-    }
-
-    return null;
-  }
-
   Future<void> submit() async {
     state = state.copyWith(
+      hasAttemptedSubmit: true,
       hasNavigated: false,
       createdSeatId: null,
       errorMessage: null,
     );
 
-    final validationError = validate();
-    if (validationError != null) {
-      state = state.copyWith(errorMessage: validationError);
-      return;
-    }
+    if (!state.isValid) return;
 
     state = state.copyWith(isSubmitting: true);
 
     try {
       final departureDateTime = state.computedDepartureDateTime!;
-      final formattedDepartureTime = DateFormat(
-        "yyyy-MM-dd'T'HH:mm:ss",
-      ).format(departureDateTime);
+      final formattedDepartureTime =
+          formatDepartureTimeForApi(departureDateTime);
 
       final lang = ref.read(effectiveLocaleProvider).languageCode;
 
@@ -192,7 +242,7 @@ class PostSeatController extends _$PostSeatController {
         destination: state.destination!.toLocationRefDto(lang: lang),
         departureTime: formattedDepartureTime,
         isApproximate: state.isApproximate,
-        count: state.count!,
+        count: state.count,
         priceWillingToPay: state.priceWillingToPay,
         description: state.description,
       );
@@ -204,6 +254,7 @@ class PostSeatController extends _$PostSeatController {
         final responseData = response.data as Map<String, dynamic>;
         final seatId = responseData['id'] as int;
         state = state.copyWith(isSubmitting: false, createdSeatId: seatId);
+        ref.read(postSeatDraftProvider.notifier).clear();
       } else {
         state = state.copyWith(
           isSubmitting: false,
