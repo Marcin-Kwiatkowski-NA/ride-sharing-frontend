@@ -67,7 +67,9 @@ class OfferPersonSection extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          user.displayName,
+                          user.displayName.isNotEmpty
+                              ? user.displayName
+                              : context.l10n.anonymousUser,
                           style: tt.titleMedium?.copyWith(
                             fontWeight: FontWeight.w600,
                           ),

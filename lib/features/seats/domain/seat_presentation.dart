@@ -46,7 +46,9 @@ class SeatPresentation {
 
     final OfferUserUi? user = dto.passenger != null
         ? OfferUserUi(
-            displayName: _hasContent(passengerName) ? passengerName! : '',
+            displayName: _hasContent(passengerName)
+                ? (isInternal ? passengerName! : passengerName!.split(' ').first)
+                : '',
             rating: passengerRating,
             completedTrips: passengerCompletedRides,
             showRating: showRating,

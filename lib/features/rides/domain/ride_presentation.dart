@@ -48,7 +48,9 @@ class RidePresentation {
 
     final OfferUserUi? user = dto.driver != null
         ? OfferUserUi(
-            displayName: _hasContent(driverName) ? driverName! : '',
+            displayName: _hasContent(driverName)
+                ? (isInternal ? driverName! : driverName!.split(' ').first)
+                : '',
             rating: driverRating,
             completedTrips: driverCompletedRides,
             showRating: showRating,

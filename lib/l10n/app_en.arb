@@ -336,6 +336,9 @@
   "passengerFallbackName": "Passenger",
   "@passengerFallbackName": { "description": "Fallback display name when passenger name is missing" },
 
+  "anonymousUser": "Anonymous",
+  "@anonymousUser": { "description": "Display name for external source offers with no author name" },
+
   "ratingDisplay": "{rating} ({count})",
   "@ratingDisplay": {
     "description": "Rating with ride count displayed next to user name",

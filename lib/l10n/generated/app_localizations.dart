@@ -662,6 +662,12 @@ abstract class AppLocalizations {
   /// **'Passenger'**
   String get passengerFallbackName;
 
+  /// Display name for external source offers with no author name
+  ///
+  /// In en, this message translates to:
+  /// **'Anonymous'**
+  String get anonymousUser;
+
   /// Rating with ride count displayed next to user name
   ///
   /// In en, this message translates to:

@@ -102,6 +102,7 @@
   "passengerLabel": "PASAŻER",
   "driverFallbackName": "Kierowca",
   "passengerFallbackName": "Pasażer",
+  "anonymousUser": "Anonimowy",
   "ratingDisplay": "{rating} ({count})",
 
   "statusOpen": "Otwarte",

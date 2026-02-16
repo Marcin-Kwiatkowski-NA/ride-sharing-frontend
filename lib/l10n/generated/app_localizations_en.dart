@@ -340,6 +340,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get passengerFallbackName => 'Passenger';
 
   @override
+  String get anonymousUser => 'Anonymous';
+
+  @override
   String ratingDisplay(String rating, int count) {
     return '$rating ($count)';
   }
