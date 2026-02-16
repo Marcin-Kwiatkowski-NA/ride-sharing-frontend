@@ -158,6 +158,12 @@ abstract class AppLocalizations {
   /// **'Profile'**
   String get navProfile;
 
+  /// Bottom navigation label for My Offers tab
+  ///
+  /// In en, this message translates to:
+  /// **'My Offers'**
+  String get navMyOffers;
+
   /// Bottom navigation label for Messages tab
   ///
   /// In en, this message translates to:

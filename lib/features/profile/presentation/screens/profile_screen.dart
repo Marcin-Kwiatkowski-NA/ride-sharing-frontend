@@ -267,7 +267,7 @@ class _ProfileDashboard extends ConsumerWidget {
                       icon: Icons.history,
                       title: context.l10n.myOffers,
                       subtitle: context.l10n.viewRideHistory,
-                      onTap: () => context.pushNamed(RouteNames.myOffers),
+                      onTap: () => context.goNamed(RouteNames.myOffers),
                     ),
                   ],
                 ),

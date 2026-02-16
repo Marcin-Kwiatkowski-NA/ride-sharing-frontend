@@ -136,7 +136,37 @@ GoRouter router(Ref ref) {
             ],
           ),
 
-          // Branch 2: Profile
+          // Branch 2: My Offers (center tab)
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: RoutePaths.myOffers,
+                name: RouteNames.myOffers,
+                builder: (context, state) => const MyOffersScreen(),
+                routes: [
+                  GoRoute(
+                    path: RoutePaths.myOfferDetails,
+                    name: RouteNames.myOfferDetails,
+                    redirect: (context, state) {
+                      final param = state.pathParameters['offerKey']!;
+                      if (OfferKey.fromRouteParam(param) == null) {
+                        return RoutePaths.myOffers;
+                      }
+                      return null;
+                    },
+                    builder: (context, state) {
+                      final offerKey = OfferKey.fromRouteParam(
+                        state.pathParameters['offerKey']!,
+                      )!;
+                      return OfferDetailsScreen(offerKey: offerKey);
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+          // Branch 3: Profile
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -154,7 +184,7 @@ GoRouter router(Ref ref) {
             ],
           ),
 
-          // Branch 3: Messages
+          // Branch 4: Messages
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -228,12 +258,6 @@ GoRouter router(Ref ref) {
             prefillDate: prefill?.date,
           );
         },
-      ),
-      GoRoute(
-        path: RoutePaths.myOffers,
-        name: RouteNames.myOffers,
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const MyOffersScreen(),
       ),
       GoRoute(
         path: RoutePaths.verifyResult,

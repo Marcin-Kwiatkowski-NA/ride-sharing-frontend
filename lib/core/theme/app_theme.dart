@@ -268,12 +268,12 @@ class AppTheme {
       // Chip Theme
       // ─────────────────────────────────────────────────────────────────────────
       chipTheme: ChipThemeData(
-        backgroundColor: colorScheme.surfaceContainerLow,
-        side: BorderSide.none,
+        side: BorderSide(color: colorScheme.outlineVariant),
         shape: const StadiumBorder(),
         labelStyle:
             GoogleFonts.roboto(fontSize: 14, fontWeight: FontWeight.w500),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        showCheckmark: false,
       ),
 
       // ─────────────────────────────────────────────────────────────────────────

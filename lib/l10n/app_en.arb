@@ -36,6 +36,9 @@
   "navProfile": "Profile",
   "@navProfile": { "description": "Bottom navigation label for Profile tab" },
 
+  "navMyOffers": "My Offers",
+  "@navMyOffers": { "description": "Bottom navigation label for My Offers tab" },
+
   "navMessages": "Messages",
   "@navMessages": { "description": "Bottom navigation label for Messages tab" },
 

@@ -29,7 +29,7 @@ class HomeBottomActionBar extends StatelessWidget {
       child: Row(
         children: [
           TextButton.icon(
-            onPressed: () => context.pushNamed(RouteNames.myOffers),
+            onPressed: () => context.goNamed(RouteNames.myOffers),
             icon: const Icon(Icons.directions_car, size: 20),
             label: Text(context.l10n.myOffers),
           ),

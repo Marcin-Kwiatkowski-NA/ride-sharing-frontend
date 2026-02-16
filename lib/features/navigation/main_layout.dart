@@ -16,8 +16,8 @@ class MainLayout extends ConsumerWidget {
     required this.navigationShell,
   });
 
-  // Tab indices: 0=Rides, 1=Packages are public; 2=Profile, 3=Messages require auth
-  static const _protectedTabs = {2, 3};
+  // Tab indices: 0=Rides, 1=Packages are public; 2=MyOffers, 3=Profile, 4=Messages require auth
+  static const _protectedTabs = {2, 3, 4};
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -31,7 +31,11 @@ class MainLayout extends ConsumerWidget {
           // Intercept protected tabs when not authenticated
           if (_protectedTabs.contains(index) && !isAuthenticated) {
             final currentLocation = GoRouterState.of(context).uri.toString();
-            final destination = index == 2 ? '/profile' : '/messages';
+            final destination = switch (index) {
+              2 => '/my-offers',
+              3 => '/profile',
+              _ => '/messages',
+            };
             context.pushNamed(
               RouteNames.login,
               queryParameters: {
@@ -59,6 +63,11 @@ class MainLayout extends ConsumerWidget {
             icon: const Icon(Icons.inventory_2_outlined),
             selectedIcon: const Icon(Icons.inventory_2),
             label: context.l10n.navPackages,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.local_offer_outlined),
+            selectedIcon: const Icon(Icons.local_offer),
+            label: context.l10n.navMyOffers,
           ),
           NavigationDestination(
             icon: const Icon(Icons.person_outline),

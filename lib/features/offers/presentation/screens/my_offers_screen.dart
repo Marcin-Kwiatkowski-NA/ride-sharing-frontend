@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/l10n/l10n_extension.dart';
+import '../../../../core/theme/app_tokens.dart';
 import '../../../../routes/routes.dart';
+import '../../../rides/presentation/widgets/publish_selection_sheet.dart';
 import '../../domain/offer_ui_model.dart';
 import '../providers/my_offers_provider.dart';
 import '../widgets/offer_card.dart';
@@ -35,8 +37,17 @@ class _MyOffersScreenState extends ConsumerState<MyOffersScreen> {
     final theme = Theme.of(context);
     final offersAsync = ref.watch(myOffersProvider);
 
+    final tokens = Theme.of(context).extension<AppTokens>()!;
+
     return Scaffold(
       appBar: AppBar(title: Text(context.l10n.myOffers)),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: FilledButton.icon(
+        onPressed: () => showPublishSelectionSheet(context),
+        icon: const Icon(Icons.add, size: 20),
+        label: Text(context.l10n.post),
+        style: tokens.brandCtaStyle,
+      ),
       body: Column(
         children: [
           // Filter
@@ -123,7 +134,7 @@ class _MyOffersScreenState extends ConsumerState<MyOffersScreen> {
                         offer: offer,
                         onTap: () {
                           context.pushNamed(
-                            RouteNames.offerDetails,
+                            RouteNames.myOfferDetails,
                             pathParameters: {
                               'offerKey': offer.offerKey.toRouteParam(),
                             },

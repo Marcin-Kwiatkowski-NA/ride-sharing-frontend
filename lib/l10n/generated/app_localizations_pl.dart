@@ -41,6 +41,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get navProfile => 'Profil';
 
   @override
+  String get navMyOffers => 'Moje oferty';
+
+  @override
   String get navMessages => 'Wiadomości';
 
   @override

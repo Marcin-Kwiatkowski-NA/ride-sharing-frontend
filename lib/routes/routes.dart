@@ -7,6 +7,7 @@ abstract class RouteNames {
   static const ridesList = 'rides-list';
   static const seatsList = 'seats-list';
   static const offerDetails = 'offer-details';
+  static const myOfferDetails = 'my-offer-details';
   static const packages = 'packages';
   static const profile = 'profile';
   static const editProfile = 'edit-profile';
@@ -30,6 +31,7 @@ abstract class RoutePaths {
   static const ridesList = 'list'; // Nested under /rides
   static const seatsList = 'seats'; // Nested under /rides
   static const offerDetails = 'offer/:offerKey'; // Nested under /rides
+  static const myOfferDetails = 'offer/:offerKey'; // Nested under /my-offers
   static const packages = '/packages';
   static const profile = '/profile';
   static const editProfile = 'edit'; // Nested under /profile
