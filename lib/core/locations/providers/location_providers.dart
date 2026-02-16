@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../config/environment_config.dart';
+import '../../l10n/app_locale_provider.dart';
 import '../data/location_search_client.dart';
 import '../data/photon_location_search_client.dart';
 import '../repository/location_repository.dart';
@@ -70,9 +71,13 @@ Future<LocationSearchClient> locationSearchClient(Ref ref) async {
 }
 
 /// Location repository provider.
-@Riverpod(keepAlive: true)
+///
+/// Rebuilds when the effective locale changes so Photon searches
+/// use the correct language.
+@riverpod
 Future<LocationRepository> locationRepository(Ref ref) async {
   final client = await ref.watch(locationSearchClientProvider.future);
   final config = ref.watch(locationConfigProvider);
-  return LocationRepository(client, config: config);
+  final lang = ref.watch(effectiveLocaleProvider).languageCode;
+  return LocationRepository(client, lang: lang, config: config);
 }

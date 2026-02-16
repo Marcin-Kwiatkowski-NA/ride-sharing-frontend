@@ -93,9 +93,14 @@ sealed class Location with _$Location {
       };
 
   /// Convert to strongly-typed LocationRefDto for API requests.
-  LocationRefDto toLocationRefDto() => LocationRefDto(
+  ///
+  /// [lang] indicates which language [name] is in (`"pl"` or `"en"`),
+  /// so the backend knows which name field to populate directly
+  /// and which to resolve via reverse geocoding.
+  LocationRefDto toLocationRefDto({required String lang}) => LocationRefDto(
         osmId: osmId,
         name: name,
+        lang: lang,
         latitude: latitude,
         longitude: longitude,
         countryCode: countryCode,

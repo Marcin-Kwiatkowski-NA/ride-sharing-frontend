@@ -10,7 +10,7 @@ import 'location_search_client.dart';
 class PhotonLocationSearchClient implements LocationSearchClient {
   final Dio _dio;
 
-  static const String _defaultBaseUrl = 'http://pht.130.61.31.172.sslip.io';
+  static const String _defaultBaseUrl = 'https://ac.vamigo.app';
 
   PhotonLocationSearchClient(this._dio);
 
@@ -21,6 +21,7 @@ class PhotonLocationSearchClient implements LocationSearchClient {
   Future<List<Location>> searchLocations({
     required String query,
     int limit = 5,
+    String? lang,
     CancelToken? cancelToken,
   }) async {
     final response = await _dio.get<Map<String, dynamic>>(
@@ -28,6 +29,8 @@ class PhotonLocationSearchClient implements LocationSearchClient {
       queryParameters: {
         'q': query,
         'limit': limit,
+        'layer': 'city',
+        if (lang != null) 'lang': lang,
       },
       cancelToken: cancelToken,
     );
@@ -38,12 +41,14 @@ class PhotonLocationSearchClient implements LocationSearchClient {
     final features = data['features'] as List<dynamic>?;
     if (features == null) return [];
 
+    final seenNames = <String>{};
     return features
         .where((f) {
           final props = f['properties'] as Map<String, dynamic>?;
           return props != null && props['osm_id'] != null;
         })
         .map((f) => Location.fromPhotonFeature(f as Map<String, dynamic>))
+        .where((l) => seenNames.add(l.name))
         .toList();
   }
 }

@@ -4,6 +4,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:intl/intl.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../../core/l10n/app_locale_provider.dart';
 import '../../../../core/locations/domain/location.dart';
 import '../../../../core/network/dio_provider.dart';
 import '../../../offers/domain/part_of_day.dart';
@@ -184,9 +185,11 @@ class PostSeatController extends _$PostSeatController {
         "yyyy-MM-dd'T'HH:mm:ss",
       ).format(departureDateTime);
 
+      final lang = ref.read(effectiveLocaleProvider).languageCode;
+
       final dto = SeatCreationRequestDto(
-        origin: state.origin!.toLocationRefDto(),
-        destination: state.destination!.toLocationRefDto(),
+        origin: state.origin!.toLocationRefDto(lang: lang),
+        destination: state.destination!.toLocationRefDto(lang: lang),
         departureTime: formattedDepartureTime,
         isApproximate: state.isApproximate,
         count: state.count!,

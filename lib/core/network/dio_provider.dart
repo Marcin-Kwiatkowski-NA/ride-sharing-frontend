@@ -3,6 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../config/environment_config.dart';
 import '../../services/auth_service.dart';
+import '../l10n/app_locale_provider.dart';
 import 'auth_interceptor.dart';
 import 'auth_token_provider.dart';
 
@@ -19,6 +20,20 @@ BaseOptions _baseOptions() => BaseOptions(
       },
     );
 
+/// Interceptor that sets Accept-Language header from the effective locale.
+class _LocaleInterceptor extends Interceptor {
+  final Ref _ref;
+
+  _LocaleInterceptor(this._ref);
+
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    final lang = _ref.read(effectiveLocaleProvider).languageCode;
+    options.headers['Accept-Language'] = lang;
+    handler.next(options);
+  }
+}
+
 /// Plain Dio instance with no auth interceptor.
 ///
 /// Used by [authRepositoryProvider] for unauthenticated endpoints
@@ -26,6 +41,8 @@ BaseOptions _baseOptions() => BaseOptions(
 @Riverpod(keepAlive: true)
 Dio rawDio(Ref ref) {
   final dio = Dio(_baseOptions());
+
+  dio.interceptors.add(_LocaleInterceptor(ref));
 
   if (EnvironmentConfig.isDevelopment) {
     dio.interceptors.add(
@@ -50,6 +67,8 @@ Dio apiDio(Ref ref) {
   final authService = ref.read(authServiceProvider);
 
   final dio = Dio(_baseOptions());
+
+  dio.interceptors.add(_LocaleInterceptor(ref));
 
   dio.interceptors.add(AuthInterceptor(
     ref,

@@ -23,6 +23,7 @@ class LocationRepositoryConfig {
 class LocationRepository {
   final LocationSearchClient _client;
   final LocationRepositoryConfig config;
+  final String lang;
 
   static const String _recentLocationsKey = 'recent_locations_v1';
 
@@ -30,44 +31,42 @@ class LocationRepository {
 
   LocationRepository(
     this._client, {
+    required this.lang,
     this.config = const LocationRepositoryConfig(),
   });
 
-  /// Search for locations, combining recent locations with API results.
+  /// Search for locations.
   ///
-  /// - Empty query: returns recent locations only
-  /// - Query < minQueryLength: filters recent locations only
-  /// - Query >= minQueryLength: API call + combined with recents
+  /// - Empty query: returns recent locations
+  /// - 1 char: filters recent locations
+  /// - 2+ chars: Photon API results only
   Future<List<Location>> searchLocations({
     required String query,
     CancelToken? cancelToken,
   }) async {
-    final recents = await _getRecentLocations();
-
     if (query.isEmpty) {
+      final recents = await _getRecentLocations();
       return recents.take(config.maxDisplayItems).toList();
     }
 
-    final lowerQuery = query.toLowerCase();
-
     if (query.length < config.minQueryLength) {
-      return _filterRecents(recents, lowerQuery);
+      final recents = await _getRecentLocations();
+      return _filterRecents(recents, query.toLowerCase());
     }
 
     try {
-      final apiResults = await _client.searchLocations(
+      return await _client.searchLocations(
         query: query,
         limit: config.maxDisplayItems,
+        lang: lang,
         cancelToken: cancelToken,
       );
-
-      return _combineAndSort(recents, apiResults, lowerQuery);
     } on DioException catch (e) {
       if (e.type == DioExceptionType.cancel) {
         rethrow;
       }
-      // On network error, fall back to filtered recents
-      return _filterRecents(recents, lowerQuery);
+      final recents = await _getRecentLocations();
+      return _filterRecents(recents, query.toLowerCase());
     }
   }
 
@@ -147,45 +146,4 @@ class LocationRepository {
     return filtered.take(config.maxDisplayItems).toList();
   }
 
-  List<Location> _combineAndSort(
-    List<Location> recents,
-    List<Location> apiResults,
-    String lowerQuery,
-  ) {
-    final seen = <int>{};
-    final combined = <Location>[];
-
-    // Filter and add matching recents first
-    for (final location in recents) {
-      if (location.name.toLowerCase().contains(lowerQuery)) {
-        if (seen.add(location.osmId)) {
-          combined.add(location);
-        }
-      }
-    }
-
-    // Add API results, deduplicating
-    for (final location in apiResults) {
-      if (seen.add(location.osmId)) {
-        combined.add(location);
-      }
-    }
-
-    // Sort: prefix match first, then alphabetically, then osmId tiebreaker
-    combined.sort((a, b) {
-      final aName = a.name.toLowerCase();
-      final bName = b.name.toLowerCase();
-      final aPrefix = aName.startsWith(lowerQuery);
-      final bPrefix = bName.startsWith(lowerQuery);
-
-      if (aPrefix != bPrefix) return aPrefix ? -1 : 1;
-
-      final nameCompare = aName.compareTo(bName);
-      if (nameCompare != 0) return nameCompare;
-
-      return a.osmId.compareTo(b.osmId);
-    });
-
-    return combined.take(config.maxDisplayItems).toList();
-  }
 }

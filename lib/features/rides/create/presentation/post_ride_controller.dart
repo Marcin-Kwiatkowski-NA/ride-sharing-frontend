@@ -4,6 +4,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:intl/intl.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../../core/l10n/app_locale_provider.dart';
 import '../../../../core/locations/domain/location.dart';
 import '../../../../core/network/dio_provider.dart';
 import '../../../../core/providers/auth_notifier.dart';
@@ -277,6 +278,8 @@ class PostRideController extends _$PostRideController {
         "yyyy-MM-dd'T'HH:mm:ss",
       ).format(departureDateTime);
 
+      final lang = ref.read(effectiveLocaleProvider).languageCode;
+
       // Build intermediate stops as unified list
       List<IntermediateStopDto>? intermediateStops;
 
@@ -308,7 +311,7 @@ class PostRideController extends _$PostRideController {
 
           intermediateStops.add(
             IntermediateStopDto(
-              location: stop.location!.toLocationRefDto(),
+              location: stop.location!.toLocationRefDto(lang: lang),
               departureTime:
                   DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(fullDateTime),
             ),
@@ -319,8 +322,8 @@ class PostRideController extends _$PostRideController {
 
       final dto = RideCreationRequestDto(
         driverId: driverId,
-        origin: state.origin!.toLocationRefDto(),
-        destination: state.destination!.toLocationRefDto(),
+        origin: state.origin!.toLocationRefDto(lang: lang),
+        destination: state.destination!.toLocationRefDto(lang: lang),
         departureTime: formattedDepartureTime,
         isApproximate: state.isApproximate,
         availableSeats: state.availableSeats!,

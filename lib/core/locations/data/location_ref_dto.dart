@@ -11,6 +11,7 @@ sealed class LocationRefDto with _$LocationRefDto {
   const factory LocationRefDto({
     required int osmId,
     required String name,
+    required String lang,
     required double latitude,
     required double longitude,
     String? countryCode,
