@@ -42,7 +42,7 @@
   "searchFromCity": "Z {city}",
   "searchToCity": "Do {city}",
   "searchRoute": "{origin} → {destination}",
-  "myRides": "Moje przejazdy",
+  "myOffers": "Moje ogłoszenia",
   "post": "Dodaj",
   "whatAreYouPosting": "Co chcesz dodać?",
   "offerARide": "Oferuję przejazd",
@@ -118,7 +118,7 @@
   "myOffers": "Moje ogłoszenia",
   "filterAll": "Wszystkie",
   "filterRides": "Przejazdy",
-  "filterPassengers": "Pasażerowie",
+  "filterPassengers": "Pasażer",
   "failedToLoadOffers": "Nie udało się załadować ogłoszeń",
   "noOffersYet": "Brak ogłoszeń",
 

@@ -18,7 +18,7 @@ class ProfileRepository implements IProfileRepository {
   @override
   Future<UserProfile> updateProfile(UpdateProfileRequest request) async {
     final response = await _dio.patch<Map<String, dynamic>>(
-      '/auth/me',
+      '/me',
       data: request.toJson(),
     );
     return UserProfile.fromJson(response.data!);

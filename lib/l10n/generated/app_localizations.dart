@@ -326,11 +326,11 @@ abstract class AppLocalizations {
   /// **'{origin} → {destination}'**
   String searchRoute(String origin, String destination);
 
-  /// Button label to view user's own rides
+  /// Screen title for user's own offers
   ///
   /// In en, this message translates to:
-  /// **'My Rides'**
-  String get myRides;
+  /// **'My Offers'**
+  String get myOffers;
 
   /// Button label to open the publish selection sheet
   ///
@@ -721,12 +721,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No passenger requests found matching your criteria.'**
   String get noPassengerRequests;
-
-  /// Screen title for user's own offers
-  ///
-  /// In en, this message translates to:
-  /// **'My Offers'**
-  String get myOffers;
 
   /// Segmented button label: show all offer types
   ///

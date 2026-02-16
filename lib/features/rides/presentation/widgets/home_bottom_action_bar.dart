@@ -8,7 +8,7 @@ import 'publish_selection_sheet.dart';
 
 /// Floating command capsule at the bottom of the rides home screen.
 ///
-/// Pill-shaped bar housing a "My Rides" shortcut (left)
+/// Pill-shaped bar housing a "My Offers" shortcut (left)
 /// and a universal "Post" action (right) that opens [PublishSelectionSheet].
 class HomeBottomActionBar extends StatelessWidget {
   const HomeBottomActionBar({super.key});
@@ -31,7 +31,7 @@ class HomeBottomActionBar extends StatelessWidget {
           TextButton.icon(
             onPressed: () => context.pushNamed(RouteNames.myOffers),
             icon: const Icon(Icons.directions_car, size: 20),
-            label: Text(context.l10n.myRides),
+            label: Text(context.l10n.myOffers),
           ),
           const Spacer(),
           FilledButton.icon(

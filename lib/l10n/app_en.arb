@@ -139,8 +139,8 @@
     }
   },
 
-  "myRides": "My Rides",
-  "@myRides": { "description": "Button label to view user's own rides" },
+  "myOffers": "My Offers",
+  "@myOffers": { "description": "Button label to view user's own offers" },
 
   "post": "Post",
   "@post": { "description": "Button label to open the publish selection sheet" },

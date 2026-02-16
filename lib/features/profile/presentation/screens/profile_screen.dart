@@ -10,11 +10,43 @@ import '../../../../routes/routes.dart';
 import '../widgets.dart';
 import '../widgets/language_selector.dart';
 
-class ProfileScreen extends ConsumerWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends ConsumerState<ProfileScreen> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _refreshUserIfNeeded();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _refreshUserIfNeeded();
+    }
+  }
+
+  void _refreshUserIfNeeded() {
+    final auth = ref.read(authProvider);
+    if (auth.isAuthenticated) {
+      ref.read(authProvider.notifier).refreshUser();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     final user = authState.currentUser;
 
@@ -233,9 +265,9 @@ class _ProfileDashboard extends ConsumerWidget {
                     const Divider(height: 1),
                     ProfileActionTile(
                       icon: Icons.history,
-                      title: context.l10n.myRides,
+                      title: context.l10n.myOffers,
                       subtitle: context.l10n.viewRideHistory,
-                      onTap: () => _showComingSoon(context, context.l10n.myRides),
+                      onTap: () => context.pushNamed(RouteNames.myOffers),
                     ),
                   ],
                 ),

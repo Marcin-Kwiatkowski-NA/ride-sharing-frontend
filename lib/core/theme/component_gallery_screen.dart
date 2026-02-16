@@ -258,7 +258,7 @@ class _ComponentGalleryScreenState extends State<ComponentGalleryScreen> {
                 TextButton.icon(
                   onPressed: () {},
                   icon: const Icon(Icons.directions_car, size: 20),
-                  label: const Text('My Rides'),
+                  label: const Text('My Offers'),
                 ),
                 const Spacer(),
                 FilledButton.icon(

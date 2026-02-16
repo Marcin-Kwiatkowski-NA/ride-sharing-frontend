@@ -134,7 +134,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get myRides => 'My Rides';
+  String get myOffers => 'My Offers';
 
   @override
   String get post => 'Post';
@@ -371,9 +371,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get noPassengerRequests =>
       'No passenger requests found matching your criteria.';
-
-  @override
-  String get myOffers => 'My Offers';
 
   @override
   String get filterAll => 'All';

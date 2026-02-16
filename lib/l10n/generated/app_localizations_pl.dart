@@ -133,7 +133,7 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get myRides => 'Moje przejazdy';
+  String get myOffers => 'Moje ogłoszenia';
 
   @override
   String get post => 'Dodaj';
@@ -380,16 +380,13 @@ class AppLocalizationsPl extends AppLocalizations {
       'Nie znaleziono próśb pasażerów pasujących do Twoich kryteriów.';
 
   @override
-  String get myOffers => 'Moje ogłoszenia';
-
-  @override
   String get filterAll => 'Wszystkie';
 
   @override
   String get filterRides => 'Przejazdy';
 
   @override
-  String get filterPassengers => 'Pasażerowie';
+  String get filterPassengers => 'Pasażer';
 
   @override
   String get failedToLoadOffers => 'Nie udało się załadować ogłoszeń';
