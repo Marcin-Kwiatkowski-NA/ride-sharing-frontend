@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/l10n/app_locale_provider.dart';
 import 'core/l10n/shared_preferences_provider.dart';
+import 'core/deep_link/deep_link_handler.dart';
 import 'core/network/auth_token_provider.dart';
 import 'core/providers/auth_notifier.dart';
 import 'core/theme/app_theme.dart';
@@ -38,6 +39,8 @@ class _MyAppState extends ConsumerState<MyApp> {
   void initState() {
     super.initState();
     _initializeToken();
+    // Initialize deep link handler early to catch cold-start links
+    ref.read(deepLinkHandlerProvider);
   }
 
   Future<void> _initializeToken() async {

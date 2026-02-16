@@ -14,6 +14,7 @@ const _publicPaths = {
   RoutePaths.createAccount,
   RoutePaths.rides,
   RoutePaths.packages,
+  RoutePaths.verifyResult,
 };
 
 /// Check if path requires auth (protected by default, except explicit public paths)

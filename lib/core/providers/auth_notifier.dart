@@ -4,6 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:blablafront/services/auth_service.dart';
 import 'package:blablafront/core/utils/jwt_decoder.dart';
 import 'package:blablafront/core/network/auth_token_provider.dart';
+import 'package:blablafront/core/network/dio_provider.dart';
 import 'package:blablafront/core/models/token_pair.dart';
 import 'package:blablafront/features/auth/data/auth_repository.dart';
 import 'package:blablafront/features/auth/data/dtos/login_request.dart';
@@ -287,6 +288,44 @@ class Auth extends _$Auth {
     }
   }
 
+  /// Resend email verification.
+  ///
+  /// Returns a [ResendResult] indicating success, already-verified (409),
+  /// rate-limited (429) with cooldown seconds, or generic error.
+  Future<ResendResult> resendVerification() async {
+    try {
+      final dio = ref.read(apiDioProvider);
+      await dio.post<void>('/auth/resend-verification');
+      return const ResendResult.success();
+    } on DioException catch (e) {
+      final status = e.response?.statusCode;
+      if (status == 409) {
+        // Already verified — refresh user to update badge
+        await refreshUser();
+        return const ResendResult.alreadyVerified();
+      }
+      if (status == 429) {
+        final data = e.response?.data;
+        int cooldown = 60;
+        if (data is Map<String, dynamic>) {
+          final detail = data['detail'] ?? data['message'];
+          if (detail is String) {
+            final match = RegExp(r'(\d+)').firstMatch(detail);
+            if (match != null) {
+              cooldown = int.parse(match.group(1)!);
+            }
+          } else if (data['cooldownSeconds'] is int) {
+            cooldown = data['cooldownSeconds'] as int;
+          }
+        }
+        return ResendResult.cooldown(cooldown);
+      }
+      return const ResendResult.error();
+    } catch (_) {
+      return const ResendResult.error();
+    }
+  }
+
   /// Clear error message
   void clearError() {
     state = state.copyWith(errorMessage: null);
@@ -300,4 +339,30 @@ class Auth extends _$Auth {
     }
     return defaultMessage;
   }
+}
+
+/// Result of a resend-verification API call.
+sealed class ResendResult {
+  const ResendResult();
+  const factory ResendResult.success() = ResendSuccess;
+  const factory ResendResult.alreadyVerified() = ResendAlreadyVerified;
+  const factory ResendResult.cooldown(int seconds) = ResendCooldown;
+  const factory ResendResult.error() = ResendError;
+}
+
+class ResendSuccess extends ResendResult {
+  const ResendSuccess();
+}
+
+class ResendAlreadyVerified extends ResendResult {
+  const ResendAlreadyVerified();
+}
+
+class ResendCooldown extends ResendResult {
+  final int seconds;
+  const ResendCooldown(this.seconds);
+}
+
+class ResendError extends ResendResult {
+  const ResendError();
 }

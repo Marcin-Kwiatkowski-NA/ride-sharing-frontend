@@ -821,5 +821,46 @@
   "@distanceHint": {
     "description": "Distance hint shown next to city name on nearby offer cards",
     "placeholders": { "km": { "type": "int" } }
-  }
+  },
+
+
+
+  "emailVerifiedSuccess": "Email verified!",
+  "@emailVerifiedSuccess": { "description": "Title on verify-result screen when verification succeeds" },
+
+  "emailVerificationFailed": "Verification failed",
+  "@emailVerificationFailed": { "description": "Title on verify-result screen when verification fails" },
+
+  "verificationEmailSent": "Verification email sent",
+  "@verificationEmailSent": { "description": "Snackbar after resend verification email succeeds" },
+
+  "resendVerificationEmail": "Resend verification email",
+  "@resendVerificationEmail": { "description": "Button label to resend a verification email" },
+
+  "emailAlreadyVerified": "Email is already verified",
+  "@emailAlreadyVerified": { "description": "Snackbar when email is already verified (409)" },
+
+  "verificationCooldown": "Try again in {seconds}s",
+  "@verificationCooldown": {
+    "description": "Snackbar when resend is rate-limited (429)",
+    "placeholders": { "seconds": { "type": "int" } }
+  },
+
+  "continueToApp": "Continue",
+  "@continueToApp": { "description": "Button on verify-result success screen to go to rides" },
+
+  "signInToContinue": "Please sign in to continue.",
+  "@signInToContinue": { "description": "Message on verify-result when user is not signed in" },
+
+  "emailVerifiedSignIn": "Email verified. Please sign in to continue.",
+  "@emailVerifiedSignIn": { "description": "Success message on verify-result for unauthenticated users" },
+
+  "goToLogin": "Go to login",
+  "@goToLogin": { "description": "Button to navigate to login from verify-result screen" },
+
+  "requestNewVerification": "Please sign in and request a new verification email.",
+  "@requestNewVerification": { "description": "Error message for unauthenticated users on verify-result" },
+
+  "genericVerificationError": "Something went wrong. Please try again.",
+  "@genericVerificationError": { "description": "Generic error for verification resend failure" }
 }

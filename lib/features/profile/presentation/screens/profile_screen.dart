@@ -135,7 +135,7 @@ class _ProfileDashboard extends ConsumerWidget {
                         isVerified: user.isEmailVerified,
                         onTap: user.isEmailVerified
                             ? null
-                            : () => _showComingSoon(context, context.l10n.emailVerification),
+                            : () => _handleResendVerification(context, ref),
                       ),
                       VerificationBadge(
                         label: context.l10n.phoneLabel,
@@ -274,6 +274,23 @@ class _ProfileDashboard extends ConsumerWidget {
           const SliverPadding(padding: EdgeInsets.only(bottom: 32)),
         ],
       ),
+    );
+  }
+
+  Future<void> _handleResendVerification(BuildContext context, WidgetRef ref) async {
+    final result = await ref.read(authProvider.notifier).resendVerification();
+    if (!context.mounted) return;
+
+    final l10n = context.l10n;
+    final message = switch (result) {
+      ResendSuccess() => l10n.verificationEmailSent,
+      ResendAlreadyVerified() => l10n.emailAlreadyVerified,
+      ResendCooldown(:final seconds) => l10n.verificationCooldown(seconds),
+      ResendError() => l10n.genericVerificationError,
+    };
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
     );
   }
 

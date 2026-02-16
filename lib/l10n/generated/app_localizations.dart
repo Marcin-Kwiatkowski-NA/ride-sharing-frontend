@@ -1477,6 +1477,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'+{km} km'**
   String distanceHint(int km);
+
+  /// Title on verify-result screen when verification succeeds
+  ///
+  /// In en, this message translates to:
+  /// **'Email verified!'**
+  String get emailVerifiedSuccess;
+
+  /// Title on verify-result screen when verification fails
+  ///
+  /// In en, this message translates to:
+  /// **'Verification failed'**
+  String get emailVerificationFailed;
+
+  /// Snackbar after resend verification email succeeds
+  ///
+  /// In en, this message translates to:
+  /// **'Verification email sent'**
+  String get verificationEmailSent;
+
+  /// Button label to resend a verification email
+  ///
+  /// In en, this message translates to:
+  /// **'Resend verification email'**
+  String get resendVerificationEmail;
+
+  /// Snackbar when email is already verified (409)
+  ///
+  /// In en, this message translates to:
+  /// **'Email is already verified'**
+  String get emailAlreadyVerified;
+
+  /// Snackbar when resend is rate-limited (429)
+  ///
+  /// In en, this message translates to:
+  /// **'Try again in {seconds}s'**
+  String verificationCooldown(int seconds);
+
+  /// Button on verify-result success screen to go to rides
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get continueToApp;
+
+  /// Message on verify-result when user is not signed in
+  ///
+  /// In en, this message translates to:
+  /// **'Please sign in to continue.'**
+  String get signInToContinue;
+
+  /// Success message on verify-result for unauthenticated users
+  ///
+  /// In en, this message translates to:
+  /// **'Email verified. Please sign in to continue.'**
+  String get emailVerifiedSignIn;
+
+  /// Button to navigate to login from verify-result screen
+  ///
+  /// In en, this message translates to:
+  /// **'Go to login'**
+  String get goToLogin;
+
+  /// Error message for unauthenticated users on verify-result
+  ///
+  /// In en, this message translates to:
+  /// **'Please sign in and request a new verification email.'**
+  String get requestNewVerification;
+
+  /// Generic error for verification resend failure
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again.'**
+  String get genericVerificationError;
 }
 
 class _AppLocalizationsDelegate

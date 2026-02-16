@@ -17,6 +17,7 @@ abstract class RouteNames {
   static const myOffers = 'my-offers';
   static const publicProfile = 'public-profile';
   static const devGallery = 'dev-gallery';
+  static const verifyResult = 'verify-result';
 }
 
 /// Route paths (used only in router config)
@@ -39,4 +40,5 @@ abstract class RoutePaths {
   static const myOffers = '/my-offers';
   static const publicProfile = '/user/:userId';
   static const devGallery = '/dev/gallery';
+  static const verifyResult = '/verify-result';
 }

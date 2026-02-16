@@ -791,4 +791,45 @@ class AppLocalizationsPl extends AppLocalizations {
   String distanceHint(int km) {
     return '+$km km';
   }
+
+  @override
+  String get emailVerifiedSuccess => 'E-mail zweryfikowany!';
+
+  @override
+  String get emailVerificationFailed => 'Weryfikacja nie powiodła się';
+
+  @override
+  String get verificationEmailSent => 'E-mail weryfikacyjny został wysłany';
+
+  @override
+  String get resendVerificationEmail => 'Wyślij ponownie e-mail weryfikacyjny';
+
+  @override
+  String get emailAlreadyVerified => 'E-mail jest już zweryfikowany';
+
+  @override
+  String verificationCooldown(int seconds) {
+    return 'Spróbuj ponownie za ${seconds}s';
+  }
+
+  @override
+  String get continueToApp => 'Kontynuuj';
+
+  @override
+  String get signInToContinue => 'Zaloguj się, aby kontynuować.';
+
+  @override
+  String get emailVerifiedSignIn =>
+      'E-mail zweryfikowany. Zaloguj się, aby kontynuować.';
+
+  @override
+  String get goToLogin => 'Przejdź do logowania';
+
+  @override
+  String get requestNewVerification =>
+      'Zaloguj się i poproś o nowy e-mail weryfikacyjny.';
+
+  @override
+  String get genericVerificationError =>
+      'Coś poszło nie tak. Spróbuj ponownie.';
 }

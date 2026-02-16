@@ -67,6 +67,9 @@ dependencies:
   # Navigation
   go_router: ^17.1.0
 
+  # Deep Links
+  app_links: ^7.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
