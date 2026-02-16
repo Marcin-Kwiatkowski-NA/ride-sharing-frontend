@@ -8,6 +8,7 @@ part 'profile_repository.g.dart';
 
 abstract class IProfileRepository {
   Future<UserProfile> updateProfile(UpdateProfileRequest request);
+  Future<void> deleteAccount();
 }
 
 class ProfileRepository implements IProfileRepository {
@@ -22,6 +23,11 @@ class ProfileRepository implements IProfileRepository {
       data: request.toJson(),
     );
     return UserProfile.fromJson(response.data!);
+  }
+
+  @override
+  Future<void> deleteAccount() async {
+    await _dio.delete<void>('/me');
   }
 }
 

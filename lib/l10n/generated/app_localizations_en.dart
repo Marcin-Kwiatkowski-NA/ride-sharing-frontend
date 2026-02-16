@@ -901,4 +901,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get locationSearchFailed => 'Failed to load locations';
+
+  @override
+  String get deleteAccount => 'Delete account';
+
+  @override
+  String get deleteAccountTitle => 'Delete account?';
+
+  @override
+  String get deleteAccountWarning =>
+      'This action is permanent and cannot be undone. All your data — rides, messages, and profile — will be permanently deleted.';
+
+  @override
+  String get deleteAccountConfirm => 'Delete my account';
+
+  @override
+  String get deleteAccountError =>
+      'Failed to delete account. Please try again.';
 }

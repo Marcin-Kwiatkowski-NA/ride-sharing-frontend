@@ -207,6 +207,32 @@ class Auth extends _$Auth {
     return false;
   }
 
+  /// Delete current user's account permanently.
+  ///
+  /// Calls the backend DELETE /me, then clears local session.
+  /// Returns true on success, false on error.
+  Future<bool> deleteAccount() async {
+    try {
+      final profileRepo = ref.read(profileRepositoryProvider);
+      await profileRepo.deleteAccount();
+
+      // Clear local session (same as signOut)
+      ref.read(authTokenProvider.notifier).clear();
+      if (!ref.mounted) return false;
+      state = const AuthState(status: AuthStatus.unauthenticated);
+      return true;
+    } on DioException catch (e) {
+      if (!ref.mounted) return false;
+      final message = _extractErrorMessage(e, 'Failed to delete account');
+      state = state.copyWith(errorMessage: message);
+      return false;
+    } catch (e) {
+      if (!ref.mounted) return false;
+      state = state.copyWith(errorMessage: 'An error occurred: ${e.toString()}');
+      return false;
+    }
+  }
+
   /// Sign out current user
   ///
   /// Clears all user data and authentication state.

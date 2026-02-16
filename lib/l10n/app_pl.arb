@@ -289,5 +289,11 @@
   "genericVerificationError": "Coś poszło nie tak. Spróbuj ponownie.",
   "noLocationsFound": "Nie znaleziono lokalizacji",
   "locationConnectionError": "Błąd połączenia. Sprawdź sieć.",
-  "locationSearchFailed": "Nie udało się załadować lokalizacji"
+  "locationSearchFailed": "Nie udało się załadować lokalizacji",
+
+  "deleteAccount": "Usuń konto",
+  "deleteAccountTitle": "Usunąć konto?",
+  "deleteAccountWarning": "Ta operacja jest nieodwracalna. Wszystkie Twoje dane — przejazdy, wiadomości i profil — zostaną trwale usunięte.",
+  "deleteAccountConfirm": "Usuń moje konto",
+  "deleteAccountError": "Nie udało się usunąć konta. Spróbuj ponownie."
 }

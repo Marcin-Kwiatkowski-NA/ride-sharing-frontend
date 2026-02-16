@@ -1681,6 +1681,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to load locations'**
   String get locationSearchFailed;
+
+  /// Button label to delete user account
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get deleteAccount;
+
+  /// Confirmation dialog title for account deletion
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account?'**
+  String get deleteAccountTitle;
+
+  /// Warning message in account deletion dialog
+  ///
+  /// In en, this message translates to:
+  /// **'This action is permanent and cannot be undone. All your data — rides, messages, and profile — will be permanently deleted.'**
+  String get deleteAccountWarning;
+
+  /// Confirm button in account deletion dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Delete my account'**
+  String get deleteAccountConfirm;
+
+  /// Error message when account deletion fails
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete account. Please try again.'**
+  String get deleteAccountError;
 }
 
 class _AppLocalizationsDelegate

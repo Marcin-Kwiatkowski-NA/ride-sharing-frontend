@@ -302,6 +302,20 @@ class _ProfileDashboard extends ConsumerWidget {
             ),
           ),
 
+          // Delete account button
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: TextButton(
+                onPressed: () => _handleDeleteAccount(context, ref),
+                child: Text(
+                  context.l10n.deleteAccount,
+                  style: TextStyle(color: theme.colorScheme.error),
+                ),
+              ),
+            ),
+          ),
+
           // Bottom spacing
           const SliverPadding(padding: EdgeInsets.only(bottom: 32)),
         ],
@@ -330,6 +344,44 @@ class _ProfileDashboard extends ConsumerWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(context.l10n.comingSoon(feature))),
     );
+  }
+
+  Future<void> _handleDeleteAccount(BuildContext context, WidgetRef ref) async {
+    final l10n = context.l10n;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.deleteAccountTitle),
+        content: Text(l10n.deleteAccountWarning),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+              foregroundColor: Theme.of(ctx).colorScheme.onError,
+            ),
+            child: Text(l10n.deleteAccountConfirm),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !context.mounted) return;
+
+    final success = await ref.read(authProvider.notifier).deleteAccount();
+    if (!context.mounted) return;
+
+    if (success) {
+      context.goNamed(RouteNames.rides);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.deleteAccountError)),
+      );
+    }
   }
 
   Future<void> _handleLogout(BuildContext context, WidgetRef ref) async {

@@ -909,4 +909,21 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get locationSearchFailed => 'Nie udało się załadować lokalizacji';
+
+  @override
+  String get deleteAccount => 'Usuń konto';
+
+  @override
+  String get deleteAccountTitle => 'Usunąć konto?';
+
+  @override
+  String get deleteAccountWarning =>
+      'Ta operacja jest nieodwracalna. Wszystkie Twoje dane — przejazdy, wiadomości i profil — zostaną trwale usunięte.';
+
+  @override
+  String get deleteAccountConfirm => 'Usuń moje konto';
+
+  @override
+  String get deleteAccountError =>
+      'Nie udało się usunąć konta. Spróbuj ponownie.';
 }
