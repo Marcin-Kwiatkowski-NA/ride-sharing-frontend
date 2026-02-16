@@ -7,11 +7,10 @@ import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/locations/domain/location.dart';
 import '../../../../core/widgets/core_widgets.dart';
 import '../../../../routes/routes.dart';
-import '../../../../shared/widgets/departure_picker_helpers.dart';
 import '../../../../shared/widgets/departure_time_section.dart';
 import '../../../../shared/widgets/location_picker_dialog.dart';
 import '../../../../shared/widgets/number_stepper.dart';
-import '../../../../shared/widgets/route_timeline.dart';
+import '../../../../shared/widgets/route_timeline_section.dart';
 import '../../../offers/domain/offer_ui_model.dart';
 import '../../../offers/presentation/providers/offer_detail_provider.dart';
 import '../../presentation/providers/paginated_seats_provider.dart';
@@ -35,7 +34,6 @@ class PostSeatScreen extends ConsumerStatefulWidget {
 
 class _PostSeatScreenState extends ConsumerState<PostSeatScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _timeController = TextEditingController();
   final _budgetController = TextEditingController();
   final _descriptionController = TextEditingController();
 
@@ -58,13 +56,12 @@ class _PostSeatScreenState extends ConsumerState<PostSeatScreen> {
 
   @override
   void dispose() {
-    _timeController.dispose();
     _budgetController.dispose();
     _descriptionController.dispose();
     super.dispose();
   }
 
-  Future<void> _pickTime(BuildContext context) async {
+  Future<void> _pickTime() async {
     final controller = ref.read(postSeatControllerProvider.notifier);
     final state = ref.read(postSeatControllerProvider);
 
@@ -75,7 +72,6 @@ class _PostSeatScreenState extends ConsumerState<PostSeatScreen> {
 
     if (pickedTime != null && mounted) {
       controller.setExactTime(pickedTime);
-      _timeController.text = formatPickedTime(pickedTime);
     }
   }
 
@@ -148,7 +144,9 @@ class _PostSeatScreenState extends ConsumerState<PostSeatScreen> {
                         title: 'Route',
                         isFirst: true,
                       ),
-                      RouteTimeline(
+                      RouteTimelineSection(
+                        originLabel: context.l10n.fromLabel,
+                        destinationLabel: context.l10n.toLabel,
                         origin: state.origin,
                         destination: state.destination,
                         onOriginTap: () async {
@@ -195,8 +193,7 @@ class _PostSeatScreenState extends ConsumerState<PostSeatScreen> {
                         isApproximate: state.isApproximate,
                         onIsApproximateChanged: controller.setIsApproximate,
                         exactTime: state.exactTime,
-                        timeController: _timeController,
-                        onPickTime: () => _pickTime(context),
+                        onPickTime: _pickTime,
                         timeError: showErrors ? state.timeError : null,
                         selectedPartOfDay: state.partOfDay,
                         onPartOfDaySelected: controller.setPartOfDay,

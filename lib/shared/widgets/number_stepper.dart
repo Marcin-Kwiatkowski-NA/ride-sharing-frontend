@@ -53,7 +53,7 @@ class NumberStepper extends StatelessWidget {
                 ),
               ),
               SizedBox(
-                width: 48,
+                width: 36,
                 child: Text(
                   '$value',
                   textAlign: TextAlign.center,

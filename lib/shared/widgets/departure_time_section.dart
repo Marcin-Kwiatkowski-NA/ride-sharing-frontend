@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../features/offers/domain/part_of_day.dart';
 import 'date_quick_picker.dart';
+import 'departure_picker_helpers.dart';
 import 'part_of_day_selector.dart';
 import 'time_mode_selector.dart';
 
@@ -20,7 +21,6 @@ class DepartureTimeSection extends StatelessWidget {
 
   // Exact time
   final TimeOfDay? exactTime;
-  final TextEditingController? timeController;
   final VoidCallback? onPickTime;
   final String? timeError;
 
@@ -36,7 +36,6 @@ class DepartureTimeSection extends StatelessWidget {
     required this.isApproximate,
     required this.onIsApproximateChanged,
     this.exactTime,
-    this.timeController,
     this.onPickTime,
     this.timeError,
     this.selectedPartOfDay,
@@ -46,6 +45,7 @@ class DepartureTimeSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,26 +79,82 @@ class DepartureTimeSection extends StatelessWidget {
               child: Text(
                 timeError!,
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.error,
+                  color: colorScheme.error,
                 ),
               ),
             ),
         ] else ...[
-          if (timeController != null && onPickTime != null)
-            GestureDetector(
-              onTap: onPickTime,
-              child: AbsorbPointer(
-                child: TextFormField(
-                  controller: timeController,
-                  decoration: InputDecoration(
-                    labelText: 'Time of departure',
-                    prefixIcon: const Icon(Icons.access_time_outlined),
-                    suffixIcon: const Icon(Icons.arrow_drop_down),
-                    errorText: timeError,
+          if (onPickTime != null) ...[
+            Text(
+              'Time of departure',
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Material(
+              color: colorScheme.surfaceContainerLow,
+              shape: StadiumBorder(
+                side: BorderSide(
+                  color: timeError != null
+                      ? colorScheme.error
+                      : colorScheme.outlineVariant,
+                ),
+              ),
+              child: InkWell(
+                onTap: onPickTime,
+                customBorder: const StadiumBorder(),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    minHeight: kMinInteractiveDimension,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.access_time_outlined,
+                          size: 20,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          exactTime != null
+                              ? formatPickedTime(exactTime!)
+                              : 'Set time',
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            color: exactTime != null
+                                ? colorScheme.onSurface
+                                : colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Icon(
+                          Icons.arrow_drop_down,
+                          size: 20,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
+            if (timeError != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 4, left: 12),
+                child: Text(
+                  timeError!,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colorScheme.error,
+                  ),
+                ),
+              ),
+          ],
         ],
       ],
     );

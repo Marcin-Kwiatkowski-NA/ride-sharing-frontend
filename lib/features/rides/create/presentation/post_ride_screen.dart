@@ -7,11 +7,10 @@ import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/locations/domain/location.dart';
 import '../../../../core/widgets/core_widgets.dart';
 import '../../../../routes/routes.dart';
-import '../../../../shared/widgets/departure_picker_helpers.dart';
 import '../../../../shared/widgets/departure_time_section.dart';
 import '../../../../shared/widgets/location_picker_dialog.dart';
 import '../../../../shared/widgets/number_stepper.dart';
-import '../../../../shared/widgets/route_timeline.dart';
+import '../../../../shared/widgets/route_timeline_section.dart';
 import '../../../offers/domain/offer_ui_model.dart';
 import '../../../offers/presentation/providers/offer_detail_provider.dart';
 import '../../presentation/providers/paginated_rides_provider.dart';
@@ -29,7 +28,6 @@ class PostRideScreen extends ConsumerStatefulWidget {
 
 class _PostRideScreenState extends ConsumerState<PostRideScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _timeController = TextEditingController();
   final _priceController = TextEditingController();
   final _descriptionController = TextEditingController();
 
@@ -47,13 +45,32 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
 
   @override
   void dispose() {
-    _timeController.dispose();
     _priceController.dispose();
     _descriptionController.dispose();
     super.dispose();
   }
 
-  Future<void> _pickTime(BuildContext context) async {
+  Future<void> _pickLocation(
+    String title,
+    void Function(Location) onSelected,
+  ) async {
+    final location = await showLocationPickerDialog(context, title: title);
+    if (location != null) onSelected(location);
+  }
+
+  Future<void> _pickStopLocation(int index) async {
+    final location = await showLocationPickerDialog(
+      context,
+      title: 'Stop ${index + 1}',
+    );
+    if (location != null) {
+      ref
+          .read(postRideControllerProvider.notifier)
+          .setIntermediateStopLocation(index, location);
+    }
+  }
+
+  Future<void> _pickTime() async {
     final controller = ref.read(postRideControllerProvider.notifier);
     final state = ref.read(postRideControllerProvider);
 
@@ -64,11 +81,10 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
 
     if (pickedTime != null && mounted) {
       controller.setExactTime(pickedTime);
-      _timeController.text = formatPickedTime(pickedTime);
     }
   }
 
-  Future<void> _pickStopTime(BuildContext context, int index) async {
+  Future<void> _pickStopTime(int index) async {
     final controller = ref.read(postRideControllerProvider.notifier);
     final state = ref.read(postRideControllerProvider);
     final stop = state.intermediateStops[index];
@@ -84,7 +100,6 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
   }
 
   void _onSubmit() {
-    // Sync text field values to controller
     final controller = ref.read(postRideControllerProvider.notifier);
     if (!ref.read(postRideControllerProvider).isNegotiablePrice) {
       final price = int.tryParse(_priceController.text);
@@ -155,142 +170,49 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _SectionHeader(
+                      const _SectionHeader(
                         icon: Icons.route,
                         title: 'Route',
                         isFirst: true,
                       ),
-                      RouteTimeline(
+                      RouteTimelineSection(
+                        originLabel: context.l10n.fromLabel,
+                        destinationLabel: context.l10n.toLabel,
+                        addStopLabel: context.l10n.addStop,
                         origin: state.origin,
                         destination: state.destination,
-                        onOriginTap: () async {
-                          final location = await showLocationPickerDialog(
-                            context,
-                            title: context.l10n.fromLabel,
-                          );
-                          if (location != null) controller.setOrigin(location);
-                        },
-                        onDestinationTap: () async {
-                          final location = await showLocationPickerDialog(
-                            context,
-                            title: context.l10n.toLabel,
-                          );
-                          if (location != null) {
-                            controller.setDestination(location);
-                          }
-                        },
+                        onOriginTap: () => _pickLocation(
+                          context.l10n.fromLabel,
+                          controller.setOrigin,
+                        ),
+                        onDestinationTap: () => _pickLocation(
+                          context.l10n.toLabel,
+                          controller.setDestination,
+                        ),
                         originError:
                             showErrors ? state.originError : null,
                         destinationError:
                             showErrors ? state.destinationError : null,
+                        stops: state.intermediateStops
+                            .map((s) => RouteStopData(
+                                  id: s.id,
+                                  locationName: s.location?.name,
+                                  departureTime: s.departureTime,
+                                ))
+                            .toList(),
+                        onStopTap: (i) => _pickStopLocation(i),
+                        onStopTimeTap: (i) => _pickStopTime(i),
+                        onStopRemove: controller.removeIntermediateStop,
+                        onStopReorder: controller.reorderStops,
+                        onAddStop: controller.addIntermediateStop,
+                        maxStops: 3,
+                        stopsError:
+                            showErrors ? state.stopsError : null,
                       ),
-                      if (state.intermediateStops.length < 3)
-                        TextButton.icon(
-                          onPressed: controller.addIntermediateStop,
-                          icon: const Icon(Icons.add_location_alt_outlined),
-                          label: Text(context.l10n.addStop),
-                        ),
                     ],
                   ),
                 ),
               ),
-
-              // ── Reorderable Intermediate Stops ─────────────────────
-              if (state.intermediateStops.isNotEmpty)
-                SliverReorderableList(
-                  itemCount: state.intermediateStops.length,
-                  onReorder: controller.reorderStops,
-                  itemBuilder: (context, index) {
-                    final stop = state.intermediateStops[index];
-                    return Padding(
-                      key: ValueKey(stop.id),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 4,
-                      ),
-                      child: Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Row(
-                            children: [
-                              // Diamond icon
-                              Icon(
-                                Icons.diamond_outlined,
-                                size: 18,
-                                color: colorScheme.primary,
-                              ),
-                              const SizedBox(width: 8),
-                              // Stop location
-                              Expanded(
-                                child: InkWell(
-                                  onTap: () async {
-                                    final location =
-                                        await showLocationPickerDialog(
-                                      context,
-                                      title: 'Stop ${index + 1}',
-                                    );
-                                    if (location != null) {
-                                      controller
-                                          .setIntermediateStopLocation(
-                                        index,
-                                        location,
-                                      );
-                                    }
-                                  },
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        stop.location?.name ??
-                                            'Choose stop ${index + 1}',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium,
-                                      ),
-                                      if (stop.departureTime != null)
-                                        Text(
-                                          formatPickedTime(
-                                              stop.departureTime!),
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall
-                                              ?.copyWith(
-                                                color: colorScheme
-                                                    .onSurfaceVariant,
-                                              ),
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              // Time picker
-                              IconButton(
-                                icon: const Icon(Icons.access_time, size: 20),
-                                onPressed: () =>
-                                    _pickStopTime(context, index),
-                                tooltip: 'Set time',
-                              ),
-                              // Drag handle — only this triggers reorder
-                              ReorderableDragStartListener(
-                                index: index,
-                                child: const Icon(Icons.drag_handle, size: 20),
-                              ),
-                              // Remove
-                              IconButton(
-                                icon: const Icon(Icons.close, size: 20),
-                                onPressed: () =>
-                                    controller.removeIntermediateStop(index),
-                                color: colorScheme.error,
-                                tooltip: context.l10n.removeStop,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
 
               // ── When Section ───────────────────────────────────────
               SliverToBoxAdapter(
@@ -310,8 +232,7 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
                         isApproximate: state.isApproximate,
                         onIsApproximateChanged: controller.setIsApproximate,
                         exactTime: state.exactTime,
-                        timeController: _timeController,
-                        onPickTime: () => _pickTime(context),
+                        onPickTime: _pickTime,
                         timeError: showErrors ? state.timeError : null,
                         selectedPartOfDay: state.partOfDay,
                         onPartOfDaySelected: controller.setPartOfDay,
@@ -383,17 +304,6 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
                         maxLines: 4,
                         minLines: 2,
                       ),
-                      if (showErrors && state.stopsError != null)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 4, left: 12),
-                          child: Text(
-                            state.stopsError!,
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: colorScheme.error,
-                                    ),
-                          ),
-                        ),
                       const SizedBox(height: 100),
                     ],
                   ),
