@@ -461,6 +461,15 @@
   "postSeatRequest": "Post Seat Request",
   "@postSeatRequest": { "description": "AppBar title and submit button for seat request creation" },
 
+  "sectionRoute": "Route",
+  "@sectionRoute": { "description": "Section header for origin/destination in creation forms" },
+
+  "sectionWhen": "When",
+  "@sectionWhen": { "description": "Section header for date/time in creation forms" },
+
+  "sectionDetails": "Details",
+  "@sectionDetails": { "description": "Section header for seats/price/description in creation forms" },
+
   "findARideHeader": "Find a Ride",
   "@findARideHeader": { "description": "Header text on seat request creation form" },
 
@@ -694,6 +703,9 @@
 
   "dateLabel": "Date",
   "@dateLabel": { "description": "Short label for departure date in search sheet" },
+
+  "timeLabel": "Time",
+  "@timeLabel": { "description": "Short label for departure time" },
 
   "anyDate": "Any date",
   "@anyDate": { "description": "Shown when no departure date is selected" },

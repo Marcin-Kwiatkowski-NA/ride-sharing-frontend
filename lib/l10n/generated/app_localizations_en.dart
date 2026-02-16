@@ -457,6 +457,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get postSeatRequest => 'Post Seat Request';
 
   @override
+  String get sectionRoute => 'Route';
+
+  @override
+  String get sectionWhen => 'When';
+
+  @override
+  String get sectionDetails => 'Details';
+
+  @override
   String get findARideHeader => 'Find a Ride';
 
   @override
@@ -675,6 +684,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dateLabel => 'Date';
+
+  @override
+  String get timeLabel => 'Time';
 
   @override
   String get anyDate => 'Any date';

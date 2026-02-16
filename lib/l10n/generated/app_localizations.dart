@@ -884,6 +884,24 @@ abstract class AppLocalizations {
   /// **'Post Seat Request'**
   String get postSeatRequest;
 
+  /// Section header for origin/destination in creation forms
+  ///
+  /// In en, this message translates to:
+  /// **'Route'**
+  String get sectionRoute;
+
+  /// Section header for date/time in creation forms
+  ///
+  /// In en, this message translates to:
+  /// **'When'**
+  String get sectionWhen;
+
+  /// Section header for seats/price/description in creation forms
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get sectionDetails;
+
   /// Header text on seat request creation form
   ///
   /// In en, this message translates to:
@@ -1297,6 +1315,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Date'**
   String get dateLabel;
+
+  /// Short label for departure time
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get timeLabel;
 
   /// Shown when no departure date is selected
   ///

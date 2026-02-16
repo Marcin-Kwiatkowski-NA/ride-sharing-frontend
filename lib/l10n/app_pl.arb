@@ -145,6 +145,9 @@
   "postRide": "Dodaj przejazd",
 
   "postSeatRequest": "Dodaj prośbę o przejazd",
+  "sectionRoute": "Trasa",
+  "sectionWhen": "Kiedy",
+  "sectionDetails": "Szczegóły",
   "findARideHeader": "Szukam przejazdu",
   "passengersRange": "Dozwolone 1–8 pasażerów",
   "budgetOptional": "Budżet (opcjonalnie)",
@@ -220,6 +223,7 @@
   "fromLabel": "Skąd",
   "toLabel": "Dokąd",
   "dateLabel": "Data",
+  "timeLabel": "Czas",
   "anyDate": "Dowolna data",
   "clearDate": "Wyczyść datę",
   "clearAll": "Wyczyść wszystko",

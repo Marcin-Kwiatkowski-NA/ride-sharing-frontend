@@ -465,6 +465,15 @@ class AppLocalizationsPl extends AppLocalizations {
   String get postSeatRequest => 'Dodaj prośbę o przejazd';
 
   @override
+  String get sectionRoute => 'Trasa';
+
+  @override
+  String get sectionWhen => 'Kiedy';
+
+  @override
+  String get sectionDetails => 'Szczegóły';
+
+  @override
   String get findARideHeader => 'Szukam przejazdu';
 
   @override
@@ -682,6 +691,9 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get dateLabel => 'Data';
+
+  @override
+  String get timeLabel => 'Czas';
 
   @override
   String get anyDate => 'Dowolna data';

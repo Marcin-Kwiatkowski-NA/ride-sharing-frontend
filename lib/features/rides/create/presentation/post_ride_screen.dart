@@ -11,6 +11,7 @@ import '../../../../shared/widgets/departure_time_section.dart';
 import '../../../../shared/widgets/location_picker_dialog.dart';
 import '../../../../shared/widgets/number_stepper.dart';
 import '../../../../shared/widgets/route_timeline_section.dart';
+import '../../../../shared/widgets/time_picker_sheet.dart';
 import '../../../offers/domain/offer_ui_model.dart';
 import '../../../offers/presentation/providers/offer_detail_provider.dart';
 import '../../presentation/providers/paginated_rides_provider.dart';
@@ -70,18 +71,40 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
     }
   }
 
+  Future<void> _pickDate() async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final state = ref.read(postRideControllerProvider);
+
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: state.selectedDate ?? today,
+      firstDate: today,
+      lastDate: today.add(const Duration(days: 365)),
+    );
+
+    if (picked != null && mounted) {
+      ref.read(postRideControllerProvider.notifier).setSelectedDate(picked);
+    }
+  }
+
   Future<void> _pickTime() async {
     final controller = ref.read(postRideControllerProvider.notifier);
     final state = ref.read(postRideControllerProvider);
 
-    final pickedTime = await showTimePicker(
-      context: context,
-      initialTime: state.exactTime ?? TimeOfDay.now(),
+    await showTimePickerSheet(
+      context,
+      currentTime: state.isApproximate ? null : state.exactTime,
+      currentPartOfDay: state.isApproximate ? state.partOfDay : null,
+      onExactTimePicked: (time) {
+        controller.setIsApproximate(false);
+        controller.setExactTime(time);
+      },
+      onPartOfDayPicked: (pod) {
+        controller.setIsApproximate(true);
+        controller.setPartOfDay(pod);
+      },
     );
-
-    if (pickedTime != null && mounted) {
-      controller.setExactTime(pickedTime);
-    }
   }
 
   Future<void> _pickStopTime(int index) async {
@@ -170,9 +193,9 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const _SectionHeader(
+                      _SectionHeader(
                         icon: Icons.route,
-                        title: 'Route',
+                        title: context.l10n.sectionRoute,
                         isFirst: true,
                       ),
                       RouteTimelineSection(
@@ -221,21 +244,19 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const _SectionHeader(
+                      _SectionHeader(
                         icon: Icons.calendar_month,
-                        title: 'When',
+                        title: context.l10n.sectionWhen,
                       ),
                       DepartureTimeSection(
                         selectedDate: state.selectedDate,
-                        onDateSelected: controller.setSelectedDate,
-                        dateError: showErrors ? state.dateError : null,
-                        isApproximate: state.isApproximate,
-                        onIsApproximateChanged: controller.setIsApproximate,
                         exactTime: state.exactTime,
-                        onPickTime: _pickTime,
-                        timeError: showErrors ? state.timeError : null,
                         selectedPartOfDay: state.partOfDay,
-                        onPartOfDaySelected: controller.setPartOfDay,
+                        isApproximate: state.isApproximate,
+                        onDateTap: _pickDate,
+                        onTimeTap: _pickTime,
+                        dateError: showErrors ? state.dateError : null,
+                        timeError: showErrors ? state.timeError : null,
                       ),
                     ],
                   ),
@@ -249,9 +270,9 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const _SectionHeader(
+                      _SectionHeader(
                         icon: Icons.tune,
-                        title: 'Details',
+                        title: context.l10n.sectionDetails,
                       ),
                       NumberStepper(
                         value: state.availableSeats,
