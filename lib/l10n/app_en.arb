@@ -488,6 +488,39 @@
   "seatRequestCreated": "Seat request created successfully!",
   "@seatRequestCreated": { "description": "Snackbar message after successful seat request creation" },
 
+  "smartMatchRideLive": "Your ride is live!",
+  "@smartMatchRideLive": { "description": "Success header after publishing a ride" },
+
+  "smartMatchHeading": "Matching passenger requests",
+  "@smartMatchHeading": { "description": "Subheading for the smart match results section" },
+
+  "smartMatchError": "Could not load matching requests.",
+  "@smartMatchError": { "description": "Error message when smart match search fails" },
+
+  "smartMatchEmpty": "No passengers looking for this route yet.",
+  "@smartMatchEmpty": { "description": "Empty state when no matching passengers found" },
+
+  "smartMatchEmptyHint": "Check back on your ride details later.",
+  "@smartMatchEmptyHint": { "description": "Hint below empty state for smart match" },
+
+  "smartMatchViewRide": "View your ride",
+  "@smartMatchViewRide": { "description": "CTA button to navigate to the created ride" },
+
+  "smartMatchSeeAll": "See all {count} requests",
+  "@smartMatchSeeAll": {
+    "description": "Button to expand and show all matching passenger requests",
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "smartMatchRouteSummary": "{route} on {date}",
+  "@smartMatchRouteSummary": {
+    "description": "Route summary shown after ride creation (e.g. Warsaw → Krakow on Mon, 17 Feb)",
+    "placeholders": {
+      "route": { "type": "String" },
+      "date": { "type": "String" }
+    }
+  },
+
 
 
   "profileTitle": "Profile",
@@ -877,5 +910,14 @@
   "@requestNewVerification": { "description": "Error message for unauthenticated users on verify-result" },
 
   "genericVerificationError": "Something went wrong. Please try again.",
-  "@genericVerificationError": { "description": "Generic error for verification resend failure" }
+  "@genericVerificationError": { "description": "Generic error for verification resend failure" },
+
+  "noLocationsFound": "No locations found",
+  "@noLocationsFound": { "description": "Empty state when location search returns no results" },
+
+  "locationConnectionError": "Connection error. Check your network.",
+  "@locationConnectionError": { "description": "Error when location search fails due to network" },
+
+  "locationSearchFailed": "Failed to load locations",
+  "@locationSearchFailed": { "description": "Generic error when location search fails" }
 }

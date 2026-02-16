@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../l10n/l10n_extension.dart';
 import '../domain/location.dart';
 import '../providers/location_providers.dart';
 import '../repository/location_repository.dart';
@@ -148,9 +149,9 @@ class _LocationAutocompleteFieldState
           _isLoading = false;
           if (e.type == DioExceptionType.connectionError ||
               e.type == DioExceptionType.connectionTimeout) {
-            _errorMessage = 'Connection error. Check your network.';
+            _errorMessage = 'connectionError';
           } else {
-            _errorMessage = 'Failed to load locations';
+            _errorMessage = 'searchFailed';
           }
         });
       }
@@ -158,7 +159,7 @@ class _LocationAutocompleteFieldState
       if (mounted) {
         setState(() {
           _isLoading = false;
-          _errorMessage = 'Failed to load locations';
+          _errorMessage = 'searchFailed';
         });
       }
     }
@@ -181,7 +182,18 @@ class _LocationAutocompleteFieldState
     ThemeData theme,
     LocationRepository? repository,
   ) {
+    final previousRef = _repositoryRef;
     _repositoryRef = repository;
+
+    // When repository becomes available and field already has focus,
+    // fetch recents immediately (autofocus fires before repo is ready).
+    if (previousRef == null &&
+        repository != null &&
+        _focusNode.hasFocus &&
+        widget.controller.text.isEmpty &&
+        _suggestions.isEmpty) {
+      _fetchSuggestions('', repository);
+    }
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -243,7 +255,9 @@ class _LocationAutocompleteFieldState
               ),
               const SizedBox(height: 12),
               Text(
-                _errorMessage!,
+                _errorMessage == 'connectionError'
+                    ? context.l10n.locationConnectionError
+                    : context.l10n.locationSearchFailed,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.error,
                 ),
@@ -269,7 +283,7 @@ class _LocationAutocompleteFieldState
               ),
               const SizedBox(height: 12),
               Text(
-                'No locations found',
+                context.l10n.noLocationsFound,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),

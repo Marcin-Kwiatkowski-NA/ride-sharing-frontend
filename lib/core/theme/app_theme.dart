@@ -264,14 +264,43 @@ class AppTheme {
         clipBehavior: Clip.antiAlias,
       ),
 
-      // ─────────────────────────────────────────────────────────────────────────
-      // Chip Theme
-      // ─────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────
+// Chip Theme (theme-driven, readable in M3)
+// ─────────────────────────────────────────────────────────────────────────
       chipTheme: ChipThemeData(
+        brightness: brightness,
+
+        // Unselected chip background + border
+        backgroundColor: colorScheme.surfaceContainerHighest,
         side: BorderSide(color: colorScheme.outlineVariant),
         shape: const StadiumBorder(),
-        labelStyle:
-            GoogleFonts.roboto(fontSize: 14, fontWeight: FontWeight.w500),
+
+        // Selected background for ChoiceChip specifically
+        // (ChoiceChip reads secondarySelectedColor) [web:61]
+        secondarySelectedColor: colorScheme.primaryContainer,
+
+        // Keep selectedColor too (covers other chip types / older behaviors)
+        selectedColor: colorScheme.primaryContainer,
+
+        // Text: unselected vs selected (ChoiceChip uses secondaryLabelStyle when selected) [web:61]
+        labelStyle: GoogleFonts.roboto(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: colorScheme.onSurface,
+        ),
+        secondaryLabelStyle: GoogleFonts.roboto(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: colorScheme.onPrimaryContainer,
+        ),
+
+        // Icons (affects avatar/delete/checkmark where applicable)
+        iconTheme: IconThemeData(
+          size: 18,
+          color: colorScheme.onSurface,
+        ),
+
+        // Spacing / behavior
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         showCheckmark: false,
       ),

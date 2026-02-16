@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../../core/l10n/l10n_extension.dart';
+import '../../../../../l10n/generated/app_localizations.dart';
 import '../../../../../core/locations/domain/location.dart';
 import '../../../../../core/theme/app_tokens.dart';
 import '../../../../../routes/routes.dart';
@@ -13,43 +15,42 @@ import '../providers/smart_match_provider.dart';
 /// Shows the Smart Match sheet after a driver publishes a ride.
 ///
 /// Call via [showSmartMatchSheet] which wraps this in a modal bottom sheet.
+/// Returns the [OfferKey] of a tapped match, or `null` if dismissed.
 void showSmartMatchSheet(
   BuildContext context, {
-  required Location origin,
-  required Location destination,
+  required List<Location> stops,
   required DateTime departureDate,
   required int createdRideId,
 }) {
-  showModalBottomSheet<void>(
+  showModalBottomSheet<OfferKey>(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
     builder: (context) => _SmartMatchWrapper(
-      origin: origin,
-      destination: destination,
+      stops: stops,
       departureDate: departureDate,
       createdRideId: createdRideId,
     ),
-  ).then((_) {
-    if (context.mounted) {
-      final offerKey = OfferKey(OfferKind.ride, createdRideId);
-      context.goNamed(
-        RouteNames.offerDetails,
-        pathParameters: {'offerKey': offerKey.toRouteParam()},
-      );
-    }
+  ).then((selectedMatch) {
+    if (!context.mounted) return;
+
+    // Navigate to the tapped match or fall back to the new ride.
+    final targetKey = selectedMatch ??
+        OfferKey(OfferKind.ride, createdRideId);
+    context.goNamed(
+      RouteNames.offerDetails,
+      pathParameters: {'offerKey': targetKey.toRouteParam()},
+    );
   });
 }
 
 class _SmartMatchWrapper extends StatelessWidget {
-  final Location origin;
-  final Location destination;
+  final List<Location> stops;
   final DateTime departureDate;
   final int createdRideId;
 
   const _SmartMatchWrapper({
-    required this.origin,
-    required this.destination,
+    required this.stops,
     required this.departureDate,
     required this.createdRideId,
   });
@@ -63,8 +64,7 @@ class _SmartMatchWrapper extends StatelessWidget {
       builder: (context, scrollController) {
         return _SmartMatchContent(
           scrollController: scrollController,
-          origin: origin,
-          destination: destination,
+          stops: stops,
           departureDate: departureDate,
           createdRideId: createdRideId,
         );
@@ -75,15 +75,13 @@ class _SmartMatchWrapper extends StatelessWidget {
 
 class _SmartMatchContent extends ConsumerStatefulWidget {
   final ScrollController scrollController;
-  final Location origin;
-  final Location destination;
+  final List<Location> stops;
   final DateTime departureDate;
   final int createdRideId;
 
   const _SmartMatchContent({
     required this.scrollController,
-    required this.origin,
-    required this.destination,
+    required this.stops,
     required this.departureDate,
     required this.createdRideId,
   });
@@ -100,10 +98,10 @@ class _SmartMatchContentState extends ConsumerState<_SmartMatchContent> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final tokens = Theme.of(context).extension<AppTokens>()!;
+    final l10n = context.l10n;
 
     final matchesAsync = ref.watch(smartMatchProvider(
-      origin: widget.origin,
-      destination: widget.destination,
+      stops: widget.stops,
       departureDate: widget.departureDate,
     ));
 
@@ -153,7 +151,7 @@ class _SmartMatchContentState extends ConsumerState<_SmartMatchContent> {
               ),
               const SizedBox(width: 12),
               Text(
-                'Your ride is live!',
+                l10n.smartMatchRideLive,
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -164,7 +162,10 @@ class _SmartMatchContentState extends ConsumerState<_SmartMatchContent> {
 
           // Route summary
           Text(
-            '${widget.origin.name} \u2192 ${widget.destination.name} on $dateLabel',
+            l10n.smartMatchRouteSummary(
+              widget.stops.map((s) => s.name).join(' \u2192 '),
+              dateLabel,
+            ),
             style: theme.textTheme.bodyMedium?.copyWith(
               color: colorScheme.onSurfaceVariant,
             ),
@@ -175,7 +176,7 @@ class _SmartMatchContentState extends ConsumerState<_SmartMatchContent> {
 
           // Subheading
           Text(
-            'Matching passenger requests',
+            l10n.smartMatchHeading,
             style: theme.textTheme.titleSmall?.copyWith(
               fontWeight: FontWeight.w600,
             ),
@@ -191,7 +192,7 @@ class _SmartMatchContentState extends ConsumerState<_SmartMatchContent> {
             error: (error, _) => Padding(
               padding: const EdgeInsets.symmetric(vertical: 24),
               child: Text(
-                'Could not load matching requests.',
+                l10n.smartMatchError,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: colorScheme.onSurfaceVariant,
                 ),
@@ -200,9 +201,9 @@ class _SmartMatchContentState extends ConsumerState<_SmartMatchContent> {
             ),
             data: (matches) {
               if (matches.isEmpty) {
-                return _buildEmptyMatches(theme, colorScheme);
+                return _buildEmptyMatches(theme, colorScheme, l10n);
               }
-              return _buildMatchesList(matches, theme, colorScheme);
+              return _buildMatchesList(matches, theme, colorScheme, l10n);
             },
           ),
 
@@ -213,7 +214,7 @@ class _SmartMatchContentState extends ConsumerState<_SmartMatchContent> {
             width: double.infinity,
             child: FilledButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('View your ride'),
+              child: Text(l10n.smartMatchViewRide),
             ),
           ),
           const SizedBox(height: 16),
@@ -222,7 +223,11 @@ class _SmartMatchContentState extends ConsumerState<_SmartMatchContent> {
     );
   }
 
-  Widget _buildEmptyMatches(ThemeData theme, ColorScheme colorScheme) {
+  Widget _buildEmptyMatches(
+    ThemeData theme,
+    ColorScheme colorScheme,
+    AppLocalizations l10n,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 24),
       child: Column(
@@ -234,7 +239,7 @@ class _SmartMatchContentState extends ConsumerState<_SmartMatchContent> {
           ),
           const SizedBox(height: 12),
           Text(
-            'No passengers looking for this route yet.',
+            l10n.smartMatchEmpty,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: colorScheme.onSurfaceVariant,
             ),
@@ -242,7 +247,7 @@ class _SmartMatchContentState extends ConsumerState<_SmartMatchContent> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Check back on your ride details later.',
+            l10n.smartMatchEmptyHint,
             style: theme.textTheme.bodySmall?.copyWith(
               color: colorScheme.onSurfaceVariant,
             ),
@@ -257,6 +262,7 @@ class _SmartMatchContentState extends ConsumerState<_SmartMatchContent> {
     List<OfferUiModel> matches,
     ThemeData theme,
     ColorScheme colorScheme,
+    AppLocalizations l10n,
   ) {
     final displayCount = _showAll ? matches.length : matches.length.clamp(0, 3);
     final hasMore = matches.length > 3 && !_showAll;
@@ -268,20 +274,14 @@ class _SmartMatchContentState extends ConsumerState<_SmartMatchContent> {
           OfferCard(
             offer: matches[i],
             onTap: () {
-              Navigator.of(context).pop();
-              context.pushNamed(
-                RouteNames.offerDetails,
-                pathParameters: {
-                  'offerKey': matches[i].offerKey.toRouteParam(),
-                },
-              );
+              Navigator.of(context).pop(matches[i].offerKey);
             },
           ),
         if (hasMore)
           Center(
             child: TextButton(
               onPressed: () => setState(() => _showAll = true),
-              child: Text('See all ${matches.length} requests'),
+              child: Text(l10n.smartMatchSeeAll(matches.length)),
             ),
           ),
       ],

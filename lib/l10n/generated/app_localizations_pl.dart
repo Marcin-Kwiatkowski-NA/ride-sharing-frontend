@@ -492,6 +492,35 @@ class AppLocalizationsPl extends AppLocalizations {
   String get seatRequestCreated => 'Prośba o przejazd została dodana!';
 
   @override
+  String get smartMatchRideLive => 'Twój przejazd jest aktywny!';
+
+  @override
+  String get smartMatchHeading => 'Pasujące prośby pasażerów';
+
+  @override
+  String get smartMatchError => 'Nie udało się załadować pasujących próśb.';
+
+  @override
+  String get smartMatchEmpty =>
+      'Nikt jeszcze nie szuka przejazdu na tej trasie.';
+
+  @override
+  String get smartMatchEmptyHint => 'Sprawdź później w szczegółach przejazdu.';
+
+  @override
+  String get smartMatchViewRide => 'Zobacz swój przejazd';
+
+  @override
+  String smartMatchSeeAll(int count) {
+    return 'Zobacz wszystkie ($count)';
+  }
+
+  @override
+  String smartMatchRouteSummary(String route, String date) {
+    return '$route — $date';
+  }
+
+  @override
   String get profileTitle => 'Profil';
 
   @override
@@ -844,4 +873,13 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get genericVerificationError =>
       'Coś poszło nie tak. Spróbuj ponownie.';
+
+  @override
+  String get noLocationsFound => 'Nie znaleziono lokalizacji';
+
+  @override
+  String get locationConnectionError => 'Błąd połączenia. Sprawdź sieć.';
+
+  @override
+  String get locationSearchFailed => 'Nie udało się załadować lokalizacji';
 }

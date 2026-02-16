@@ -155,6 +155,15 @@
   "descriptionOptional": "Opis (opcjonalnie)",
   "seatRequestCreated": "Prośba o przejazd została dodana!",
 
+  "smartMatchRideLive": "Twój przejazd jest aktywny!",
+  "smartMatchHeading": "Pasujące prośby pasażerów",
+  "smartMatchError": "Nie udało się załadować pasujących próśb.",
+  "smartMatchEmpty": "Nikt jeszcze nie szuka przejazdu na tej trasie.",
+  "smartMatchEmptyHint": "Sprawdź później w szczegółach przejazdu.",
+  "smartMatchViewRide": "Zobacz swój przejazd",
+  "smartMatchSeeAll": "Zobacz wszystkie ({count})",
+  "smartMatchRouteSummary": "{route} — {date}",
+
   "profileTitle": "Profil",
   "logInToSeeProfile": "Zaloguj się, aby zobaczyć swój profil",
   "logInSignUp": "Zaloguj / Zarejestruj",
@@ -269,5 +278,8 @@
   "emailVerifiedSignIn": "E-mail zweryfikowany. Zaloguj się, aby kontynuować.",
   "goToLogin": "Przejdź do logowania",
   "requestNewVerification": "Zaloguj się i poproś o nowy e-mail weryfikacyjny.",
-  "genericVerificationError": "Coś poszło nie tak. Spróbuj ponownie."
+  "genericVerificationError": "Coś poszło nie tak. Spróbuj ponownie.",
+  "noLocationsFound": "Nie znaleziono lokalizacji",
+  "locationConnectionError": "Błąd połączenia. Sprawdź sieć.",
+  "locationSearchFailed": "Nie udało się załadować lokalizacji"
 }

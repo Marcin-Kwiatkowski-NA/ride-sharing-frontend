@@ -484,6 +484,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get seatRequestCreated => 'Seat request created successfully!';
 
   @override
+  String get smartMatchRideLive => 'Your ride is live!';
+
+  @override
+  String get smartMatchHeading => 'Matching passenger requests';
+
+  @override
+  String get smartMatchError => 'Could not load matching requests.';
+
+  @override
+  String get smartMatchEmpty => 'No passengers looking for this route yet.';
+
+  @override
+  String get smartMatchEmptyHint => 'Check back on your ride details later.';
+
+  @override
+  String get smartMatchViewRide => 'View your ride';
+
+  @override
+  String smartMatchSeeAll(int count) {
+    return 'See all $count requests';
+  }
+
+  @override
+  String smartMatchRouteSummary(String route, String date) {
+    return '$route on $date';
+  }
+
+  @override
   String get profileTitle => 'Profile';
 
   @override
@@ -837,4 +865,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get genericVerificationError =>
       'Something went wrong. Please try again.';
+
+  @override
+  String get noLocationsFound => 'No locations found';
+
+  @override
+  String get locationConnectionError => 'Connection error. Check your network.';
+
+  @override
+  String get locationSearchFailed => 'Failed to load locations';
 }

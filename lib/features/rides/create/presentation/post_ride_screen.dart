@@ -151,10 +151,16 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
         if (next.origin != null &&
             next.destination != null &&
             next.selectedDate != null) {
+          final stops = [
+            next.origin!,
+            ...next.intermediateStops
+                .where((s) => s.location != null)
+                .map((s) => s.location!),
+            next.destination!,
+          ];
           showSmartMatchSheet(
             context,
-            origin: next.origin!,
-            destination: next.destination!,
+            stops: stops,
             departureDate: next.selectedDate!,
             createdRideId: next.createdRideId!,
           );

@@ -938,6 +938,54 @@ abstract class AppLocalizations {
   /// **'Seat request created successfully!'**
   String get seatRequestCreated;
 
+  /// Success header after publishing a ride
+  ///
+  /// In en, this message translates to:
+  /// **'Your ride is live!'**
+  String get smartMatchRideLive;
+
+  /// Subheading for the smart match results section
+  ///
+  /// In en, this message translates to:
+  /// **'Matching passenger requests'**
+  String get smartMatchHeading;
+
+  /// Error message when smart match search fails
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load matching requests.'**
+  String get smartMatchError;
+
+  /// Empty state when no matching passengers found
+  ///
+  /// In en, this message translates to:
+  /// **'No passengers looking for this route yet.'**
+  String get smartMatchEmpty;
+
+  /// Hint below empty state for smart match
+  ///
+  /// In en, this message translates to:
+  /// **'Check back on your ride details later.'**
+  String get smartMatchEmptyHint;
+
+  /// CTA button to navigate to the created ride
+  ///
+  /// In en, this message translates to:
+  /// **'View your ride'**
+  String get smartMatchViewRide;
+
+  /// Button to expand and show all matching passenger requests
+  ///
+  /// In en, this message translates to:
+  /// **'See all {count} requests'**
+  String smartMatchSeeAll(int count);
+
+  /// Route summary shown after ride creation (e.g. Warsaw → Krakow on Mon, 17 Feb)
+  ///
+  /// In en, this message translates to:
+  /// **'{route} on {date}'**
+  String smartMatchRouteSummary(String route, String date);
+
   /// Profile screen and AppBar title
   ///
   /// In en, this message translates to:
@@ -1573,6 +1621,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Something went wrong. Please try again.'**
   String get genericVerificationError;
+
+  /// Empty state when location search returns no results
+  ///
+  /// In en, this message translates to:
+  /// **'No locations found'**
+  String get noLocationsFound;
+
+  /// Error when location search fails due to network
+  ///
+  /// In en, this message translates to:
+  /// **'Connection error. Check your network.'**
+  String get locationConnectionError;
+
+  /// Generic error when location search fails
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load locations'**
+  String get locationSearchFailed;
 }
 
 class _AppLocalizationsDelegate
