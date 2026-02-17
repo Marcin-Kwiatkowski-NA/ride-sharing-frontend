@@ -4,7 +4,7 @@
 <dict>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
-		<string>applinks:vamos.130.61.31.172.sslip.io</string>
+		<string>applinks:vamigo.app</string>
 	</array>
 </dict>
 </plist>

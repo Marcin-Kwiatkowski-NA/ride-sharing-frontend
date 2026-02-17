@@ -11,19 +11,15 @@ class EnvironmentConfig {
   );
 
   /// Base URL for all API endpoints
-  ///
-  /// Using sslip.io for dynamic DNS resolution
-  /// IMPORTANT: Should be HTTPS in production
-  static String get baseUrl {
+.p  static String get baseUrl {
     switch (environment) {
       case 'production':
-        return 'https://vamos.130.61.31.172.sslip.io';
+        return 'https://api.vamigo.app';
       case 'staging':
-        return 'https://vamos-staging.130.61.31.172.sslip.io';
+        return 'https://api.vamigo.app';
       case 'development':
       default:
-        // Using HTTP temporarily for development (SSL cert issue)
-        return 'http://vamos.130.61.31.172.sslip.io';
+        return 'https://api.vamigo.app';
     }
   }
 

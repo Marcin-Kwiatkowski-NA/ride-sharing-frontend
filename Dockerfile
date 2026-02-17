@@ -10,7 +10,7 @@ COPY . .
 # Generate code before building
 RUN dart run build_runner build --delete-conflicting-outputs
 
-RUN flutter build web --release
+RUN flutter build web --release --dart-define=ENV=production
 
 # ---- runtime stage ----
 FROM nginx:alpine
