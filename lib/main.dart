@@ -7,6 +7,7 @@ import 'core/l10n/app_locale_provider.dart';
 import 'core/l10n/shared_preferences_provider.dart';
 import 'core/deep_link/deep_link_handler.dart';
 import 'core/network/auth_token_provider.dart';
+import 'core/providers/app_provider_observer.dart';
 import 'core/providers/auth_notifier.dart';
 import 'core/theme/app_theme.dart';
 import 'l10n/generated/app_localizations.dart';
@@ -20,6 +21,7 @@ void main() async {
   await initializeDateFormatting();
 
   runApp(ProviderScope(
+    observers: [AppProviderObserver()],
     overrides: [
       sharedPreferencesProvider.overrideWithValue(prefs),
     ],
