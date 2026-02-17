@@ -2,10 +2,16 @@
 FROM ghcr.io/cirruslabs/flutter:stable AS build
 WORKDIR /app
 
+USER flutter
+
 COPY pubspec.* ./
 RUN flutter pub get
 
 COPY . .
+
+# Generate code before building
+RUN dart run build_runner build --delete-conflicting-outputs
+
 RUN flutter build web --release
 
 # ---- runtime stage ----
