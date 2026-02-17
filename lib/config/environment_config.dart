@@ -11,7 +11,7 @@ class EnvironmentConfig {
   );
 
   /// Base URL for all API endpoints
-.p  static String get baseUrl {
+  static String get baseUrl {
     switch (environment) {
       case 'production':
         return 'https://api.vamigo.app';
