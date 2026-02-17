@@ -79,6 +79,18 @@ class _MyAppState extends ConsumerState<MyApp> {
       locale: locale,
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
+      localeListResolutionCallback: (locales, supported) {
+        if (locale != null) return locale;
+        if (locales != null) {
+          for (final l in locales) {
+            final match = supported.where(
+              (s) => s.languageCode == l.languageCode,
+            );
+            if (match.isNotEmpty) return match.first;
+          }
+        }
+        return supported.first;
+      },
     );
   }
 }
