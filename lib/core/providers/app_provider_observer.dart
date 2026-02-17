@@ -1,4 +1,5 @@
-import 'package:flutter/foundation.dart';
+import 'dart:developer';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 base class AppProviderObserver extends ProviderObserver {
@@ -9,7 +10,11 @@ base class AppProviderObserver extends ProviderObserver {
     StackTrace stackTrace,
   ) {
     final name = context.provider.name ?? context.provider.runtimeType;
-    debugPrint('[Provider] $name failed: $error');
-    debugPrintStack(stackTrace: stackTrace, maxFrames: 15);
+    log(
+      '$name failed: $error',
+      name: 'Provider',
+      error: error,
+      stackTrace: stackTrace,
+    );
   }
 }

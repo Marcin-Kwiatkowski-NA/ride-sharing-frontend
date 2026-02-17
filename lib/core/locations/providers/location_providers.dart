@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http_cache_hive_store/http_cache_hive_store.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -21,23 +21,6 @@ LocationRepositoryConfig locationConfig(Ref ref) =>
 /// Dedicated Dio instance for location search with HTTP caching.
 @Riverpod(keepAlive: true)
 Future<Dio> locationSearchDio(Ref ref) async {
-  final cacheDir = await getApplicationCacheDirectory();
-  final cacheStore = HiveCacheStore(cacheDir.path);
-
-  final cacheOptions = CacheOptions(
-    store: cacheStore,
-    policy: CachePolicy.request,
-    maxStale: const Duration(days: 3),
-    hitCacheOnErrorCodes: [500, 502, 503, 504],
-    hitCacheOnNetworkFailure: true,
-    keyBuilder: ({
-      required Uri url,
-      Object? body,
-      Map<String, String>? headers,
-    }) =>
-        url.toString(),
-  );
-
   final dio = Dio(
     BaseOptions(
       connectTimeout: const Duration(seconds: 10),
@@ -48,7 +31,28 @@ Future<Dio> locationSearchDio(Ref ref) async {
     ),
   );
 
-  dio.interceptors.add(DioCacheInterceptor(options: cacheOptions));
+  // Hive-based HTTP cache is only available on platforms with a filesystem.
+  // On web, we skip the cache interceptor (browser handles its own cache).
+  if (!kIsWeb) {
+    final cacheDir = await getApplicationCacheDirectory();
+    final cacheStore = HiveCacheStore(cacheDir.path);
+
+    final cacheOptions = CacheOptions(
+      store: cacheStore,
+      policy: CachePolicy.request,
+      maxStale: const Duration(days: 3),
+      hitCacheOnErrorCodes: [500, 502, 503, 504],
+      hitCacheOnNetworkFailure: true,
+      keyBuilder: ({
+        required Uri url,
+        Object? body,
+        Map<String, String>? headers,
+      }) =>
+          url.toString(),
+    );
+
+    dio.interceptors.add(DioCacheInterceptor(options: cacheOptions));
+  }
 
   if (EnvironmentConfig.isDevelopment) {
     dio.interceptors.add(
