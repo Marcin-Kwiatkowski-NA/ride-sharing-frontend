@@ -2,8 +2,6 @@
 FROM ghcr.io/cirruslabs/flutter:stable AS build
 WORKDIR /app
 
-USER flutter
-
 COPY pubspec.* ./
 RUN flutter pub get
 
