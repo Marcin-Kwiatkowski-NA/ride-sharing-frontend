@@ -3,9 +3,9 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:blablafront/config/environment_config.dart';
-import 'package:blablafront/core/utils/jwt_decoder.dart';
-import 'package:blablafront/core/utils/exceptions.dart';
+import 'package:vamigo/config/environment_config.dart';
+import 'package:vamigo/core/utils/jwt_decoder.dart';
+import 'package:vamigo/core/utils/exceptions.dart';
 
 /// Centralized HTTP client with automatic token injection and error handling
 ///

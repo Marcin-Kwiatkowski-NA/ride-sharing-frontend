@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import 'package:blablafront/core/network/dio_provider.dart';
-import 'package:blablafront/core/models/auth_response.dart';
-import 'package:blablafront/core/models/user_profile.dart';
+import 'package:vamigo/core/network/dio_provider.dart';
+import 'package:vamigo/core/models/auth_response.dart';
+import 'package:vamigo/core/models/user_profile.dart';
 import 'dtos/login_request.dart';
 import 'dtos/register_request.dart';
 import 'dtos/refresh_token_request.dart';

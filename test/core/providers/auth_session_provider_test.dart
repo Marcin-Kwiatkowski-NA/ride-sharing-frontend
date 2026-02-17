@@ -1,12 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:blablafront/core/providers/auth_notifier.dart';
-import 'package:blablafront/core/providers/auth_state.dart';
-import 'package:blablafront/core/providers/auth_session_provider.dart';
-import 'package:blablafront/core/models/user_profile.dart';
-import 'package:blablafront/core/models/account_status.dart';
-import 'package:blablafront/core/models/user_stats.dart';
+import 'package:vamigo/core/providers/auth_notifier.dart';
+import 'package:vamigo/core/providers/auth_state.dart';
+import 'package:vamigo/core/providers/auth_session_provider.dart';
+import 'package:vamigo/core/models/user_profile.dart';
+import 'package:vamigo/core/models/account_status.dart';
+import 'package:vamigo/core/models/user_stats.dart';
 
 void main() {
   group('authSessionKeyProvider', () {

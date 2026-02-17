@@ -1,4 +1,4 @@
-# blablafront
+# vamigo
 
 blablatwo frontend
 ![App Screenshot](assets/Screenshot.png)

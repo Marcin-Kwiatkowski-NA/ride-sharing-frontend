@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import 'package:blablafront/core/providers/auth_session_provider.dart';
+import 'package:vamigo/core/providers/auth_session_provider.dart';
 import '../../data/chat_repository.dart';
 import '../../domain/chat_presentation.dart';
 import '../../domain/conversation_ui_model.dart';

@@ -1,16 +1,16 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:blablafront/services/auth_service.dart';
-import 'package:blablafront/core/utils/jwt_decoder.dart';
-import 'package:blablafront/core/network/auth_token_provider.dart';
-import 'package:blablafront/core/network/dio_provider.dart';
-import 'package:blablafront/core/models/token_pair.dart';
-import 'package:blablafront/features/auth/data/auth_repository.dart';
-import 'package:blablafront/features/auth/data/dtos/login_request.dart';
-import 'package:blablafront/features/auth/data/dtos/register_request.dart';
-import 'package:blablafront/features/profile/data/profile_repository.dart';
-import 'package:blablafront/features/profile/data/dtos/update_profile_request.dart';
+import 'package:vamigo/services/auth_service.dart';
+import 'package:vamigo/core/utils/jwt_decoder.dart';
+import 'package:vamigo/core/network/auth_token_provider.dart';
+import 'package:vamigo/core/network/dio_provider.dart';
+import 'package:vamigo/core/models/token_pair.dart';
+import 'package:vamigo/features/auth/data/auth_repository.dart';
+import 'package:vamigo/features/auth/data/dtos/login_request.dart';
+import 'package:vamigo/features/auth/data/dtos/register_request.dart';
+import 'package:vamigo/features/profile/data/profile_repository.dart';
+import 'package:vamigo/features/profile/data/dtos/update_profile_request.dart';
 import 'auth_state.dart';
 
 part 'auth_notifier.g.dart';

@@ -2,13 +2,13 @@ import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:blablafront/core/providers/auth_session_provider.dart';
-import 'package:blablafront/features/chat/presentation/providers/inbox_provider.dart';
-import 'package:blablafront/features/chat/data/chat_repository.dart';
-import 'package:blablafront/features/chat/data/dto/conversation_dto.dart';
-import 'package:blablafront/features/chat/data/dto/conversation_open_response_dto.dart';
-import 'package:blablafront/features/chat/data/dto/message_dto.dart';
-import 'package:blablafront/features/chat/data/dto/peer_user_dto.dart';
+import 'package:vamigo/core/providers/auth_session_provider.dart';
+import 'package:vamigo/features/chat/presentation/providers/inbox_provider.dart';
+import 'package:vamigo/features/chat/data/chat_repository.dart';
+import 'package:vamigo/features/chat/data/dto/conversation_dto.dart';
+import 'package:vamigo/features/chat/data/dto/conversation_open_response_dto.dart';
+import 'package:vamigo/features/chat/data/dto/message_dto.dart';
+import 'package:vamigo/features/chat/data/dto/peer_user_dto.dart';
 
 /// Mock implementation of ChatRepository for testing
 class MockChatRepository implements ChatRepository {

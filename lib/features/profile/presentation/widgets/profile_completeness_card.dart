@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:blablafront/core/l10n/l10n_extension.dart';
-import 'package:blablafront/core/models/user_profile.dart';
+import 'package:vamigo/core/l10n/l10n_extension.dart';
+import 'package:vamigo/core/models/user_profile.dart';
 
 class ProfileCompletenessCard extends StatelessWidget {
   final UserProfile user;

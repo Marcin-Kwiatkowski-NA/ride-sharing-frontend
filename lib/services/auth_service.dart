@@ -4,8 +4,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:blablafront/core/models/token_pair.dart';
-import 'package:blablafront/config/environment_config.dart';
+import 'package:vamigo/core/models/token_pair.dart';
+import 'package:vamigo/config/environment_config.dart';
 
 part 'auth_service.g.dart';
 

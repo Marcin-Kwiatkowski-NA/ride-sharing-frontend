@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:blablafront/core/models/user_profile.dart';
+import 'package:vamigo/core/models/user_profile.dart';
 
 part 'auth_state.freezed.dart';
 

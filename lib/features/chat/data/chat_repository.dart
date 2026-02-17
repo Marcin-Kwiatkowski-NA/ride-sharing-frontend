@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import 'package:blablafront/core/network/dio_provider.dart';
+import 'package:vamigo/core/network/dio_provider.dart';
 import 'api_chat_repository.dart';
 import 'dto/conversation_dto.dart';
 import 'dto/conversation_open_response_dto.dart';

@@ -1,5 +1,5 @@
-import 'package:blablafront/core/locations/domain/location.dart';
-import 'package:blablafront/shared/widgets/route_timeline_section.dart';
+import 'package:vamigo/core/locations/domain/location.dart';
+import 'package:vamigo/shared/widgets/route_timeline_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

@@ -1,6 +1,6 @@
 {
-    "name": "blablafront",
-    "short_name": "blablafront",
+    "name": "vamigo",
+    "short_name": "vamigo",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

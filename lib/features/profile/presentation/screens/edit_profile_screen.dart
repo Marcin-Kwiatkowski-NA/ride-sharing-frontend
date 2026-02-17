@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:blablafront/core/l10n/l10n_extension.dart';
-import 'package:blablafront/core/providers/auth_notifier.dart';
-import 'package:blablafront/core/widgets/core_widgets.dart';
+import 'package:vamigo/core/l10n/l10n_extension.dart';
+import 'package:vamigo/core/providers/auth_notifier.dart';
+import 'package:vamigo/core/widgets/core_widgets.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});

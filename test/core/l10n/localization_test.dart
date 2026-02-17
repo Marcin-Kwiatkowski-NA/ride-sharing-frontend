@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:blablafront/l10n/generated/app_localizations.dart';
+import 'package:vamigo/l10n/generated/app_localizations.dart';
 
 void main() {
   group('AppLocalizations', () {

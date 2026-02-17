@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:blablafront/features/rides/data/dto/ride_response_dto.dart';
-import 'package:blablafront/features/offers/data/location_dto.dart';
-import 'package:blablafront/features/offers/data/contact_method_dto.dart';
-import 'package:blablafront/features/rides/data/dto/user_card_dto.dart';
-import 'package:blablafront/features/rides/data/dto/ride_enums.dart';
-import 'package:blablafront/features/offers/data/offer_enums.dart';
-import 'package:blablafront/features/offers/domain/offer_ui_model.dart';
-import 'package:blablafront/features/offers/domain/part_of_day.dart';
-import 'package:blablafront/features/rides/domain/ride_presentation.dart';
+import 'package:vamigo/features/rides/data/dto/ride_response_dto.dart';
+import 'package:vamigo/features/offers/data/location_dto.dart';
+import 'package:vamigo/features/offers/data/contact_method_dto.dart';
+import 'package:vamigo/features/rides/data/dto/user_card_dto.dart';
+import 'package:vamigo/features/rides/data/dto/ride_enums.dart';
+import 'package:vamigo/features/offers/data/offer_enums.dart';
+import 'package:vamigo/features/offers/domain/offer_ui_model.dart';
+import 'package:vamigo/features/offers/domain/part_of_day.dart';
+import 'package:vamigo/features/rides/domain/ride_presentation.dart';
 
 void main() {
   group('RidePresentation', () {

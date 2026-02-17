@@ -1,17 +1,17 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:blablafront/core/providers/auth_notifier.dart';
-import 'package:blablafront/core/providers/auth_state.dart';
-import 'package:blablafront/core/models/user_profile.dart';
-import 'package:blablafront/core/models/auth_response.dart';
-import 'package:blablafront/core/models/account_status.dart';
-import 'package:blablafront/core/models/user_stats.dart';
-import 'package:blablafront/core/models/token_pair.dart';
-import 'package:blablafront/features/auth/data/auth_repository.dart';
-import 'package:blablafront/features/auth/data/dtos/login_request.dart';
-import 'package:blablafront/features/auth/data/dtos/register_request.dart';
-import 'package:blablafront/features/auth/data/dtos/refresh_token_request.dart';
-import 'package:blablafront/services/auth_service.dart';
+import 'package:vamigo/core/providers/auth_notifier.dart';
+import 'package:vamigo/core/providers/auth_state.dart';
+import 'package:vamigo/core/models/user_profile.dart';
+import 'package:vamigo/core/models/auth_response.dart';
+import 'package:vamigo/core/models/account_status.dart';
+import 'package:vamigo/core/models/user_stats.dart';
+import 'package:vamigo/core/models/token_pair.dart';
+import 'package:vamigo/features/auth/data/auth_repository.dart';
+import 'package:vamigo/features/auth/data/dtos/login_request.dart';
+import 'package:vamigo/features/auth/data/dtos/register_request.dart';
+import 'package:vamigo/features/auth/data/dtos/refresh_token_request.dart';
+import 'package:vamigo/services/auth_service.dart';
 
 class FakeAuthRepository implements IAuthRepository {
   AuthResponse? loginResponse;
