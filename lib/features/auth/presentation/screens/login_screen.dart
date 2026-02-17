@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/providers/auth_notifier.dart';
 import '../../../../core/providers/auth_state.dart';
+import '../../../../core/widgets/core_widgets.dart';
 import '../../../../routes/routes.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -57,7 +58,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             onPressed: _handleBack,
           ),
         ),
-        body: Center(child: _buildLoginForm()),
+        body: PageLayout.form(child: FormSurface(child: _buildLoginForm())),
       ),
     );
   }

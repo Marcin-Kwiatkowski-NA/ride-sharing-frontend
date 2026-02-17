@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/l10n/l10n_extension.dart';
-import '../../../../core/providers/auth_session_provider.dart';
 import '../../../../core/utils/error_mapper.dart';
+import '../../../../core/widgets/page_layout.dart';
 import '../../../rides/details/presentation/widgets/smart_matches_section.dart';
 import '../../domain/offer_ui_model.dart';
 import '../helpers/offer_details_strings.dart';
@@ -15,8 +15,13 @@ import '../widgets/offer_person_section.dart';
 /// Unified details screen for any offer kind (ride or seat).
 class OfferDetailsScreen extends ConsumerWidget {
   final OfferKey offerKey;
+  final bool showSmartMatches;
 
-  const OfferDetailsScreen({super.key, required this.offerKey});
+  const OfferDetailsScreen({
+    super.key,
+    required this.offerKey,
+    this.showSmartMatches = false,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -41,7 +46,12 @@ class OfferDetailsScreen extends ConsumerWidget {
           appBar: AppBar(
             title: Text(strings.screenTitle(offer.offerKey.kind)),
           ),
-          body: _OfferDetailsBody(offer: offer),
+          body: PageLayout(
+            child: _OfferDetailsBody(
+              offer: offer,
+              showSmartMatches: showSmartMatches,
+            ),
+          ),
           bottomNavigationBar: offer.user != null
               ? OfferBottomBar(offer: offer)
               : null,
@@ -83,17 +93,17 @@ class _ErrorView extends StatelessWidget {
   }
 }
 
-class _OfferDetailsBody extends ConsumerWidget {
+class _OfferDetailsBody extends StatelessWidget {
   final OfferUiModel offer;
+  final bool showSmartMatches;
 
-  const _OfferDetailsBody({required this.offer});
+  const _OfferDetailsBody({
+    required this.offer,
+    this.showSmartMatches = false,
+  });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final isOwnRide = offer.offerKey.kind == OfferKind.ride &&
-        offer.user?.userId != null &&
-        offer.user?.userId == ref.watch(authSessionKeyProvider);
-
+  Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: [
         SliverPadding(
@@ -110,7 +120,7 @@ class _OfferDetailsBody extends ConsumerWidget {
                   isExternalSource: offer.isExternalSource,
                 ),
               ],
-              if (isOwnRide) ...[
+              if (showSmartMatches && offer.offerKey.kind == OfferKind.ride) ...[
                 const SizedBox(height: 16),
                 SmartMatchesSection(rideId: offer.offerKey.id),
               ],

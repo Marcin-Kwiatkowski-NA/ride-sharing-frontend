@@ -163,7 +163,7 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
         );
 
         context.goNamed(
-          RouteNames.offerDetails,
+          RouteNames.myOfferDetails,
           pathParameters: {'offerKey': offerKey.toRouteParam()},
         );
       }
@@ -181,8 +181,7 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
 
     return Scaffold(
       appBar: AppBar(title: Text(context.l10n.postYourRide)),
-      body: SafeArea(
-        bottom: false,
+      body: PageLayout.form(
         child: Form(
           key: _formKey,
           autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -336,20 +335,11 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: AnimatedPadding(
-        duration: const Duration(milliseconds: 100),
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.viewInsetsOf(context).bottom,
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            child: PrimaryButton(
-              onPressed: state.isSubmitting ? null : _onSubmit,
-              isLoading: state.isSubmitting,
-              child: Text(context.l10n.postRide),
-            ),
-          ),
+      bottomNavigationBar: PageBottomArea(
+        child: PrimaryButton(
+          onPressed: state.isSubmitting ? null : _onSubmit,
+          isLoading: state.isSubmitting,
+          child: Text(context.l10n.postRide),
         ),
       ),
     );

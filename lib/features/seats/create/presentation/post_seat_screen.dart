@@ -150,8 +150,7 @@ class _PostSeatScreenState extends ConsumerState<PostSeatScreen> {
 
     return Scaffold(
       appBar: AppBar(title: Text(context.l10n.postSeatRequest)),
-      body: SafeArea(
-        bottom: false,
+      body: PageLayout.form(
         child: Form(
           key: _formKey,
           autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -271,20 +270,11 @@ class _PostSeatScreenState extends ConsumerState<PostSeatScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: AnimatedPadding(
-        duration: const Duration(milliseconds: 100),
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.viewInsetsOf(context).bottom,
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            child: PrimaryButton(
-              onPressed: state.isSubmitting ? null : _onSubmit,
-              isLoading: state.isSubmitting,
-              child: Text(context.l10n.postSeatRequest),
-            ),
-          ),
+      bottomNavigationBar: PageBottomArea(
+        child: PrimaryButton(
+          onPressed: state.isSubmitting ? null : _onSubmit,
+          isLoading: state.isSubmitting,
+          child: Text(context.l10n.postSeatRequest),
         ),
       ),
     );

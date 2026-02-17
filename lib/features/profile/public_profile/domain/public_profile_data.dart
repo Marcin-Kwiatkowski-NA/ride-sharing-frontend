@@ -25,7 +25,7 @@ sealed class PublicProfileData with _$PublicProfileData {
 extension UserCardDtoX on UserCardDto {
   PublicProfileData toPublicProfileData() => PublicProfileData(
         userId: id,
-        displayName: name,
+        displayName: name.split(' ').first,
         avatarUrl: avatarUrl,
         bio: bio,
         isEmailVerified: emailVerified,

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/l10n/l10n_extension.dart';
+import '../../../../core/widgets/page_layout.dart';
 import '../../../../routes/routes.dart';
 import '../../domain/conversation_ui_model.dart';
 import '../providers/inbox_provider.dart';
@@ -18,13 +19,14 @@ class MessagesTab extends ConsumerWidget {
     final conversationsAsync = ref.watch(inboxProvider);
     final theme = Theme.of(context);
 
-    return SafeArea(
+    return PageLayout(
+      safeArea: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Lightweight header (no AppBar, just styled text)
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            padding: const EdgeInsets.fromLTRB(0, 16, 0, 8),
             child: Text(context.l10n.messagesTitle, style: theme.textTheme.headlineSmall),
           ),
           Expanded(

@@ -68,50 +68,54 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       appBar: AppBar(
         title: Text(context.l10n.editProfile),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              AppTextField(
-                controller: _displayNameController,
-                label: context.l10n.displayNameLabel,
-                prefixIcon: Icons.person,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return context.l10n.displayNameRequired;
-                  }
-                  if (value.trim().length < 2) {
-                    return context.l10n.displayNameMinLength;
-                  }
-                  return null;
-                },
+      body: PageLayout.form(
+        child: FormSurface(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  AppTextField(
+                    controller: _displayNameController,
+                    label: context.l10n.displayNameLabel,
+                    prefixIcon: Icons.person,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return context.l10n.displayNameRequired;
+                      }
+                      if (value.trim().length < 2) {
+                        return context.l10n.displayNameMinLength;
+                      }
+                      return null;
+                    },
+                  ),
+                  AppTextField(
+                    controller: _phoneController,
+                    label: context.l10n.phoneNumberLabel,
+                    prefixIcon: Icons.phone,
+                    keyboardType: TextInputType.phone,
+                    hint: context.l10n.phoneHint,
+                  ),
+                  AppTextField(
+                    controller: _bioController,
+                    label: context.l10n.bioLabel,
+                    prefixIcon: Icons.info_outline,
+                    hint: context.l10n.bioHint,
+                    maxLines: 4,
+                    minLines: 2,
+                  ),
+                  const SizedBox(height: 24),
+                  PrimaryButton(
+                    onPressed: _saveProfile,
+                    isLoading: _isLoading,
+                    width: double.infinity,
+                    child: Text(context.l10n.saveChanges),
+                  ),
+                ],
               ),
-              AppTextField(
-                controller: _phoneController,
-                label: context.l10n.phoneNumberLabel,
-                prefixIcon: Icons.phone,
-                keyboardType: TextInputType.phone,
-                hint: context.l10n.phoneHint,
-              ),
-              AppTextField(
-                controller: _bioController,
-                label: context.l10n.bioLabel,
-                prefixIcon: Icons.info_outline,
-                hint: context.l10n.bioHint,
-                maxLines: 4,
-                minLines: 2,
-              ),
-              const SizedBox(height: 24),
-              PrimaryButton(
-                onPressed: _saveProfile,
-                isLoading: _isLoading,
-                width: double.infinity,
-                child: Text(context.l10n.saveChanges),
-              ),
-            ],
+            ),
           ),
         ),
       ),

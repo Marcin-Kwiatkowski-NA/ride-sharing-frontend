@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/l10n/l10n_extension.dart';
+import '../../../../core/widgets/page_layout.dart';
 import '../../domain/message_ui_model.dart';
 import '../providers/chat_thread_controller.dart';
 
@@ -58,18 +59,20 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       appBar: AppBar(
         title: Text(context.l10n.chatTitle),
       ),
-      body: Column(
-        children: [
-          // Messages list
-          Expanded(
-            child: _buildContent(theme, state),
-          ),
-          // Message composer
-          _MessageComposer(
-            controller: _textController,
-            onSend: _sendMessage,
-          ),
-        ],
+      body: PageLayout.chat(
+        child: Column(
+          children: [
+            // Messages list
+            Expanded(
+              child: _buildContent(theme, state),
+            ),
+            // Message composer
+            _MessageComposer(
+              controller: _textController,
+              onSend: _sendMessage,
+            ),
+          ],
+        ),
       ),
     );
   }

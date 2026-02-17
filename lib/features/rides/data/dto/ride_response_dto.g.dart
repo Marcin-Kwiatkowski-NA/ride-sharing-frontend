@@ -75,5 +75,7 @@ const _$RideStatusEnumMap = {
   RideStatus.open: 'OPEN',
   RideStatus.full: 'FULL',
   RideStatus.completed: 'COMPLETED',
+  RideStatus.expired: 'EXPIRED',
   RideStatus.cancelled: 'CANCELLED',
+  RideStatus.banned: 'BANNED',
 };

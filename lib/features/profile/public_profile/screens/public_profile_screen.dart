@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/l10n/l10n_extension.dart';
+import '../../../../core/widgets/page_layout.dart';
 import '../domain/public_profile_data.dart';
 import '../providers/public_profile_cache.dart';
 import '../widgets/about_section.dart';
@@ -29,15 +30,24 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen> {
   @override
   void initState() {
     super.initState();
+    _cacheInitialData();
+  }
+
+  @override
+  void didUpdateWidget(covariant PublicProfileScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.userId != widget.userId) {
+      _cacheInitialData();
+    }
+  }
+
+  void _cacheInitialData() {
     final data = widget.initialData;
     if (data == null) return;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final cached =
-          ref.read(publicProfileCacheProvider)[widget.userId];
-      if (cached == null) {
-        ref.read(publicProfileCacheProvider.notifier).put(data);
-      }
+      if (!mounted) return;
+      ref.read(publicProfileCacheProvider.notifier).put(data);
     });
   }
 
@@ -54,9 +64,11 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen> {
       appBar: AppBar(
         title: Text(profile?.displayName ?? context.l10n.profileTitle),
       ),
-      body: profile == null
-          ? const _UnavailablePlaceholder()
-          : _ProfileBody(profile: profile),
+      body: PageLayout(
+        child: profile == null
+            ? const _UnavailablePlaceholder()
+            : _ProfileBody(profile: profile),
+      ),
     );
   }
 }

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/providers/auth_notifier.dart';
+import '../../../../core/widgets/page_layout.dart';
 import '../../../../routes/routes.dart';
 
 class VerifyResultScreen extends ConsumerStatefulWidget {
@@ -39,13 +40,11 @@ class _VerifyResultScreenState extends ConsumerState<VerifyResultScreen> {
     final isAuthenticated = ref.watch(authProvider).isAuthenticated;
 
     return Scaffold(
-      body: SafeArea(
+      body: PageLayout.form(
         child: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
                 Icon(
                   _isSuccess ? Icons.check_circle_outline : Icons.warning_amber_rounded,
                   size: 80,
@@ -64,9 +63,8 @@ class _VerifyResultScreenState extends ConsumerState<VerifyResultScreen> {
                 const SizedBox(height: 12),
                 _buildSubtitle(context, isAuthenticated),
                 const SizedBox(height: 32),
-                ..._buildActions(context, isAuthenticated),
-              ],
-            ),
+              ..._buildActions(context, isAuthenticated),
+            ],
           ),
         ),
       ),

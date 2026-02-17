@@ -22,6 +22,7 @@ import '../widgets/offer_card.dart';
 import '../widgets/paginated_sliver_list.dart';
 import '../widgets/post_request_nudge_card.dart';
 import '../widgets/zero_results_funnel.dart';
+import '../../../../core/widgets/page_layout.dart';
 
 /// Unified list screen for both rides and seat requests.
 ///
@@ -164,9 +165,10 @@ class _OffersListScreenState extends ConsumerState<OffersListScreen> {
         nearbyState.offers.isNotEmpty;
 
     return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: _onRefresh,
-        child: CustomScrollView(
+      body: PageLayout(
+        child: RefreshIndicator(
+          onRefresh: _onRefresh,
+          child: CustomScrollView(
           controller: _scrollController,
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
@@ -280,6 +282,7 @@ class _OffersListScreenState extends ConsumerState<OffersListScreen> {
                 ),
               ),
           ],
+        ),
         ),
       ),
     );

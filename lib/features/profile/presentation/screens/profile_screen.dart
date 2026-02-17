@@ -53,26 +53,25 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> with WidgetsBindi
     if (user == null) {
       return Scaffold(
         appBar: AppBar(title: Text(context.l10n.profileTitle)),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.account_circle, size: 100, color: Theme.of(context).colorScheme.onSurfaceVariant),
-              const SizedBox(height: 16),
-              Text(context.l10n.logInToSeeProfile),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () {
-                  context.pushNamed(RouteNames.login);
-                },
-                child: Text(context.l10n.logInSignUp),
-              ),
-              const SizedBox(height: 32),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: LanguageSelector(),
-              ),
-            ],
+        body: PageLayout.form(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.account_circle, size: 100, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                const SizedBox(height: 16),
+                Text(context.l10n.logInToSeeProfile),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: () {
+                    context.pushNamed(RouteNames.login);
+                  },
+                  child: Text(context.l10n.logInSignUp),
+                ),
+                const SizedBox(height: 32),
+                const LanguageSelector(),
+              ],
+            ),
           ),
         ),
       );
@@ -92,10 +91,11 @@ class _ProfileDashboard extends ConsumerWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          // SliverAppBar with gradient background
-          SliverAppBar(
+      body: PageLayout(
+        child: CustomScrollView(
+          slivers: [
+            // SliverAppBar with gradient background
+            SliverAppBar(
             expandedHeight: 200,
             pinned: true,
             automaticallyImplyLeading: false,
@@ -319,6 +319,7 @@ class _ProfileDashboard extends ConsumerWidget {
           // Bottom spacing
           const SliverPadding(padding: EdgeInsets.only(bottom: 32)),
         ],
+        ),
       ),
     );
   }

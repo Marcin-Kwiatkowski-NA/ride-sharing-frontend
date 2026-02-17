@@ -1194,6 +1194,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.15.0"
+  window_size_classes:
+    dependency: "direct main"
+    description:
+      name: window_size_classes
+      sha256: ddb254d0113fe60e875ee5a9293aac4e9129fd82eed6b46628adf4a6485eff07
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.1"
   xdg_directories:
     dependency: transitive
     description:

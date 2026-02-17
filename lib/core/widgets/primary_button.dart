@@ -16,22 +16,23 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 48,
-      width: width,
-      child: FilledButton(
-        onPressed: isLoading ? null : onPressed,
-        child: isLoading
-            ? SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  color: Theme.of(context).colorScheme.onPrimary,
-                  strokeWidth: 3,
-                ),
-              )
-            : child,
+    final button = FilledButton(
+      style: FilledButton.styleFrom(
+        minimumSize: const Size(0, 48),
       ),
+      onPressed: isLoading ? null : onPressed,
+      child: isLoading
+          ? SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(
+                color: Theme.of(context).colorScheme.onPrimary,
+                strokeWidth: 3,
+              ),
+            )
+          : child,
     );
+
+    return width == null ? button : SizedBox(width: width, child: button);
   }
 }

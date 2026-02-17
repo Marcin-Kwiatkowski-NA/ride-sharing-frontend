@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/l10n/l10n_extension.dart';
+import '../core/widgets/page_layout.dart';
 import 'routes.dart';
 
 class ErrorScreen extends StatelessWidget {
@@ -14,9 +15,8 @@ class ErrorScreen extends StatelessWidget {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(context.l10n.errorTitle)),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
+      body: PageLayout.form(
+        child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

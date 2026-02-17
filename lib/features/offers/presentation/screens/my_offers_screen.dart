@@ -7,6 +7,7 @@ import '../../../../core/theme/app_tokens.dart';
 import '../../../../routes/routes.dart';
 import '../../../rides/presentation/widgets/publish_selection_sheet.dart';
 import '../../domain/offer_ui_model.dart';
+import '../../../../core/widgets/page_layout.dart';
 import '../providers/my_offers_provider.dart';
 import '../widgets/offer_card.dart';
 
@@ -48,7 +49,8 @@ class _MyOffersScreenState extends ConsumerState<MyOffersScreen> {
         label: Text(context.l10n.post),
         style: tokens.brandCtaStyle,
       ),
-      body: Column(
+      body: PageLayout(
+        child: Column(
         children: [
           // Filter
           Padding(
@@ -148,6 +150,7 @@ class _MyOffersScreenState extends ConsumerState<MyOffersScreen> {
             ),
           ),
         ],
+        ),
       ),
     );
   }

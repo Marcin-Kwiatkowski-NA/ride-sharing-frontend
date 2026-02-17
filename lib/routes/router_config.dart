@@ -126,6 +126,7 @@ GoRouter router(Ref ref) {
           ),
 
           // Branch 1: Packages
+
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -158,7 +159,10 @@ GoRouter router(Ref ref) {
                       final offerKey = OfferKey.fromRouteParam(
                         state.pathParameters['offerKey']!,
                       )!;
-                      return OfferDetailsScreen(offerKey: offerKey);
+                      return OfferDetailsScreen(
+                        offerKey: offerKey,
+                        showSmartMatches: true,
+                      );
                     },
                   ),
                 ],

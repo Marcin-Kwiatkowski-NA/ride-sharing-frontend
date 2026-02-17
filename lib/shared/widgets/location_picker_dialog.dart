@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/l10n/l10n_extension.dart';
 import '../../core/locations/domain/location.dart';
 import '../../core/locations/widgets/location_autocomplete_field.dart';
+import '../../core/widgets/page_layout.dart';
 
 /// Opens a fullscreen dialog for location search with auto-focused keyboard.
 Future<Location?> showLocationPickerDialog(
@@ -34,19 +35,21 @@ class _LocationPickerPage extends StatelessWidget {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: Padding(
-        padding: EdgeInsets.only(
-          left: 24,
-          right: 24,
-          top: 12,
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: LocationAutocompleteField(
-          controller: ctrl,
-          labelText: context.l10n.searchCity,
-          prefixIcon: Icons.search,
-          onLocationSelected: (location) =>
-              Navigator.of(context).pop(location),
+      body: PageLayout.form(
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: 24,
+            right: 24,
+            top: 12,
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: LocationAutocompleteField(
+            controller: ctrl,
+            labelText: context.l10n.searchCity,
+            prefixIcon: Icons.search,
+            onLocationSelected: (location) =>
+                Navigator.of(context).pop(location),
+          ),
         ),
       ),
     );

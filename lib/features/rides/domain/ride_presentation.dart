@@ -98,7 +98,9 @@ class RidePresentation {
     RideStatus.open => OfferStatus.open,
     RideStatus.full => OfferStatus.full,
     RideStatus.completed => OfferStatus.completed,
+    RideStatus.expired => OfferStatus.completed,
     RideStatus.cancelled => OfferStatus.cancelled,
+    RideStatus.banned => OfferStatus.cancelled,
   };
 
   static bool _hasContent(String? s) => s != null && s.trim().isNotEmpty;

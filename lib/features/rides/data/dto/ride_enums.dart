@@ -8,8 +8,12 @@ enum RideStatus {
   full('FULL'),
   @JsonValue('COMPLETED')
   completed('COMPLETED'),
+  @JsonValue('EXPIRED')
+  expired('EXPIRED'),
   @JsonValue('CANCELLED')
-  cancelled('CANCELLED');
+  cancelled('CANCELLED'),
+  @JsonValue('BANNED')
+  banned('BANNED');
 
   const RideStatus(this.value);
   final String value;

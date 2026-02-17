@@ -306,6 +306,27 @@ class AppTheme {
       ),
 
       // ─────────────────────────────────────────────────────────────────────────
+      // Navigation Rail
+      // ─────────────────────────────────────────────────────────────────────────
+      navigationRailTheme: NavigationRailThemeData(
+        backgroundColor: colorScheme.surface,
+        elevation: 0,
+        indicatorColor: colorScheme.secondaryContainer,
+        selectedIconTheme: IconThemeData(color: colorScheme.primary),
+        unselectedIconTheme: IconThemeData(color: colorScheme.onSurfaceVariant),
+        selectedLabelTextStyle: GoogleFonts.roboto(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: colorScheme.primary,
+        ),
+        unselectedLabelTextStyle: GoogleFonts.roboto(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          color: colorScheme.onSurfaceVariant,
+        ),
+      ),
+
+      // ─────────────────────────────────────────────────────────────────────────
       // Divider Theme
       // ─────────────────────────────────────────────────────────────────────────
       dividerTheme: DividerThemeData(

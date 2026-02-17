@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/providers/auth_notifier.dart';
 import '../../../../core/providers/auth_state.dart';
+import '../../../../core/widgets/core_widgets.dart';
 import '../../../../routes/routes.dart';
 
 class CreateAccountScreen extends ConsumerStatefulWidget {
@@ -38,7 +39,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
 
     return Scaffold(
       appBar: AppBar(title: Text(context.l10n.createAccountTitle)),
-      body: Center(child: _buildForm()),
+      body: PageLayout.form(child: FormSurface(child: _buildForm())),
     );
   }
 
