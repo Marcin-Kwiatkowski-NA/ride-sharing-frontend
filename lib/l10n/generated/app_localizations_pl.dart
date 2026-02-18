@@ -684,6 +684,15 @@ class AppLocalizationsPl extends AppLocalizations {
   String get typeAMessage => 'Napisz wiadomość...';
 
   @override
+  String get chatLoadEarlier => 'Załaduj wcześniejsze';
+
+  @override
+  String get chatConnecting => 'Łączenie...';
+
+  @override
+  String get chatDisconnected => 'Rozłączono';
+
+  @override
   String get timeNow => 'teraz';
 
   @override

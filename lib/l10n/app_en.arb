@@ -688,6 +688,15 @@
   "typeAMessage": "Type a message...",
   "@typeAMessage": { "description": "Hint text in chat message input field" },
 
+  "chatLoadEarlier": "Load earlier",
+  "@chatLoadEarlier": { "description": "Button to load older messages in chat" },
+
+  "chatConnecting": "Connecting...",
+  "@chatConnecting": { "description": "STOMP connection status: connecting" },
+
+  "chatDisconnected": "Disconnected",
+  "@chatDisconnected": { "description": "STOMP connection status: disconnected" },
+
   "timeNow": "now",
   "@timeNow": { "description": "Time-ago label for messages less than 1 minute old" },
 

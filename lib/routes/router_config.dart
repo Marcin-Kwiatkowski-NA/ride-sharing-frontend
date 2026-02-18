@@ -6,6 +6,7 @@ import '../core/locations/domain/location.dart';
 import '../features/auth/presentation/screens/create_account_screen.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/auth/presentation/screens/verify_result_screen.dart';
+import '../features/chat/domain/chat_route_extra.dart';
 import '../features/chat/presentation/screens/chat_screen.dart';
 import '../features/chat/presentation/tabs/messages_tab.dart';
 import '../features/navigation/main_layout.dart';
@@ -215,7 +216,12 @@ GoRouter router(Ref ref) {
         },
         builder: (context, state) {
           final conversationId = state.pathParameters['conversationId']!;
-          return ChatScreen(conversationId: conversationId);
+          final extra = state.extra as ChatRouteExtra?;
+          return ChatScreen(
+            conversationId: conversationId,
+            peerName: extra?.peerName,
+            topicKey: extra?.topicKey,
+          );
         },
       ),
       GoRoute(

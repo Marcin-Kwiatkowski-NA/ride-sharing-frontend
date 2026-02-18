@@ -1292,6 +1292,24 @@ abstract class AppLocalizations {
   /// **'Type a message...'**
   String get typeAMessage;
 
+  /// Button to load older messages in chat
+  ///
+  /// In en, this message translates to:
+  /// **'Load earlier'**
+  String get chatLoadEarlier;
+
+  /// STOMP connection status: connecting
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting...'**
+  String get chatConnecting;
+
+  /// STOMP connection status: disconnected
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnected'**
+  String get chatDisconnected;
+
   /// Time-ago label for messages less than 1 minute old
   ///
   /// In en, this message translates to:

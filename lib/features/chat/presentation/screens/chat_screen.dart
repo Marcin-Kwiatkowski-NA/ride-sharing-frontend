@@ -2,17 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/l10n/l10n_extension.dart';
+import '../../../../core/network/stomp_connection_state.dart';
+import '../../../../core/network/stomp_connection_state_provider.dart';
+import '../../../../core/theme/app_tokens.dart';
 import '../../../../core/widgets/page_layout.dart';
 import '../../domain/message_ui_model.dart';
-import '../providers/chat_thread_controller.dart';
+import '../providers/chat_thread_provider.dart';
 
 /// Chat screen for viewing and sending messages in a conversation.
 ///
-/// HAS Scaffold - this is a pushed route.
+/// HAS Scaffold — this is a pushed route.
 class ChatScreen extends ConsumerStatefulWidget {
   final String conversationId;
+  final String? peerName;
+  final String? topicKey;
 
-  const ChatScreen({super.key, required this.conversationId});
+  const ChatScreen({
+    super.key,
+    required this.conversationId,
+    this.peerName,
+    this.topicKey,
+  });
 
   @override
   ConsumerState<ChatScreen> createState() => _ChatScreenState();
@@ -21,12 +31,39 @@ class ChatScreen extends ConsumerStatefulWidget {
 class _ChatScreenState extends ConsumerState<ChatScreen> {
   final _textController = TextEditingController();
   final _scrollController = ScrollController();
+  bool _showScrollToBottom = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
 
   @override
   void dispose() {
+    _scrollController.removeListener(_onScroll);
     _textController.dispose();
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _onScroll() {
+    // In a reversed list, offset > 0 means user scrolled up (away from newest)
+    final shouldShow =
+        _scrollController.hasClients && _scrollController.offset > 200;
+    if (shouldShow != _showScrollToBottom) {
+      setState(() => _showScrollToBottom = shouldShow);
+    }
+  }
+
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
   }
 
   void _sendMessage() {
@@ -37,17 +74,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         .read(chatThreadProvider(widget.conversationId).notifier)
         .sendMessage(text);
     _textController.clear();
-
-    // Scroll to bottom after sending
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOut,
-        );
-      }
-    });
   }
 
   @override
@@ -57,16 +83,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(context.l10n.chatTitle),
+        title: Text(widget.peerName ?? context.l10n.chatTitle),
+        actions: const [_ConnectionIndicator()],
       ),
       body: PageLayout.chat(
         child: Column(
           children: [
-            // Messages list
-            Expanded(
-              child: _buildContent(theme, state),
-            ),
-            // Message composer
+            Expanded(child: _buildContent(theme, state)),
             _MessageComposer(
               controller: _textController,
               onSend: _sendMessage,
@@ -74,11 +97,20 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           ],
         ),
       ),
+      floatingActionButton: _showScrollToBottom
+          ? Padding(
+              padding: const EdgeInsets.only(bottom: 72),
+              child: FloatingActionButton.small(
+                onPressed: _scrollToBottom,
+                child: const Icon(Icons.keyboard_arrow_down),
+              ),
+            )
+          : null,
     );
   }
 
   Widget _buildContent(ThemeData theme, ChatThreadState state) {
-    if (state.isLoading) {
+    if (state.isLoadingInitial) {
       return const Center(child: CircularProgressIndicator());
     }
 
@@ -116,32 +148,91 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     return _MessagesList(
       messages: state.messages,
       scrollController: _scrollController,
+      hasMoreEarlier: state.hasMoreEarlier,
+      isLoadingEarlier: state.isLoadingEarlier,
+      onLoadEarlier: () => ref
+          .read(chatThreadProvider(widget.conversationId).notifier)
+          .loadEarlier(),
     );
   }
 }
+
+// -- Messages list (reversed) ------------------------------------------------
 
 class _MessagesList extends StatelessWidget {
   final List<MessageUiModel> messages;
   final ScrollController scrollController;
+  final bool hasMoreEarlier;
+  final bool isLoadingEarlier;
+  final VoidCallback onLoadEarlier;
 
   const _MessagesList({
     required this.messages,
     required this.scrollController,
+    required this.hasMoreEarlier,
+    required this.isLoadingEarlier,
+    required this.onLoadEarlier,
   });
 
   @override
   Widget build(BuildContext context) {
+    // +1 for the load-earlier button at the top (last index in reversed list)
+    final itemCount = messages.length + (hasMoreEarlier ? 1 : 0);
+
     return ListView.builder(
       controller: scrollController,
+      reverse: true,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      itemCount: messages.length,
+      itemCount: itemCount,
       itemBuilder: (context, index) {
-        final message = messages[index];
-        return _MessageBubble(message: message);
+        // In a reversed list, index 0 = newest message
+        if (hasMoreEarlier && index == itemCount - 1) {
+          return _LoadEarlierButton(
+            isLoading: isLoadingEarlier,
+            onPressed: onLoadEarlier,
+          );
+        }
+
+        // Reversed index: messages[last - index]
+        final messageIndex = messages.length - 1 - index;
+        return _MessageBubble(message: messages[messageIndex]);
       },
     );
   }
 }
+
+// -- Load earlier button -----------------------------------------------------
+
+class _LoadEarlierButton extends StatelessWidget {
+  final bool isLoading;
+  final VoidCallback onPressed;
+
+  const _LoadEarlierButton({
+    required this.isLoading,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: isLoading
+            ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : TextButton(
+                onPressed: onPressed,
+                child: Text(context.l10n.chatLoadEarlier),
+              ),
+      ),
+    );
+  }
+}
+
+// -- Message bubble ----------------------------------------------------------
 
 class _MessageBubble extends StatelessWidget {
   final MessageUiModel message;
@@ -165,7 +256,7 @@ class _MessageBubble extends StatelessWidget {
           color: isFromUser
               ? theme.colorScheme.primary
               : theme.colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(AppTokens.radiusLG),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -194,6 +285,40 @@ class _MessageBubble extends StatelessWidget {
     );
   }
 }
+
+// -- Connection indicator ----------------------------------------------------
+
+class _ConnectionIndicator extends ConsumerWidget {
+  const _ConnectionIndicator();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final connAsync = ref.watch(stompConnectionStateProvider);
+    final connState =
+        connAsync.value ?? StompConnectionState.disconnected;
+
+    final color = switch (connState) {
+      StompConnectionState.connected => Colors.green,
+      StompConnectionState.connecting => Colors.orange,
+      StompConnectionState.disconnected => Colors.red,
+      StompConnectionState.error => Colors.red,
+    };
+
+    return Padding(
+      padding: const EdgeInsets.only(right: 16),
+      child: Container(
+        width: 8,
+        height: 8,
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
+        ),
+      ),
+    );
+  }
+}
+
+// -- Message composer --------------------------------------------------------
 
 class _MessageComposer extends StatelessWidget {
   final TextEditingController controller;
@@ -228,8 +353,8 @@ class _MessageComposer extends StatelessWidget {
               controller: controller,
               decoration: InputDecoration(
                 hintText: context.l10n.typeAMessage,
-                border: OutlineInputBorder(),
-                contentPadding: EdgeInsets.symmetric(
+                border: const OutlineInputBorder(),
+                contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 12,
                 ),
@@ -239,9 +364,15 @@ class _MessageComposer extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          IconButton.filled(
-            onPressed: onSend,
-            icon: const Icon(Icons.send),
+          ListenableBuilder(
+            listenable: controller,
+            builder: (context, _) {
+              return IconButton.filled(
+                onPressed:
+                    controller.text.trim().isEmpty ? null : onSend,
+                icon: const Icon(Icons.send),
+              );
+            },
           ),
         ],
       ),

@@ -7,6 +7,7 @@ import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/utils/launchers.dart';
 import '../../../../routes/routes.dart';
 import '../../../chat/data/chat_repository.dart';
+import '../../../chat/domain/chat_route_extra.dart';
 import '../../data/offer_enums.dart';
 import '../../domain/offer_models.dart';
 import '../../domain/offer_ui_model.dart';
@@ -67,6 +68,10 @@ class _SourceAwareContactSheetState
       context.pushNamed(
         RouteNames.chat,
         pathParameters: {'conversationId': response.conversationId},
+        extra: ChatRouteExtra(
+          peerName: user.displayName,
+          topicKey: topicKey,
+        ),
       );
     } catch (e) {
       if (!mounted) return;

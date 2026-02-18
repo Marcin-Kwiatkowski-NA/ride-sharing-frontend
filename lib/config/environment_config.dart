@@ -23,6 +23,12 @@ class EnvironmentConfig {
     }
   }
 
+  /// WebSocket base URL (wss:// for production, ws:// for local dev)
+  static String get wsBaseUrl =>
+      baseUrl
+          .replaceFirst('https://', 'wss://')
+          .replaceFirst('http://', 'ws://');
+
   /// Auth API base URL
   static String get authBaseUrl => baseUrl;
 

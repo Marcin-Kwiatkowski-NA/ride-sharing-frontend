@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 @immutable
 class ConversationUiModel {
   final String id;
+  final String? topicKey;
   final String peerUserName;
   final String? peerAvatarUrl;
   final String lastMessagePreview;
@@ -13,6 +14,7 @@ class ConversationUiModel {
 
   const ConversationUiModel({
     required this.id,
+    this.topicKey,
     required this.peerUserName,
     this.peerAvatarUrl,
     required this.lastMessagePreview,

@@ -17,6 +17,7 @@ class ChatPresentation {
 
     return ConversationUiModel(
       id: dto.id,
+      topicKey: dto.topicKey,
       peerUserName: dto.peerUser.displayName,
       peerAvatarUrl: dto.peerUser.avatarUrl,
       lastMessagePreview: lastMessagePreview,
@@ -34,18 +35,34 @@ class ChatPresentation {
   }
 
   /// Convert MessageDto to UI model.
-  static MessageUiModel toMessageUiModel(MessageDto dto) {
+  ///
+  /// When [currentUserId] is provided, ownership is determined by comparing
+  /// [MessageDto.senderId] against it (used for STOMP messages where
+  /// `isMine` is always false). Otherwise falls back to [MessageDto.isMine]
+  /// (set correctly by the REST API).
+  static MessageUiModel toMessageUiModel(
+    MessageDto dto, {
+    int? currentUserId,
+  }) {
+    final isFromCurrentUser = currentUserId != null
+        ? dto.senderId == currentUserId
+        : dto.isMine;
     return MessageUiModel(
       id: dto.id,
       text: dto.body,
       timeDisplay: _timeFormat.format(dto.createdAt),
-      isFromCurrentUser: dto.isMine,
+      isFromCurrentUser: isFromCurrentUser,
     );
   }
 
   /// Convert list of MessageDtos to UI models.
-  static List<MessageUiModel> toMessageUiModels(List<MessageDto> dtos) {
-    return dtos.map(toMessageUiModel).toList();
+  static List<MessageUiModel> toMessageUiModels(
+    List<MessageDto> dtos, {
+    int? currentUserId,
+  }) {
+    return dtos
+        .map((d) => toMessageUiModel(d, currentUserId: currentUserId))
+        .toList();
   }
 
   /// Format time as relative "time ago" string.

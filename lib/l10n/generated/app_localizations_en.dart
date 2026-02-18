@@ -675,6 +675,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get typeAMessage => 'Type a message...';
 
   @override
+  String get chatLoadEarlier => 'Load earlier';
+
+  @override
+  String get chatConnecting => 'Connecting...';
+
+  @override
+  String get chatDisconnected => 'Disconnected';
+
+  @override
   String get timeNow => 'now';
 
   @override

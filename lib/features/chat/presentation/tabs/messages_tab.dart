@@ -5,12 +5,13 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/widgets/page_layout.dart';
 import '../../../../routes/routes.dart';
+import '../../domain/chat_route_extra.dart';
 import '../../domain/conversation_ui_model.dart';
 import '../providers/inbox_provider.dart';
 
 /// Messages tab content for the bottom navigation.
 ///
-/// NO Scaffold - MainLayout owns the shell.
+/// NO Scaffold — MainLayout owns the shell.
 class MessagesTab extends ConsumerWidget {
   const MessagesTab({super.key});
 
@@ -24,14 +25,17 @@ class MessagesTab extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Lightweight header (no AppBar, just styled text)
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 16, 0, 8),
-            child: Text(context.l10n.messagesTitle, style: theme.textTheme.headlineSmall),
+            child: Text(
+              context.l10n.messagesTitle,
+              style: theme.textTheme.headlineSmall,
+            ),
           ),
           Expanded(
             child: conversationsAsync.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () =>
+                  const Center(child: CircularProgressIndicator()),
               error: (e, _) => _ErrorWithRetry(
                 error: e,
                 onRetry: () => ref.invalidate(inboxProvider),
@@ -69,7 +73,10 @@ class _ErrorWithRetry extends StatelessWidget {
           const SizedBox(height: 16),
           Text(context.l10n.couldNotLoadMessages),
           const SizedBox(height: 8),
-          FilledButton.tonal(onPressed: onRetry, child: Text(context.l10n.retry)),
+          FilledButton.tonal(
+            onPressed: onRetry,
+            child: Text(context.l10n.retry),
+          ),
         ],
       ),
     );
@@ -144,6 +151,7 @@ class _ConversationTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final hasUnread = conversation.unreadCount > 0;
 
     return ListTile(
       leading: CircleAvatar(
@@ -153,24 +161,44 @@ class _ConversationTile extends StatelessWidget {
               : '?',
         ),
       ),
-      title: Text(conversation.peerUserName),
+      title: Text(
+        conversation.peerUserName,
+        style: hasUnread
+            ? theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)
+            : null,
+      ),
       subtitle: Text(
         conversation.lastMessagePreview,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
-      trailing: conversation.timeAgo.isNotEmpty
-          ? Text(
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (conversation.timeAgo.isNotEmpty)
+            Text(
               conversation.timeAgo,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.outline,
               ),
-            )
-          : null,
+            ),
+          if (hasUnread) ...[
+            const SizedBox(width: 8),
+            Badge(
+              label: Text('${conversation.unreadCount}'),
+              backgroundColor: theme.colorScheme.primary,
+            ),
+          ],
+        ],
+      ),
       onTap: () {
         context.pushNamed(
           RouteNames.chat,
           pathParameters: {'conversationId': conversation.id},
+          extra: ChatRouteExtra(
+            peerName: conversation.peerUserName,
+            topicKey: conversation.topicKey,
+          ),
         );
       },
     );
