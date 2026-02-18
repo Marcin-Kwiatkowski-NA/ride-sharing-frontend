@@ -46,12 +46,15 @@ class ChatThread extends _$ChatThread {
 
   @override
   ChatThreadState build(String conversationId) {
-    // LISTEN (not watch) connection state — no rebuild, just react
+    // LISTEN (not watch) connection state — no rebuild, just react.
+    // Only catch-up on reconnect — StompService._onConnect already
+    // re-subscribes all tracked subs automatically, so calling
+    // _subscribeToStomp() here would unsubscribe the auto-resubscribed
+    // one and create an unnecessary replacement.
     ref.listen(stompConnectionStateProvider, (prev, next) {
       final connState =
           next.value ?? StompConnectionState.disconnected;
       if (connState == StompConnectionState.connected) {
-        _subscribeToStomp();
         _catchUpMessages();
       }
     });

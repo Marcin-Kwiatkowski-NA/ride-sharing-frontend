@@ -32,11 +32,17 @@ class StompServiceController extends _$StompServiceController {
       }
     });
 
-    // Lifecycle changes: foreground → activate, background → deactivate
+    // Lifecycle changes: foreground → activate, background → deactivate.
+    // Only deactivate on actual background states (paused/detached), NOT
+    // on transient inactive (notification shade, system dialog, etc.) —
+    // Android fires inactive constantly and tearing down the WebSocket
+    // each time causes a connect/disconnect loop that starves real-time
+    // message delivery.
     ref.listen(appLifecycleProvider, (prev, next) {
       if (next == AppLifecycleState.resumed) {
         _activateIfReady(service);
-      } else if (prev == AppLifecycleState.resumed) {
+      } else if (next == AppLifecycleState.paused ||
+          next == AppLifecycleState.detached) {
         service.deactivate();
       }
     });
