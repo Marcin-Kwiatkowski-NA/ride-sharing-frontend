@@ -187,12 +187,17 @@ class _LocationAutocompleteFieldState
 
     // When repository becomes available and field already has focus,
     // fetch recents immediately (autofocus fires before repo is ready).
-    if (previousRef == null &&
-        repository != null &&
-        _focusNode.hasFocus &&
-        widget.controller.text.isEmpty &&
-        _suggestions.isEmpty) {
-      _fetchSuggestions('', repository);
+    // Also handle the case where the user already typed something before
+    // the repository finished loading.
+    if (previousRef == null && repository != null && _focusNode.hasFocus) {
+      final currentText = widget.controller.text;
+      if (currentText.isEmpty && _suggestions.isEmpty) {
+        _fetchSuggestions('', repository);
+      } else if (currentText.isNotEmpty) {
+        // Reset _pendingKey so the next keystroke isn't blocked by the stale guard.
+        _pendingKey = null;
+        _fetchSuggestions(currentText, repository);
+      }
     }
 
     return Column(

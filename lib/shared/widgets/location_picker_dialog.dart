@@ -19,17 +19,28 @@ Future<Location?> showLocationPickerDialog(
   );
 }
 
-class _LocationPickerPage extends StatelessWidget {
+class _LocationPickerPage extends StatefulWidget {
   final String title;
   const _LocationPickerPage({required this.title});
 
   @override
-  Widget build(BuildContext context) {
-    final ctrl = TextEditingController();
+  State<_LocationPickerPage> createState() => _LocationPickerPageState();
+}
 
+class _LocationPickerPageState extends State<_LocationPickerPage> {
+  final _ctrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: Text(widget.title),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
@@ -44,7 +55,7 @@ class _LocationPickerPage extends StatelessWidget {
             bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
           child: LocationAutocompleteField(
-            controller: ctrl,
+            controller: _ctrl,
             labelText: context.l10n.searchCity,
             prefixIcon: Icons.search,
             onLocationSelected: (location) =>
