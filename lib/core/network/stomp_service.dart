@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer' as dev;
 import 'dart:ui';
 
 import 'package:stomp_dart_client/stomp_dart_client.dart';
@@ -65,7 +64,6 @@ class StompService {
   void activate() {
     if (!_active || _isActive) return;
     _isActive = true;
-    dev.log('activate: connecting to ${EnvironmentConfig.wsBaseUrl}/ws', name: 'StompService');
     _emitState(StompConnectionState.connecting);
 
     _client = StompClient(
@@ -131,13 +129,7 @@ class StompService {
     // Only subscribe immediately when the STOMP handshake is complete.
     // _isActive is true as soon as activate() is called (before connect),
     // so we check _lastState instead to avoid StompBadStateException.
-    final canSubNow = _lastState == StompConnectionState.connected && _client != null;
-    dev.log(
-      'subscribe($destination): immediate=$canSubNow, lastState=$_lastState, '
-      'client=${_client != null}, tracked=${_subscriptions.length}',
-      name: 'StompService',
-    );
-    if (canSubNow) {
+    if (_lastState == StompConnectionState.connected && _client != null) {
       tracked.currentUnsub = _client!.subscribe(
         destination: destination,
         callback: callback,
@@ -178,11 +170,6 @@ class StompService {
   void _onConnect(StompFrame frame) {
     _emitState(StompConnectionState.connected);
 
-    dev.log(
-      'onConnect: re-subscribing ${_subscriptions.length} tracked destinations: '
-      '${_subscriptions.keys.toList()}',
-      name: 'StompService',
-    );
     // Re-subscribe all tracked destinations
     for (final sub in _subscriptions.values) {
       if (_client == null) break;
@@ -210,7 +197,6 @@ class StompService {
   }
 
   void _onStompError(StompFrame frame) {
-    dev.log('STOMP error: ${frame.body}', name: 'StompService');
     _emitState(StompConnectionState.error);
     if (frame.body != null) {
       try {
@@ -226,7 +212,7 @@ class StompService {
   }
 
   void _onWebSocketError(dynamic error) {
-    dev.log('WebSocket error: $error', name: 'StompService');
+    _emitState(StompConnectionState.error);
     _errorCtrl.add(StompErrorDto(
       code: 'WEBSOCKET_ERROR',
       message: error.toString(),
