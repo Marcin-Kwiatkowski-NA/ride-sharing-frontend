@@ -205,6 +205,7 @@ class _LocationAutocompleteFieldState
           focusNode: _focusNode,
           validator: widget.validator,
           autofocus: true,
+          onChanged: (_) => _onTextChanged(),
           decoration: InputDecoration(
             labelText: widget.labelText,
             prefixIcon: Icon(widget.prefixIcon),
