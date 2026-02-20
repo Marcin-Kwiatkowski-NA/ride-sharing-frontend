@@ -1729,6 +1729,234 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to delete account. Please try again.'**
   String get deleteAccountError;
+
+  /// Label for auto-approve toggle in ride creation
+  ///
+  /// In en, this message translates to:
+  /// **'Instant booking'**
+  String get instantBooking;
+
+  /// Subtitle when instant booking is enabled
+  ///
+  /// In en, this message translates to:
+  /// **'Passengers are confirmed immediately'**
+  String get instantBookingOnSubtitle;
+
+  /// Subtitle when instant booking is disabled
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll review and approve each request'**
+  String get instantBookingOffSubtitle;
+
+  /// Primary CTA to book a ride
+  ///
+  /// In en, this message translates to:
+  /// **'Book Ride'**
+  String get bookRide;
+
+  /// Primary CTA when ride requires driver approval
+  ///
+  /// In en, this message translates to:
+  /// **'Request to Book'**
+  String get requestToBook;
+
+  /// Submit button in booking sheet for instant mode
+  ///
+  /// In en, this message translates to:
+  /// **'Book Instantly'**
+  String get bookInstantly;
+
+  /// Submit button in booking sheet for request mode
+  ///
+  /// In en, this message translates to:
+  /// **'Send Request'**
+  String get sendRequest;
+
+  /// Secondary CTA to contact the driver
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Driver'**
+  String get contactDriver;
+
+  /// Label for board stop selector in booking sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Board at'**
+  String get boardAt;
+
+  /// Label for alight stop selector in booking sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Alight at'**
+  String get alightAt;
+
+  /// Label for seat count selector in booking sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Seats'**
+  String get seatCountLabel;
+
+  /// Price summary in booking sheet
+  ///
+  /// In en, this message translates to:
+  /// **'{count} × {price} PLN = {total} PLN'**
+  String priceSummary(int count, int price, int total);
+
+  /// Booking mode badge label for auto-approve
+  ///
+  /// In en, this message translates to:
+  /// **'Instant'**
+  String get bookingModeInstant;
+
+  /// Booking mode badge label for driver-confirm
+  ///
+  /// In en, this message translates to:
+  /// **'Request'**
+  String get bookingModeRequest;
+
+  /// Confirmation title for instant booking
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re booked!'**
+  String get youAreBooked;
+
+  /// Confirmation title for booking request
+  ///
+  /// In en, this message translates to:
+  /// **'Request sent'**
+  String get requestSent;
+
+  /// Subtitle for pending booking confirmation
+  ///
+  /// In en, this message translates to:
+  /// **'The driver will confirm within 24h'**
+  String get driverWillConfirm;
+
+  /// CTA to navigate to bookings list
+  ///
+  /// In en, this message translates to:
+  /// **'View My Bookings'**
+  String get viewMyBookings;
+
+  /// Error when trying to double-book
+  ///
+  /// In en, this message translates to:
+  /// **'You already have a booking on this ride'**
+  String get alreadyBookedError;
+
+  /// Error when not enough seats
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough seats available'**
+  String get insufficientSeatsError;
+
+  /// Error when ride is not open
+  ///
+  /// In en, this message translates to:
+  /// **'This ride is no longer available for booking'**
+  String get rideNotBookableError;
+
+  /// Error when trying to book a Facebook ride
+  ///
+  /// In en, this message translates to:
+  /// **'External rides cannot be booked in-app'**
+  String get externalRideError;
+
+  /// Error when board/alight stops are invalid
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid boarding segment selected'**
+  String get invalidSegmentError;
+
+  /// Snackbar message when booking is cancelled
+  ///
+  /// In en, this message translates to:
+  /// **'Booking cancelled'**
+  String get bookingCancelled;
+
+  /// Action label to cancel a booking
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel booking'**
+  String get cancelBooking;
+
+  /// Confirmation dialog for cancelling a booking
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to cancel this booking?'**
+  String get cancelBookingConfirm;
+
+  /// Bottom nav tab label for My Activity
+  ///
+  /// In en, this message translates to:
+  /// **'My Activity'**
+  String get navMyActivity;
+
+  /// Segment label for rides posted by user
+  ///
+  /// In en, this message translates to:
+  /// **'My Rides'**
+  String get segmentRides;
+
+  /// Segment label for seat requests by user
+  ///
+  /// In en, this message translates to:
+  /// **'Passengers'**
+  String get segmentPassengers;
+
+  /// Segment label for user's bookings as passenger
+  ///
+  /// In en, this message translates to:
+  /// **'Bookings'**
+  String get segmentBookings;
+
+  /// Booking status chip label
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get bookingStatusPending;
+
+  /// Booking status chip label
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
+  String get bookingStatusConfirmed;
+
+  /// Booking status chip label
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get bookingStatusRejected;
+
+  /// Booking status chip label
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get bookingStatusCancelled;
+
+  /// Booking status chip label
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get bookingStatusExpired;
+
+  /// Empty state message for bookings tab
+  ///
+  /// In en, this message translates to:
+  /// **'No bookings yet'**
+  String get noBookingsYet;
+
+  /// Empty state subtitle for bookings tab
+  ///
+  /// In en, this message translates to:
+  /// **'Your ride bookings will appear here'**
+  String get noBookingsYetMessage;
+
+  /// Chip label to reveal collapsed stops
+  ///
+  /// In en, this message translates to:
+  /// **'Show full route'**
+  String get showFullRoute;
 }
 
 class _AppLocalizationsDelegate

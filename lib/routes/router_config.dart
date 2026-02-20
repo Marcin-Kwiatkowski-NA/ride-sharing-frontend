@@ -6,6 +6,8 @@ import '../core/locations/domain/location.dart';
 import '../features/auth/presentation/screens/create_account_screen.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/auth/presentation/screens/verify_result_screen.dart';
+import '../features/booking/data/dto/booking_response_dto.dart';
+import '../features/booking/presentation/screens/booking_result_screen.dart';
 import '../features/chat/domain/chat_route_extra.dart';
 import '../features/chat/presentation/screens/chat_screen.dart';
 import '../features/chat/presentation/tabs/messages_tab.dart';
@@ -276,6 +278,33 @@ GoRouter router(Ref ref) {
         builder: (context, state) {
           final status = state.uri.queryParameters['status'];
           return VerifyResultScreen(status: status);
+        },
+      ),
+      GoRoute(
+        path: RoutePaths.bookingResult,
+        name: RouteNames.bookingResult,
+        parentNavigatorKey: _rootNavigatorKey,
+        redirect: (context, state) {
+          final idStr = state.pathParameters['bookingId'];
+          if (idStr == null || int.tryParse(idStr) == null) {
+            return RoutePaths.myOffers;
+          }
+          return null;
+        },
+        builder: (context, state) {
+          final bookingId =
+              int.parse(state.pathParameters['bookingId']!);
+          final rideIdStr = state.uri.queryParameters['rideId'];
+          final rideId = rideIdStr != null ? int.tryParse(rideIdStr) ?? 0 : 0;
+          final extra = state.extra;
+          final booking =
+              extra is BookingResponseDto ? extra : null;
+
+          return BookingResultScreen(
+            bookingId: bookingId,
+            rideId: rideId,
+            initialData: booking,
+          );
         },
       ),
       GoRoute(

@@ -49,6 +49,7 @@ sealed class PostRideFormState with _$PostRideFormState {
     @Default([]) List<IntermediateStopEntry> intermediateStops,
     @Default(false) bool isNegotiablePrice,
     @Default(false) bool hasAttemptedSubmit,
+    @Default(true) bool autoApprove,
   }) = _PostRideFormState;
 
   // ── Field-level validation errors ──────────────────────────────────────
@@ -259,6 +260,11 @@ class PostRideController extends _$PostRideController {
     _saveDraft();
   }
 
+  void setAutoApprove(bool value) {
+    state = state.copyWith(autoApprove: value, errorMessage: null);
+    _saveDraft();
+  }
+
   // ── Intermediate stops ─────────────────────────────────────────────────
 
   void addIntermediateStop() {
@@ -380,6 +386,7 @@ class PostRideController extends _$PostRideController {
         description: state.description,
         intermediateStops:
             intermediateStops?.isNotEmpty == true ? intermediateStops : null,
+        autoApprove: state.autoApprove,
       );
 
       final dio = ref.read(apiDioProvider);

@@ -22,6 +22,7 @@ sealed class RideCreationRequestDto with _$RideCreationRequestDto {
     int? vehicleId,
     String? description, // max 500, null if empty
     List<IntermediateStopDto>? intermediateStops,
+    @Default(true) bool autoApprove,
   }) = _RideCreationRequestDto;
 
   factory RideCreationRequestDto.fromJson(Map<String, dynamic> json) =>

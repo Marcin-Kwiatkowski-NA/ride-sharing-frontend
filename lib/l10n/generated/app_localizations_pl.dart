@@ -935,4 +935,123 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deleteAccountError =>
       'Nie udało się usunąć konta. Spróbuj ponownie.';
+
+  @override
+  String get instantBooking => 'Natychmiastowa rezerwacja';
+
+  @override
+  String get instantBookingOnSubtitle => 'Pasażerowie są potwierdzani od razu';
+
+  @override
+  String get instantBookingOffSubtitle => 'Będziesz zatwierdzać każdą prośbę';
+
+  @override
+  String get bookRide => 'Zarezerwuj przejazd';
+
+  @override
+  String get requestToBook => 'Wyślij prośbę o rezerwację';
+
+  @override
+  String get bookInstantly => 'Zarezerwuj od razu';
+
+  @override
+  String get sendRequest => 'Wyślij prośbę';
+
+  @override
+  String get contactDriver => 'Kontakt z kierowcą';
+
+  @override
+  String get boardAt => 'Wsiadanie';
+
+  @override
+  String get alightAt => 'Wysiadanie';
+
+  @override
+  String get seatCountLabel => 'Miejsca';
+
+  @override
+  String priceSummary(int count, int price, int total) {
+    return '$count × $price PLN = $total PLN';
+  }
+
+  @override
+  String get bookingModeInstant => 'Natychmiast';
+
+  @override
+  String get bookingModeRequest => 'Na żądanie';
+
+  @override
+  String get youAreBooked => 'Zarezerwowano!';
+
+  @override
+  String get requestSent => 'Prośba wysłana';
+
+  @override
+  String get driverWillConfirm => 'Kierowca potwierdzi w ciągu 24h';
+
+  @override
+  String get viewMyBookings => 'Moje rezerwacje';
+
+  @override
+  String get alreadyBookedError => 'Masz już rezerwację na ten przejazd';
+
+  @override
+  String get insufficientSeatsError => 'Za mało wolnych miejsc';
+
+  @override
+  String get rideNotBookableError => 'Ten przejazd nie jest już dostępny';
+
+  @override
+  String get externalRideError =>
+      'Zewnętrzne przejazdy nie mogą być rezerwowane w aplikacji';
+
+  @override
+  String get invalidSegmentError => 'Nieprawidłowy odcinek trasy';
+
+  @override
+  String get bookingCancelled => 'Rezerwacja anulowana';
+
+  @override
+  String get cancelBooking => 'Anuluj rezerwację';
+
+  @override
+  String get cancelBookingConfirm =>
+      'Czy na pewno chcesz anulować tę rezerwację?';
+
+  @override
+  String get navMyActivity => 'Moja aktywność';
+
+  @override
+  String get segmentRides => 'Moje przejazdy';
+
+  @override
+  String get segmentPassengers => 'Pasażerowie';
+
+  @override
+  String get segmentBookings => 'Rezerwacje';
+
+  @override
+  String get bookingStatusPending => 'Oczekuje';
+
+  @override
+  String get bookingStatusConfirmed => 'Potwierdzona';
+
+  @override
+  String get bookingStatusRejected => 'Odrzucona';
+
+  @override
+  String get bookingStatusCancelled => 'Anulowana';
+
+  @override
+  String get bookingStatusExpired => 'Wygasła';
+
+  @override
+  String get noBookingsYet => 'Brak rezerwacji';
+
+  @override
+  String get noBookingsYetMessage =>
+      'Twoje rezerwacje przejazdów pojawią się tutaj';
+
+  @override
+  String get showFullRoute => 'Pokaż pełną trasę';
 }

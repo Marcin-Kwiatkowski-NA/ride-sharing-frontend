@@ -44,6 +44,7 @@ _RideResponseDto _$RideResponseDtoFromJson(Map<String, dynamic> json) =>
               .toList() ??
           const [],
       totalSeats: (json['totalSeats'] as num?)?.toInt() ?? 0,
+      autoApprove: json['autoApprove'] as bool? ?? true,
     );
 
 Map<String, dynamic> _$RideResponseDtoToJson(_RideResponseDto instance) =>
@@ -64,6 +65,7 @@ Map<String, dynamic> _$RideResponseDtoToJson(_RideResponseDto instance) =>
       'contactMethods': instance.contactMethods,
       'stops': instance.stops,
       'totalSeats': instance.totalSeats,
+      'autoApprove': instance.autoApprove,
     };
 
 const _$RideSourceEnumMap = {

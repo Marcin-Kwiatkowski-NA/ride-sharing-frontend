@@ -1,13 +1,28 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n_extension.dart';
+import '../../../booking/domain/booking_mode.dart';
 import '../../domain/offer_ui_model.dart';
 import 'contact_user_button.dart';
+import 'contact_user_sheet.dart';
 
-/// Sticky bottom bar for offer details screen with contact button.
+/// Sticky bottom bar for offer details screen.
+///
+/// Three modes:
+/// - **External ride**: Single Contact button (unchanged)
+/// - **Internal + bookable**: Outlined "Contact Driver" + filled "Book Ride"
+/// - **Internal + not bookable**: Single Contact button (fallback)
 class OfferBottomBar extends StatelessWidget {
   final OfferUiModel offer;
 
-  const OfferBottomBar({super.key, required this.offer});
+  /// Callback when the user taps "Book Ride" / "Request to Book".
+  final VoidCallback? onBookTap;
+
+  const OfferBottomBar({
+    super.key,
+    required this.offer,
+    this.onBookTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -21,10 +36,107 @@ class OfferBottomBar extends StatelessWidget {
           color: cs.surface,
           border: Border(top: BorderSide(color: cs.outlineVariant)),
         ),
-        child: SizedBox(
+        child: _buildContent(context),
+      ),
+    );
+  }
+
+  Widget _buildContent(BuildContext context) {
+    final user = offer.user!;
+    final isInternal = !offer.isExternalSource;
+    final canBook = isInternal && offer.isBookable;
+
+    // External ride or internal but not bookable: contact only
+    if (!canBook) {
+      return SizedBox(
+        width: double.infinity,
+        child: ContactUserButton(user: user),
+      );
+    }
+
+    // Internal + bookable: dual CTA
+    final l10n = context.l10n;
+    final isInstant = offer.bookingMode == BookingMode.instant;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Booking mode indicator
+        _BookingModeChip(bookingMode: offer.bookingMode),
+        const SizedBox(height: 8),
+        // Secondary: Contact Driver
+        SizedBox(
           width: double.infinity,
-          child: ContactUserButton(user: offer.user!),
+          child: OutlinedButton.icon(
+            onPressed: () => showContactUserSheet(context, user),
+            icon: const Icon(Icons.chat_outlined, size: 18),
+            label: Text(l10n.contactDriver),
+          ),
         ),
+        const SizedBox(height: 8),
+        // Primary: Book Ride / Request to Book
+        SizedBox(
+          width: double.infinity,
+          child: FilledButton.icon(
+            onPressed: onBookTap,
+            icon: Icon(
+              isInstant ? Icons.bolt : Icons.hourglass_top,
+              size: 18,
+            ),
+            label: Text(
+              isInstant ? l10n.bookRide : l10n.requestToBook,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _BookingModeChip extends StatelessWidget {
+  final BookingMode bookingMode;
+
+  const _BookingModeChip({required this.bookingMode});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    final l10n = context.l10n;
+
+    final isInstant = bookingMode == BookingMode.instant;
+    final bgColor = isInstant
+        ? cs.primaryContainer
+        : cs.tertiaryContainer;
+    final fgColor = isInstant
+        ? cs.onPrimaryContainer
+        : cs.onTertiaryContainer;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: ShapeDecoration(
+        color: bgColor,
+        shape: const StadiumBorder(),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            isInstant ? Icons.bolt : Icons.hourglass_top,
+            size: 14,
+            color: fgColor,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            isInstant
+                ? l10n.bookingModeInstant
+                : l10n.bookingModeRequest,
+            style: tt.labelSmall?.copyWith(
+              color: fgColor,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       ),
     );
   }

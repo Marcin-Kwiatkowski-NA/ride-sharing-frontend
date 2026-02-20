@@ -927,4 +927,123 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deleteAccountError =>
       'Failed to delete account. Please try again.';
+
+  @override
+  String get instantBooking => 'Instant booking';
+
+  @override
+  String get instantBookingOnSubtitle => 'Passengers are confirmed immediately';
+
+  @override
+  String get instantBookingOffSubtitle =>
+      'You\'ll review and approve each request';
+
+  @override
+  String get bookRide => 'Book Ride';
+
+  @override
+  String get requestToBook => 'Request to Book';
+
+  @override
+  String get bookInstantly => 'Book Instantly';
+
+  @override
+  String get sendRequest => 'Send Request';
+
+  @override
+  String get contactDriver => 'Contact Driver';
+
+  @override
+  String get boardAt => 'Board at';
+
+  @override
+  String get alightAt => 'Alight at';
+
+  @override
+  String get seatCountLabel => 'Seats';
+
+  @override
+  String priceSummary(int count, int price, int total) {
+    return '$count × $price PLN = $total PLN';
+  }
+
+  @override
+  String get bookingModeInstant => 'Instant';
+
+  @override
+  String get bookingModeRequest => 'Request';
+
+  @override
+  String get youAreBooked => 'You\'re booked!';
+
+  @override
+  String get requestSent => 'Request sent';
+
+  @override
+  String get driverWillConfirm => 'The driver will confirm within 24h';
+
+  @override
+  String get viewMyBookings => 'View My Bookings';
+
+  @override
+  String get alreadyBookedError => 'You already have a booking on this ride';
+
+  @override
+  String get insufficientSeatsError => 'Not enough seats available';
+
+  @override
+  String get rideNotBookableError =>
+      'This ride is no longer available for booking';
+
+  @override
+  String get externalRideError => 'External rides cannot be booked in-app';
+
+  @override
+  String get invalidSegmentError => 'Invalid boarding segment selected';
+
+  @override
+  String get bookingCancelled => 'Booking cancelled';
+
+  @override
+  String get cancelBooking => 'Cancel booking';
+
+  @override
+  String get cancelBookingConfirm =>
+      'Are you sure you want to cancel this booking?';
+
+  @override
+  String get navMyActivity => 'My Activity';
+
+  @override
+  String get segmentRides => 'My Rides';
+
+  @override
+  String get segmentPassengers => 'Passengers';
+
+  @override
+  String get segmentBookings => 'Bookings';
+
+  @override
+  String get bookingStatusPending => 'Pending';
+
+  @override
+  String get bookingStatusConfirmed => 'Confirmed';
+
+  @override
+  String get bookingStatusRejected => 'Rejected';
+
+  @override
+  String get bookingStatusCancelled => 'Cancelled';
+
+  @override
+  String get bookingStatusExpired => 'Expired';
+
+  @override
+  String get noBookingsYet => 'No bookings yet';
+
+  @override
+  String get noBookingsYetMessage => 'Your ride bookings will appear here';
+
+  @override
+  String get showFullRoute => 'Show full route';
 }

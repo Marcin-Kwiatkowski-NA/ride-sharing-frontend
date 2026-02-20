@@ -67,7 +67,11 @@ class PaginatedRides extends _$PaginatedRides {
 
       if (!ref.mounted) return;
 
-      final rides = RidePresentation.toUiModels(response.content);
+      final rides = RidePresentation.toUiModels(
+        response.content,
+        searchOriginOsmId: criteria.origin?.osmId,
+        searchDestinationOsmId: criteria.destination?.osmId,
+      );
 
       state = PaginatedRidesState(
         rides: rides,
@@ -98,7 +102,11 @@ class PaginatedRides extends _$PaginatedRides {
 
       if (!ref.mounted) return;
 
-      final newRides = RidePresentation.toUiModels(response.content);
+      final newRides = RidePresentation.toUiModels(
+        response.content,
+        searchOriginOsmId: criteria.origin?.osmId,
+        searchDestinationOsmId: criteria.destination?.osmId,
+      );
 
       state = state.copyWith(
         rides: [...state.rides, ...newRides],

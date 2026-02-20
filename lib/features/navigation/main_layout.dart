@@ -66,9 +66,9 @@ class MainLayout extends ConsumerWidget {
       label: (c) => c.l10n.navPackages,
     ),
     _NavItem(
-      icon: const Icon(Icons.local_offer_outlined),
-      selectedIcon: const Icon(Icons.local_offer),
-      label: (c) => c.l10n.navMyOffers,
+      icon: const Icon(Icons.list_alt_outlined),
+      selectedIcon: const Icon(Icons.list_alt),
+      label: (c) => c.l10n.navMyActivity,
     ),
     _NavItem(
       icon: const Icon(Icons.person_outline),

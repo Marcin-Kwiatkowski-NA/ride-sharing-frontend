@@ -110,37 +110,129 @@ class _StatusChip extends StatelessWidget {
 
 // ── Row B: Route Timeline ────────────────────────────────────────────────────
 
-class _RouteTimeline extends StatelessWidget {
+class _RouteTimeline extends StatefulWidget {
   const _RouteTimeline({required this.offer});
 
   final OfferUiModel offer;
+
+  @override
+  State<_RouteTimeline> createState() => _RouteTimelineState();
+}
+
+class _RouteTimelineState extends State<_RouteTimeline> {
+  bool _showFullRoute = false;
+
+  /// Find stop indices matching the search context.
+  /// Returns (originIndex, destinationIndex) or null if no context.
+  (int, int)? _findSearchSegment() {
+    final offer = widget.offer;
+    if (offer.searchOriginOsmId == null ||
+        offer.searchDestinationOsmId == null) {
+      return null;
+    }
+    if (offer.stops.length <= 2) return null;
+
+    final sorted = [...offer.stops]
+      ..sort((a, b) => a.stopOrder.compareTo(b.stopOrder));
+
+    int? originIdx;
+    int? destIdx;
+    for (int i = 0; i < sorted.length; i++) {
+      if (sorted[i].location.osmId == offer.searchOriginOsmId) {
+        originIdx = i;
+      }
+      if (sorted[i].location.osmId == offer.searchDestinationOsmId) {
+        destIdx = i;
+      }
+    }
+
+    if (originIdx != null && destIdx != null && originIdx < destIdx) {
+      return (originIdx, destIdx);
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final l10n = context.l10n;
+    final offer = widget.offer;
 
-    final timeDisplay = offer.exactTimeDisplay ?? offer.localizedPartOfDay(l10n);
+    final timeDisplay =
+        offer.exactTimeDisplay ?? offer.localizedPartOfDay(l10n);
+    final segment = _findSearchSegment();
+    final hasContext = segment != null && !_showFullRoute;
+
+    // Build the list of intermediate stops with context info
+    final stopsToShow = <_StopDisplayInfo>[];
+    if (hasContext) {
+      final (searchOriginIdx, searchDestIdx) = segment;
+      final sorted = [...offer.stops]
+        ..sort((a, b) => a.stopOrder.compareTo(b.stopOrder));
+
+      // Only show stops between searchOrigin and searchDest (exclusive)
+      for (int i = 0; i < sorted.length; i++) {
+        if (i <= searchOriginIdx || i >= searchDestIdx) continue;
+        final s = sorted[i];
+        final stopUi = offer.intermediateStops
+            .where((is_) => is_.cityName == s.location.name)
+            .firstOrNull;
+        stopsToShow.add(_StopDisplayInfo(
+          cityName: s.location.name,
+          timeDisplay: stopUi?.timeDisplay,
+          isNextDay: stopUi?.isNextDay ?? false,
+          isMuted: true,
+        ));
+      }
+    } else {
+      for (final stop in offer.intermediateStops) {
+        stopsToShow.add(_StopDisplayInfo(
+          cityName: stop.cityName,
+          timeDisplay: stop.timeDisplay,
+          isNextDay: stop.isNextDay,
+          isMuted: false,
+        ));
+      }
+    }
+
+    // Determine origin/destination names for contextual display
+    String originName = offer.originName;
+    String destName = offer.destinationName;
+    if (hasContext) {
+      final sorted = [...offer.stops]
+        ..sort((a, b) => a.stopOrder.compareTo(b.stopOrder));
+      final (searchOriginIdx, searchDestIdx) = segment;
+      originName = sorted[searchOriginIdx].location.name;
+      destName = sorted[searchDestIdx].location.name;
+    }
+
+    // Count collapsed stops
+    int collapsedCount = 0;
+    if (hasContext) {
+      final sorted = [...offer.stops]
+        ..sort((a, b) => a.stopOrder.compareTo(b.stopOrder));
+      final (searchOriginIdx, searchDestIdx) = segment;
+      collapsedCount =
+          searchOriginIdx + (sorted.length - 1 - searchDestIdx);
+    }
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Visual tracker column
-          _VisualTracker(cs: cs, stopCount: offer.intermediateStops.length),
+          _VisualTracker(cs: cs, stopCount: stopsToShow.length),
           const SizedBox(width: 12),
-          // Text data column
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Origin block
                 Semantics(
-                  label: 'Origin: ${offer.originName}',
+                  label: 'Origin: $originName',
                   child: Text(
-                    offer.originName,
+                    originName,
                     style: tt.titleLarge?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
@@ -151,20 +243,31 @@ class _RouteTimeline extends StatelessWidget {
                   style: tt.bodyMedium?.copyWith(color: cs.primary),
                 ),
                 // Intermediate stops
-                for (final stop in offer.intermediateStops) ...[
+                for (final stop in stopsToShow) ...[
                   const SizedBox(height: 16),
                   Text(
                     stop.cityName,
-                    style: tt.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: stop.isMuted
+                        ? tt.bodySmall?.copyWith(
+                            color: cs.onSurfaceVariant
+                                .withValues(alpha: 0.6),
+                          )
+                        : tt.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
                   ),
                   if (stop.timeDisplay != null)
                     Row(
                       children: [
                         Text(
                           stop.timeDisplay!,
-                          style: tt.bodyMedium?.copyWith(color: cs.primary),
+                          style: stop.isMuted
+                              ? tt.bodySmall?.copyWith(
+                                  color: cs.onSurfaceVariant
+                                      .withValues(alpha: 0.6),
+                                )
+                              : tt.bodyMedium
+                                  ?.copyWith(color: cs.primary),
                         ),
                         if (stop.isNextDay) ...[
                           const SizedBox(width: 4),
@@ -176,14 +279,24 @@ class _RouteTimeline extends StatelessWidget {
                 const SizedBox(height: 16),
                 // Destination block
                 Semantics(
-                  label: 'Destination: ${offer.destinationName}',
+                  label: 'Destination: $destName',
                   child: Text(
-                    offer.destinationName,
+                    destName,
                     style: tt.titleLarge?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
+                // "Show full route" chip
+                if (hasContext && collapsedCount > 0) ...[
+                  const SizedBox(height: 8),
+                  ActionChip(
+                    label: Text(l10n.showFullRoute),
+                    avatar: const Icon(Icons.unfold_more, size: 16),
+                    onPressed: () =>
+                        setState(() => _showFullRoute = true),
+                  ),
+                ],
               ],
             ),
           ),
@@ -191,6 +304,20 @@ class _RouteTimeline extends StatelessWidget {
       ),
     );
   }
+}
+
+class _StopDisplayInfo {
+  final String cityName;
+  final String? timeDisplay;
+  final bool isNextDay;
+  final bool isMuted;
+
+  const _StopDisplayInfo({
+    required this.cityName,
+    this.timeDisplay,
+    this.isNextDay = false,
+    this.isMuted = false,
+  });
 }
 
 class _NextDayBadge extends StatelessWidget {

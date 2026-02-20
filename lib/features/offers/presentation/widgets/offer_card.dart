@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/l10n/l10n_extension.dart';
+import '../../../booking/domain/booking_mode.dart';
+import '../../../rides/data/dto/ride_stop_dto.dart';
 import '../../domain/offer_ui_model.dart';
 import '../helpers/offer_l10n.dart';
 
@@ -239,7 +241,12 @@ class _RouteTimeline extends StatelessWidget {
                 if (offer.intermediateStops.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4),
-                    child: _ViaLabel(stops: offer.intermediateStops),
+                    child: _ViaLabel(
+                      stops: offer.intermediateStops,
+                      allStops: offer.stops,
+                      searchOriginOsmId: offer.searchOriginOsmId,
+                      searchDestinationOsmId: offer.searchDestinationOsmId,
+                    ),
                   ),
 
                 if (offer.intermediateStops.isEmpty)
@@ -339,26 +346,112 @@ class _PriceAndSeats extends StatelessWidget {
             ),
           ],
         ),
+
+        // Booking mode badge (internal rides only)
+        if (!offer.isExternalSource &&
+            offer.offerKey.kind == OfferKind.ride) ...[
+          const SizedBox(height: 6),
+          _BookingModeBadge(bookingMode: offer.bookingMode),
+        ],
+
+        // Facebook badge (external rides)
+        if (offer.isExternalSource) ...[
+          const SizedBox(height: 6),
+          Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: colorScheme.tertiaryContainer,
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              'Facebook',
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: colorScheme.onTertiaryContainer,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
       ],
+    );
+  }
+}
+
+class _BookingModeBadge extends StatelessWidget {
+  final BookingMode bookingMode;
+
+  const _BookingModeBadge({required this.bookingMode});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    final l10n = context.l10n;
+    final isInstant = bookingMode == BookingMode.instant;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: isInstant ? cs.primaryContainer : cs.tertiaryContainer,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            isInstant ? Icons.bolt : Icons.hourglass_top,
+            size: 10,
+            color: isInstant
+                ? cs.onPrimaryContainer
+                : cs.onTertiaryContainer,
+          ),
+          const SizedBox(width: 2),
+          Text(
+            isInstant
+                ? l10n.bookingModeInstant
+                : l10n.bookingModeRequest,
+            style: tt.labelSmall?.copyWith(
+              fontSize: 10,
+              color: isInstant
+                  ? cs.onPrimaryContainer
+                  : cs.onTertiaryContainer,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
 
 class _ViaLabel extends StatelessWidget {
   final List<IntermediateStopUi> stops;
+  final List<RideStopDto> allStops;
+  final int? searchOriginOsmId;
+  final int? searchDestinationOsmId;
 
-  const _ViaLabel({required this.stops});
+  const _ViaLabel({
+    required this.stops,
+    this.allStops = const [],
+    this.searchOriginOsmId,
+    this.searchDestinationOsmId,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
+    final filteredStops = _filterBySearchContext();
+
+    if (filteredStops.isEmpty) return const SizedBox.shrink();
+
     final String label;
-    if (stops.length == 1) {
-      label = 'Via ${stops.first.cityName}';
+    if (filteredStops.length == 1) {
+      label = 'Via ${filteredStops.first}';
     } else {
-      label = 'Via ${stops.first.cityName} + ${stops.length - 1}';
+      label = 'Via ${filteredStops.first} + ${filteredStops.length - 1}';
     }
 
     return Text(
@@ -370,6 +463,36 @@ class _ViaLabel extends StatelessWidget {
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
     );
+  }
+
+  /// Filter intermediate stop names to only those within the search segment.
+  List<String> _filterBySearchContext() {
+    if (searchOriginOsmId == null ||
+        searchDestinationOsmId == null ||
+        allStops.length <= 2) {
+      return stops.map((s) => s.cityName).toList();
+    }
+
+    final sorted = [...allStops]
+      ..sort((a, b) => a.stopOrder.compareTo(b.stopOrder));
+
+    int? originIdx;
+    int? destIdx;
+    for (int i = 0; i < sorted.length; i++) {
+      if (sorted[i].location.osmId == searchOriginOsmId) originIdx = i;
+      if (sorted[i].location.osmId == searchDestinationOsmId) destIdx = i;
+    }
+
+    if (originIdx == null || destIdx == null || originIdx >= destIdx) {
+      return stops.map((s) => s.cityName).toList();
+    }
+
+    // Return only stops between origin and destination
+    final result = <String>[];
+    for (int i = originIdx + 1; i < destIdx; i++) {
+      result.add(sorted[i].location.name);
+    }
+    return result;
   }
 }
 

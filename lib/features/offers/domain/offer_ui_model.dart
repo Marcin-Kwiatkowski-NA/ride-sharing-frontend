@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../booking/domain/booking_mode.dart';
+import '../../rides/data/dto/ride_stop_dto.dart';
 import 'offer_models.dart';
 import 'part_of_day.dart';
 
@@ -130,6 +132,14 @@ class OfferUiModel {
   // Description
   final String? description;
 
+  // Booking
+  final BookingMode bookingMode;
+  final List<RideStopDto> stops;
+
+  // Search context (optional — for contextual stop highlighting)
+  final int? searchOriginOsmId;
+  final int? searchDestinationOsmId;
+
   const OfferUiModel({
     required this.offerKey,
     required this.originName,
@@ -150,6 +160,10 @@ class OfferUiModel {
     required this.user,
     required this.description,
     this.intermediateStops = const [],
+    this.bookingMode = BookingMode.instant,
+    this.stops = const [],
+    this.searchOriginOsmId,
+    this.searchDestinationOsmId,
   });
 
   /// Whether the offer has a concrete price/budget set.

@@ -19,6 +19,7 @@ abstract class RouteNames {
   static const publicProfile = 'public-profile';
   static const devGallery = 'dev-gallery';
   static const verifyResult = 'verify-result';
+  static const bookingResult = 'booking-result';
 }
 
 /// Route paths (used only in router config)
@@ -43,4 +44,5 @@ abstract class RoutePaths {
   static const publicProfile = '/user/:userId';
   static const devGallery = '/dev/gallery';
   static const verifyResult = '/verify-result';
+  static const bookingResult = '/booking-result/:bookingId';
 }

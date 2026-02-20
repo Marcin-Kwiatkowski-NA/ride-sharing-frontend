@@ -971,5 +971,126 @@
   "@deleteAccountConfirm": { "description": "Confirm button in account deletion dialog" },
 
   "deleteAccountError": "Failed to delete account. Please try again.",
-  "@deleteAccountError": { "description": "Error message when account deletion fails" }
+  "@deleteAccountError": { "description": "Error message when account deletion fails" },
+
+  "instantBooking": "Instant booking",
+  "@instantBooking": { "description": "Label for auto-approve toggle in ride creation" },
+
+  "instantBookingOnSubtitle": "Passengers are confirmed immediately",
+  "@instantBookingOnSubtitle": { "description": "Subtitle when instant booking is enabled" },
+
+  "instantBookingOffSubtitle": "You'll review and approve each request",
+  "@instantBookingOffSubtitle": { "description": "Subtitle when instant booking is disabled" },
+
+  "bookRide": "Book Ride",
+  "@bookRide": { "description": "Primary CTA to book a ride" },
+
+  "requestToBook": "Request to Book",
+  "@requestToBook": { "description": "Primary CTA when ride requires driver approval" },
+
+  "bookInstantly": "Book Instantly",
+  "@bookInstantly": { "description": "Submit button in booking sheet for instant mode" },
+
+  "sendRequest": "Send Request",
+  "@sendRequest": { "description": "Submit button in booking sheet for request mode" },
+
+  "contactDriver": "Contact Driver",
+  "@contactDriver": { "description": "Secondary CTA to contact the driver" },
+
+  "boardAt": "Board at",
+  "@boardAt": { "description": "Label for board stop selector in booking sheet" },
+
+  "alightAt": "Alight at",
+  "@alightAt": { "description": "Label for alight stop selector in booking sheet" },
+
+  "seatCountLabel": "Seats",
+  "@seatCountLabel": { "description": "Label for seat count selector in booking sheet" },
+
+  "priceSummary": "{count} × {price} PLN = {total} PLN",
+  "@priceSummary": {
+    "description": "Price summary in booking sheet",
+    "placeholders": {
+      "count": { "type": "int" },
+      "price": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+
+  "bookingModeInstant": "Instant",
+  "@bookingModeInstant": { "description": "Booking mode badge label for auto-approve" },
+
+  "bookingModeRequest": "Request",
+  "@bookingModeRequest": { "description": "Booking mode badge label for driver-confirm" },
+
+  "youAreBooked": "You're booked!",
+  "@youAreBooked": { "description": "Confirmation title for instant booking" },
+
+  "requestSent": "Request sent",
+  "@requestSent": { "description": "Confirmation title for booking request" },
+
+  "driverWillConfirm": "The driver will confirm within 24h",
+  "@driverWillConfirm": { "description": "Subtitle for pending booking confirmation" },
+
+  "viewMyBookings": "View My Bookings",
+  "@viewMyBookings": { "description": "CTA to navigate to bookings list" },
+
+  "alreadyBookedError": "You already have a booking on this ride",
+  "@alreadyBookedError": { "description": "Error when trying to double-book" },
+
+  "insufficientSeatsError": "Not enough seats available",
+  "@insufficientSeatsError": { "description": "Error when not enough seats" },
+
+  "rideNotBookableError": "This ride is no longer available for booking",
+  "@rideNotBookableError": { "description": "Error when ride is not open" },
+
+  "externalRideError": "External rides cannot be booked in-app",
+  "@externalRideError": { "description": "Error when trying to book a Facebook ride" },
+
+  "invalidSegmentError": "Invalid boarding segment selected",
+  "@invalidSegmentError": { "description": "Error when board/alight stops are invalid" },
+
+  "bookingCancelled": "Booking cancelled",
+  "@bookingCancelled": { "description": "Snackbar message when booking is cancelled" },
+
+  "cancelBooking": "Cancel booking",
+  "@cancelBooking": { "description": "Action label to cancel a booking" },
+
+  "cancelBookingConfirm": "Are you sure you want to cancel this booking?",
+  "@cancelBookingConfirm": { "description": "Confirmation dialog for cancelling a booking" },
+
+  "navMyActivity": "My Activity",
+  "@navMyActivity": { "description": "Bottom nav tab label for My Activity" },
+
+  "segmentRides": "My Rides",
+  "@segmentRides": { "description": "Segment label for rides posted by user" },
+
+  "segmentPassengers": "Passengers",
+  "@segmentPassengers": { "description": "Segment label for seat requests by user" },
+
+  "segmentBookings": "Bookings",
+  "@segmentBookings": { "description": "Segment label for user's bookings as passenger" },
+
+  "bookingStatusPending": "Pending",
+  "@bookingStatusPending": { "description": "Booking status chip label" },
+
+  "bookingStatusConfirmed": "Confirmed",
+  "@bookingStatusConfirmed": { "description": "Booking status chip label" },
+
+  "bookingStatusRejected": "Rejected",
+  "@bookingStatusRejected": { "description": "Booking status chip label" },
+
+  "bookingStatusCancelled": "Cancelled",
+  "@bookingStatusCancelled": { "description": "Booking status chip label" },
+
+  "bookingStatusExpired": "Expired",
+  "@bookingStatusExpired": { "description": "Booking status chip label" },
+
+  "noBookingsYet": "No bookings yet",
+  "@noBookingsYet": { "description": "Empty state message for bookings tab" },
+
+  "noBookingsYetMessage": "Your ride bookings will appear here",
+  "@noBookingsYetMessage": { "description": "Empty state subtitle for bookings tab" },
+
+  "showFullRoute": "Show full route",
+  "@showFullRoute": { "description": "Chip label to reveal collapsed stops" }
 }

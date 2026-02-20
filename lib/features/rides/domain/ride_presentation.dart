@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../booking/domain/booking_mode.dart';
 import '../../offers/data/offer_enums.dart';
 import '../../offers/domain/offer_formatting.dart';
 import '../../offers/domain/offer_models.dart';
@@ -16,7 +17,14 @@ import '../data/dto/ride_response_dto.dart';
 /// All display strings are resolved by widgets via AppLocalizations.
 class RidePresentation {
   /// Convert DTO to unified offer UI model with raw data fields.
-  static OfferUiModel toUiModel(RideResponseDto dto) {
+  ///
+  /// Pass [searchOriginOsmId] and [searchDestinationOsmId] for contextual
+  /// stop highlighting. When null, full route is shown equally.
+  static OfferUiModel toUiModel(
+    RideResponseDto dto, {
+    int? searchOriginOsmId,
+    int? searchDestinationOsmId,
+  }) {
     final isInternal = dto.source == RideSource.internal;
 
     // Contact methods (ordered: PHONE, FACEBOOK_LINK, EMAIL)
@@ -86,12 +94,26 @@ class RidePresentation {
       user: user,
       description: dto.description,
       intermediateStops: intermediateStops,
+      bookingMode: bookingModeFrom(dto.autoApprove),
+      stops: dto.stops,
+      searchOriginOsmId: searchOriginOsmId,
+      searchDestinationOsmId: searchDestinationOsmId,
     );
   }
 
   /// Convert list of DTOs to UI models.
-  static List<OfferUiModel> toUiModels(List<RideResponseDto> dtos) {
-    return dtos.map(toUiModel).toList();
+  static List<OfferUiModel> toUiModels(
+    List<RideResponseDto> dtos, {
+    int? searchOriginOsmId,
+    int? searchDestinationOsmId,
+  }) {
+    return dtos
+        .map((dto) => toUiModel(
+              dto,
+              searchOriginOsmId: searchOriginOsmId,
+              searchDestinationOsmId: searchDestinationOsmId,
+            ))
+        .toList();
   }
 
   static OfferStatus _mapStatus(RideStatus status) => switch (status) {

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/utils/error_mapper.dart';
 import '../../../../core/widgets/page_layout.dart';
+import '../../../booking/presentation/widgets/booking_sheet.dart';
 import '../../../rides/details/presentation/widgets/smart_matches_section.dart';
 import '../../domain/offer_ui_model.dart';
 import '../helpers/offer_details_strings.dart';
@@ -53,7 +54,13 @@ class OfferDetailsScreen extends ConsumerWidget {
             ),
           ),
           bottomNavigationBar: offer.user != null
-              ? OfferBottomBar(offer: offer)
+              ? OfferBottomBar(
+                  offer: offer,
+                  onBookTap: () => showBookingSheet(
+                    context,
+                    offer: offer,
+                  ),
+                )
               : null,
         );
       },

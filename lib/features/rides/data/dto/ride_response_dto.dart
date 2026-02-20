@@ -30,6 +30,7 @@ sealed class RideResponseDto with _$RideResponseDto {
     @Default([]) List<ContactMethodDto> contactMethods,
     @Default([]) List<RideStopDto> stops,
     @Default(0) int totalSeats,
+    @Default(true) bool autoApprove,
   }) = _RideResponseDto;
 
   factory RideResponseDto.fromJson(Map<String, dynamic> json) =>

@@ -283,6 +283,28 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
                         label: context.l10n.availableSeatsLabel,
                         errorText: showErrors ? state.seatsError : null,
                       ),
+                      SwitchListTile.adaptive(
+                        contentPadding: EdgeInsets.zero,
+                        value: state.autoApprove,
+                        onChanged: controller.setAutoApprove,
+                        title: Text(
+                          context.l10n.instantBooking,
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
+                        subtitle: Text(
+                          state.autoApprove
+                              ? context.l10n.instantBookingOnSubtitle
+                              : context.l10n.instantBookingOffSubtitle,
+                        ),
+                        secondary: Icon(
+                          state.autoApprove
+                              ? Icons.bolt
+                              : Icons.hourglass_top,
+                          color: state.autoApprove
+                              ? colorScheme.primary
+                              : colorScheme.tertiary,
+                        ),
+                      ),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
