@@ -6,6 +6,7 @@ import '../../../../core/network/stomp_connection_state.dart';
 import '../../../../core/network/stomp_connection_state_provider.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../../../../core/widgets/page_layout.dart';
+import '../../domain/message_status.dart';
 import '../../domain/message_ui_model.dart';
 import '../providers/chat_thread_provider.dart';
 
@@ -146,6 +147,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
 
     return _MessagesList(
+      conversationId: widget.conversationId,
       messages: state.messages,
       scrollController: _scrollController,
       hasMoreEarlier: state.hasMoreEarlier,
@@ -159,7 +161,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
 // -- Messages list (reversed) ------------------------------------------------
 
-class _MessagesList extends StatelessWidget {
+class _MessagesList extends ConsumerWidget {
+  final String conversationId;
   final List<MessageUiModel> messages;
   final ScrollController scrollController;
   final bool hasMoreEarlier;
@@ -167,6 +170,7 @@ class _MessagesList extends StatelessWidget {
   final VoidCallback onLoadEarlier;
 
   const _MessagesList({
+    required this.conversationId,
     required this.messages,
     required this.scrollController,
     required this.hasMoreEarlier,
@@ -175,7 +179,7 @@ class _MessagesList extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     // +1 for the load-earlier button at the top (last index in reversed list)
     final itemCount = messages.length + (hasMoreEarlier ? 1 : 0);
 
@@ -195,7 +199,15 @@ class _MessagesList extends StatelessWidget {
 
         // Reversed index: messages[last - index]
         final messageIndex = messages.length - 1 - index;
-        return _MessageBubble(message: messages[messageIndex]);
+        final message = messages[messageIndex];
+        return _MessageBubble(
+          message: message,
+          onRetry: message.status == MessageStatus.failed
+              ? () => ref
+                  .read(chatThreadProvider(conversationId).notifier)
+                  .retryMessage(message.id)
+              : null,
+        );
       },
     );
   }
@@ -236,15 +248,16 @@ class _LoadEarlierButton extends StatelessWidget {
 
 class _MessageBubble extends StatelessWidget {
   final MessageUiModel message;
+  final VoidCallback? onRetry;
 
-  const _MessageBubble({required this.message});
+  const _MessageBubble({required this.message, this.onRetry});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isFromUser = message.isFromCurrentUser;
 
-    return Align(
+    final bubble = Align(
       alignment: isFromUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         constraints: BoxConstraints(
@@ -271,18 +284,80 @@ class _MessageBubble extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 2),
-            Text(
-              message.timeDisplay,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: isFromUser
-                    ? theme.colorScheme.onPrimary.withValues(alpha: 0.7)
-                    : theme.colorScheme.outline,
-              ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  message.timeDisplay,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: isFromUser
+                        ? theme.colorScheme.onPrimary.withValues(alpha: 0.7)
+                        : theme.colorScheme.outline,
+                  ),
+                ),
+                if (message.status != null) ...[
+                  const SizedBox(width: 4),
+                  _StatusIndicator(
+                    status: message.status!,
+                    isFromUser: isFromUser,
+                  ),
+                ],
+              ],
             ),
           ],
         ),
       ),
     );
+
+    if (onRetry != null) {
+      return GestureDetector(onTap: onRetry, child: bubble);
+    }
+    return bubble;
+  }
+}
+
+// -- Status indicator --------------------------------------------------------
+
+class _StatusIndicator extends StatelessWidget {
+  final MessageStatus status;
+  final bool isFromUser;
+
+  const _StatusIndicator({required this.status, required this.isFromUser});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    final (IconData icon, Color color) = switch (status) {
+      MessageStatus.pending => (
+          Icons.access_time,
+          isFromUser
+              ? theme.colorScheme.onPrimary.withValues(alpha: 0.7)
+              : theme.colorScheme.outline,
+        ),
+      MessageStatus.sent => (
+          Icons.check,
+          isFromUser
+              ? theme.colorScheme.onPrimary.withValues(alpha: 0.7)
+              : theme.colorScheme.outline,
+        ),
+      MessageStatus.delivered => (
+          Icons.done_all,
+          isFromUser
+              ? theme.colorScheme.onPrimary.withValues(alpha: 0.7)
+              : theme.colorScheme.outline,
+        ),
+      MessageStatus.read => (
+          Icons.done_all,
+          theme.colorScheme.primary,
+        ),
+      MessageStatus.failed => (
+          Icons.error_outline,
+          theme.colorScheme.error,
+        ),
+    };
+
+    return Icon(icon, size: 14, color: color);
   }
 }
 

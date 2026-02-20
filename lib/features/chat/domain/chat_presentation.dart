@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../data/dto/conversation_dto.dart';
 import '../data/dto/message_dto.dart';
 import 'conversation_ui_model.dart';
+import 'message_status.dart';
 import 'message_ui_model.dart';
 
 /// Pure function mapper: Chat DTOs -> UI models.
@@ -52,6 +53,7 @@ class ChatPresentation {
       text: dto.body,
       timeDisplay: _timeFormat.format(dto.createdAt),
       isFromCurrentUser: isFromCurrentUser,
+      status: isFromCurrentUser ? MessageStatus.fromBackend(dto.status) : null,
     );
   }
 

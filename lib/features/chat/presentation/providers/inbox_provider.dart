@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer' as dev;
 import 'dart:ui';
 
 import 'package:dio/dio.dart';
@@ -79,8 +80,13 @@ class Inbox extends _$Inbox {
           final json = jsonDecode(frame.body!) as Map<String, dynamic>;
           final dto = ConversationDto.fromJson(json);
           _mergeConversationUpdate(dto);
-        } catch (_) {
-          // Ignore malformed frames
+        } catch (e, st) {
+          dev.log(
+            'STOMP inbox frame parse error',
+            name: 'Inbox',
+            error: e,
+            stackTrace: st,
+          );
         }
       },
     );

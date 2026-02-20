@@ -12,6 +12,7 @@ sealed class MessageDto with _$MessageDto {
     required String body,
     required DateTime createdAt,
     required bool isMine,
+    required String status,
   }) = _MessageDto;
 
   factory MessageDto.fromJson(Map<String, dynamic> json) =>

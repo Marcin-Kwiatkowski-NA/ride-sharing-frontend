@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:developer' as dev;
 import 'dart:ui';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -12,7 +14,9 @@ import '../../../../core/network/stomp_service_provider.dart';
 import '../../../../core/providers/auth_session_provider.dart';
 import '../../data/chat_repository.dart';
 import '../../data/dto/message_dto.dart';
+import '../../data/dto/message_status_update_dto.dart';
 import '../../domain/chat_presentation.dart';
+import '../../domain/message_status.dart';
 import '../../domain/message_ui_model.dart';
 import 'inbox_provider.dart';
 
@@ -43,14 +47,17 @@ class ChatThread extends _$ChatThread {
   final Set<String> _messageIds = {};
   final List<String> _pendingIds = [];
   VoidCallback? _unsubscribe;
+  VoidCallback? _unsubscribeStatus;
+
+  /// Debounce timer for batching delivery/read ACKs.
+  Timer? _ackTimer;
+
+  /// Latest peer message ID seen — used for debounced ACKs.
+  String? _latestPeerMessageId;
 
   @override
   ChatThreadState build(String conversationId) {
     // LISTEN (not watch) connection state — no rebuild, just react.
-    // Only catch-up on reconnect — StompService._onConnect already
-    // re-subscribes all tracked subs automatically, so calling
-    // _subscribeToStomp() here would unsubscribe the auto-resubscribed
-    // one and create an unnecessary replacement.
     ref.listen(stompConnectionStateProvider, (prev, next) {
       final connState =
           next.value ?? StompConnectionState.disconnected;
@@ -61,6 +68,8 @@ class ChatThread extends _$ChatThread {
 
     ref.onDispose(() {
       _unsubscribe?.call();
+      _unsubscribeStatus?.call();
+      _ackTimer?.cancel();
     });
 
     // One-time REST load
@@ -75,6 +84,8 @@ class ChatThread extends _$ChatThread {
 
       if (!ref.mounted) return;
 
+      final currentUserId = ref.read(authSessionKeyProvider);
+
       _rawMessages.clear();
       _messageIds.clear();
       for (final dto in dtos) {
@@ -83,26 +94,30 @@ class ChatThread extends _$ChatThread {
       }
 
       state = ChatThreadState(
-        messages: ChatPresentation.toMessageUiModels(dtos),
+        messages: ChatPresentation.toMessageUiModels(
+          dtos,
+          currentUserId: currentUserId,
+        ),
         hasMoreEarlier: dtos.length >= 50,
       );
+
+      // Mark-read ACK for messages loaded via REST
+      _schedulePostLoadReadAck(currentUserId);
     } catch (e) {
       if (!ref.mounted) return;
       state = ChatThreadState(error: e);
     }
 
-    // Register subscription intent AFTER the try/catch — a subscription
-    // failure must not overwrite successfully loaded messages.
-    // StompService.subscribe() handles both connected (immediate) and
-    // disconnected (tracked for auto-subscribe on connect) cases.
-    if (ref.mounted) _subscribeToStomp();
+    if (ref.mounted) {
+      _subscribeToStomp();
+      _subscribeToStatusUpdates();
+    }
   }
 
   void _subscribeToStomp() {
     final service = ref.read(stompServiceControllerProvider);
     final currentUserId = ref.read(authSessionKeyProvider);
 
-    // Prevent duplicate subscriptions
     _unsubscribe?.call();
     _unsubscribe = service.subscribe(
       '/topic/conversation/$conversationId',
@@ -112,10 +127,59 @@ class ChatThread extends _$ChatThread {
           final json = jsonDecode(frame.body!) as Map<String, dynamic>;
           final dto = MessageDto.fromJson(json);
           _mergeIncomingMessage(dto, currentUserId: currentUserId);
-        } catch (_) {
-          // Ignore malformed frames
+        } catch (e, st) {
+          dev.log(
+            'STOMP frame parse error',
+            name: 'ChatThread',
+            error: e,
+            stackTrace: st,
+          );
         }
       },
+    );
+  }
+
+  void _subscribeToStatusUpdates() {
+    final service = ref.read(stompServiceControllerProvider);
+
+    _unsubscribeStatus?.call();
+    _unsubscribeStatus = service.subscribe(
+      '/user/queue/message-status',
+      (frame) {
+        if (frame.body == null || !ref.mounted) return;
+        try {
+          final json = jsonDecode(frame.body!) as Map<String, dynamic>;
+          final update = MessageStatusUpdateDto.fromJson(json);
+          if (update.conversationId == conversationId) {
+            _applyStatusUpdate(MessageStatus.fromBackend(update.status));
+          }
+        } catch (e, st) {
+          dev.log(
+            'Status update parse error',
+            name: 'ChatThread',
+            error: e,
+            stackTrace: st,
+          );
+        }
+      },
+    );
+  }
+
+  /// Forward-sweep all own outgoing messages to the new status.
+  void _applyStatusUpdate(MessageStatus newStatus) {
+    state = state.copyWith(
+      messages: state.messages.map((m) {
+        if (!m.isFromCurrentUser) return m;
+        final current = m.status;
+        if (current == null) return m;
+        // Only upgrade status (sent → delivered → read), never downgrade
+        if (current < newStatus &&
+            current != MessageStatus.pending &&
+            current != MessageStatus.failed) {
+          return m.copyWith(status: newStatus);
+        }
+        return m;
+      }).toList(),
     );
   }
 
@@ -164,6 +228,11 @@ class ChatThread extends _$ChatThread {
         ChatPresentation.toMessageUiModel(dto, currentUserId: currentUserId),
       ],
     );
+
+    // Peer message arrived — schedule debounced ACKs
+    if (!isOwnEcho) {
+      _scheduleDebouncedAck(dto.id);
+    }
   }
 
   /// Replace a pending optimistic message with the server-confirmed version.
@@ -186,9 +255,6 @@ class ChatThread extends _$ChatThread {
   }
 
   /// Send a message with optimistic local display.
-  ///
-  /// The message appears immediately. STOMP echo (or REST response on
-  /// fallback) replaces the pending placeholder via [_confirmPending].
   Future<void> sendMessage(String text) async {
     final trimmedText = text.trim();
     if (trimmedText.isEmpty) return;
@@ -204,6 +270,7 @@ class ChatThread extends _$ChatThread {
           text: trimmedText,
           timeDisplay: _timeFormat.format(DateTime.now()),
           isFromCurrentUser: true,
+          status: MessageStatus.pending,
         ),
       ],
     );
@@ -226,12 +293,117 @@ class ChatThread extends _$ChatThread {
         if (!ref.mounted) return;
         _confirmPending(dto);
       } catch (_) {
-        // Could surface error / mark message as failed
+        if (!ref.mounted) return;
+        _markMessageFailed(tempId);
       }
     }
 
     // Invalidate inbox to reflect the new message
     if (ref.mounted) ref.invalidate(inboxProvider);
+  }
+
+  /// Retry sending a failed message.
+  Future<void> retryMessage(String messageId) async {
+    // Find the failed message text
+    final msg = state.messages.where((m) => m.id == messageId).firstOrNull;
+    if (msg == null || msg.status != MessageStatus.failed) return;
+
+    // Set status back to pending in-place
+    state = state.copyWith(
+      messages: state.messages.map((m) {
+        if (m.id == messageId) {
+          return m.copyWith(status: MessageStatus.pending);
+        }
+        return m;
+      }).toList(),
+    );
+
+    // Re-add to pending tracking
+    _pendingIds.add(messageId);
+
+    // Try sending again
+    try {
+      final repo = ref.read(chatRepositoryProvider);
+      final dto = await repo.sendMessage(
+        conversationId: conversationId,
+        body: msg.text,
+      );
+      if (!ref.mounted) return;
+      _confirmPending(dto);
+    } catch (_) {
+      if (!ref.mounted) return;
+      _markMessageFailed(messageId);
+    }
+
+    if (ref.mounted) ref.invalidate(inboxProvider);
+  }
+
+  void _markMessageFailed(String messageId) {
+    _pendingIds.remove(messageId);
+    state = state.copyWith(
+      messages: state.messages.map((m) {
+        if (m.id == messageId) {
+          return m.copyWith(status: MessageStatus.failed);
+        }
+        return m;
+      }).toList(),
+    );
+  }
+
+  /// Debounce delivery + read ACKs — batches rapid STOMP arrivals into
+  /// a single ACK per ~300ms window.
+  void _scheduleDebouncedAck(String peerMessageId) {
+    _latestPeerMessageId = peerMessageId;
+    _ackTimer?.cancel();
+    _ackTimer = Timer(const Duration(milliseconds: 300), () {
+      final id = _latestPeerMessageId;
+      if (id == null || !ref.mounted) return;
+      _sendMarkRead(id);
+      _latestPeerMessageId = null;
+    });
+  }
+
+  /// After initial REST load, mark-read the latest peer message if any.
+  void _schedulePostLoadReadAck(int? currentUserId) {
+    if (currentUserId == null || _rawMessages.isEmpty) return;
+
+    // Find the latest peer message in the loaded batch
+    String? latestPeerId;
+    for (int i = _rawMessages.length - 1; i >= 0; i--) {
+      if (_rawMessages[i].senderId != currentUserId) {
+        latestPeerId = _rawMessages[i].id;
+        break;
+      }
+    }
+
+    if (latestPeerId != null) {
+      _scheduleDebouncedAck(latestPeerId);
+    }
+  }
+
+  void _sendAckDelivered(String lastMessageId) {
+    final connState = ref.read(stompConnectionStateProvider).value;
+    if (connState != StompConnectionState.connected) return;
+
+    final service = ref.read(stompServiceControllerProvider);
+    service.send(
+      '/app/conversation/$conversationId/ack-delivered',
+      body: jsonEncode({'lastMessageId': lastMessageId}),
+    );
+  }
+
+  void _sendMarkRead(String lastMessageId) {
+    // Mark-read implies delivered — send both
+    _sendAckDelivered(lastMessageId);
+
+    final connState = ref.read(stompConnectionStateProvider).value;
+    if (connState != StompConnectionState.connected) return;
+
+    final service = ref.read(stompServiceControllerProvider);
+    service.send(
+      '/app/conversation/$conversationId/mark-read',
+      body: jsonEncode({'lastMessageId': lastMessageId}),
+    );
   }
 
   /// Load earlier messages via REST cursor pagination.
@@ -251,6 +423,7 @@ class ChatThread extends _$ChatThread {
 
       if (!ref.mounted) return;
 
+      final currentUserId = ref.read(authSessionKeyProvider);
       final newDtos = <MessageDto>[];
       for (final dto in olderDtos) {
         if (!_messageIds.contains(dto.id)) {
@@ -263,7 +436,10 @@ class ChatThread extends _$ChatThread {
 
       state = state.copyWith(
         messages: [
-          ...ChatPresentation.toMessageUiModels(newDtos),
+          ...ChatPresentation.toMessageUiModels(
+            newDtos,
+            currentUserId: currentUserId,
+          ),
           ...state.messages,
         ],
         isLoadingEarlier: false,
