@@ -939,6 +939,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'You\'ll review and approve each request';
 
   @override
+  String get instantBookingUnavailable =>
+      'Available for rides without stops, with exact time and set price';
+
+  @override
   String get bookRide => 'Book Ride';
 
   @override
@@ -966,6 +970,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String priceSummary(int count, int price, int total) {
     return '$count × $price PLN = $total PLN';
   }
+
+  @override
+  String fullRoutePrice(int price) {
+    return 'Full route: $price PLN';
+  }
+
+  @override
+  String get proposedPriceLabel => 'Your offer for this segment';
 
   @override
   String get bookingModeInstant => 'Instant';
@@ -1046,4 +1058,60 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get showFullRoute => 'Show full route';
+
+  @override
+  String get yourBooking => 'Your Booking';
+
+  @override
+  String get bookingsSection => 'Bookings';
+
+  @override
+  String get filterPending => 'Pending';
+
+  @override
+  String get filterConfirmed => 'Confirmed';
+
+  @override
+  String get filterHistory => 'History';
+
+  @override
+  String get acceptBooking => 'Accept';
+
+  @override
+  String get declineBooking => 'Decline';
+
+  @override
+  String get declineBookingConfirm =>
+      'Are you sure you want to decline this booking request?';
+
+  @override
+  String get messagePassenger => 'Message';
+
+  @override
+  String get cancelRequest => 'Cancel request';
+
+  @override
+  String get messageDriver => 'Message driver';
+
+  @override
+  String get noBookingsInCategory => 'No bookings in this category';
+
+  @override
+  String newBookingRequest(String name) {
+    return '$name wants to join your ride';
+  }
+
+  @override
+  String get bookingAccepted => 'Booking confirmed';
+
+  @override
+  String get bookingDeclined => 'Booking declined';
+
+  @override
+  String get updatedJustNow => 'Updated just now';
+
+  @override
+  String updatedMinutesAgo(int count) {
+    return 'Updated $count min ago';
+  }
 }

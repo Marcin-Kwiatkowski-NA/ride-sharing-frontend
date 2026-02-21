@@ -83,7 +83,7 @@ class BookingCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 12),
                     // Status chip
-                    _BookingStatusChip(status: booking.status),
+                    BookingStatusChip(status: booking.status),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -122,10 +122,10 @@ class BookingCard extends StatelessWidget {
   }
 }
 
-class _BookingStatusChip extends StatelessWidget {
+class BookingStatusChip extends StatelessWidget {
   final BookingStatus status;
 
-  const _BookingStatusChip({required this.status});
+  const BookingStatusChip({super.key, required this.status});
 
   @override
   Widget build(BuildContext context) {

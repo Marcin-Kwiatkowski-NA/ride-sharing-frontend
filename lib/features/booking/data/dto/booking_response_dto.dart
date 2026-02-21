@@ -19,6 +19,7 @@ sealed class BookingResponseDto with _$BookingResponseDto {
     required UserCardDto passenger,
     required DateTime bookedAt,
     DateTime? resolvedAt,
+    double? proposedPrice,
   }) = _BookingResponseDto;
 
   factory BookingResponseDto.fromJson(Map<String, dynamic> json) =>

@@ -6,6 +6,7 @@ import '../../core/l10n/l10n_extension.dart';
 import '../../core/providers/auth_notifier.dart';
 import '../../core/theme/layout_tokens.dart';
 import '../../routes/routes.dart';
+import '../booking/presentation/providers/booking_event_handler.dart';
 
 /// Single destination model — generates both NavigationDestination and
 /// NavigationRailDestination from one definition so labels/icons never drift.
@@ -116,6 +117,10 @@ class MainLayout extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isAuthenticated = ref.watch(authProvider).isAuthenticated;
+
+    // Initialize global booking STOMP handler when authenticated
+    if (isAuthenticated) ref.watch(bookingEventHandlerProvider);
+
     final sizeClass = WindowWidthClass.of(context);
     final useRail = sizeClass >= WindowWidthClass.expanded;
     final extendRail = sizeClass >= WindowWidthClass.large;

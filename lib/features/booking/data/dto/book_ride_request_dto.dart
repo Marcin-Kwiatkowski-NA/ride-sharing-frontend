@@ -9,6 +9,7 @@ sealed class BookRideRequestDto with _$BookRideRequestDto {
     required int boardStopOsmId,
     required int alightStopOsmId,
     @Default(1) int seatCount,
+    int? proposedPrice,
   }) = _BookRideRequestDto;
 
   factory BookRideRequestDto.fromJson(Map<String, dynamic> json) =>

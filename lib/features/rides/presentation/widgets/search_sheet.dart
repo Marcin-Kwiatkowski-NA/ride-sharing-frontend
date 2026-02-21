@@ -10,9 +10,11 @@ import '../../../../core/utils/date_utils.dart';
 import '../../../../routes/routes.dart';
 import '../../data/dto/draft_search_criteria.dart';
 import '../../data/dto/recent_search_snapshot.dart';
+import '../providers/paginated_rides_provider.dart';
 import '../providers/recent_searches_provider.dart';
 import '../providers/search_criteria_provider.dart';
 import '../providers/search_mode_provider.dart';
+import '../../../seats/presentation/providers/paginated_seats_provider.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Public entry point
@@ -103,6 +105,10 @@ class _SearchSheetContentState extends ConsumerState<_SearchSheetContent> {
     final mode = ref.read(searchModeProvider);
 
     ref.read(searchCriteriaProvider.notifier).commitDraft(_draft);
+
+    // Force fresh fetch even when criteria haven't changed.
+    ref.invalidate(paginatedRidesProvider);
+    ref.invalidate(paginatedSeatsProvider);
 
     final snapshot = RecentSearchSnapshot.fromDraft(_draft, mode);
     ref.read(recentSearchesProvider.notifier).addSearch(snapshot);

@@ -946,6 +946,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get instantBookingOffSubtitle => 'Będziesz zatwierdzać każdą prośbę';
 
   @override
+  String get instantBookingUnavailable =>
+      'Dostępne dla przejazdów bez przystanków, z dokładną godziną i ustaloną ceną';
+
+  @override
   String get bookRide => 'Zarezerwuj przejazd';
 
   @override
@@ -973,6 +977,14 @@ class AppLocalizationsPl extends AppLocalizations {
   String priceSummary(int count, int price, int total) {
     return '$count × $price PLN = $total PLN';
   }
+
+  @override
+  String fullRoutePrice(int price) {
+    return 'Cała trasa: $price PLN';
+  }
+
+  @override
+  String get proposedPriceLabel => 'Twoja oferta za ten odcinek';
 
   @override
   String get bookingModeInstant => 'Natychmiast';
@@ -1054,4 +1066,60 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get showFullRoute => 'Pokaż pełną trasę';
+
+  @override
+  String get yourBooking => 'Twoja rezerwacja';
+
+  @override
+  String get bookingsSection => 'Rezerwacje';
+
+  @override
+  String get filterPending => 'Oczekujące';
+
+  @override
+  String get filterConfirmed => 'Potwierdzone';
+
+  @override
+  String get filterHistory => 'Historia';
+
+  @override
+  String get acceptBooking => 'Akceptuj';
+
+  @override
+  String get declineBooking => 'Odrzuć';
+
+  @override
+  String get declineBookingConfirm =>
+      'Czy na pewno chcesz odrzucić tę prośbę o rezerwację?';
+
+  @override
+  String get messagePassenger => 'Wiadomość';
+
+  @override
+  String get cancelRequest => 'Anuluj prośbę';
+
+  @override
+  String get messageDriver => 'Napisz do kierowcy';
+
+  @override
+  String get noBookingsInCategory => 'Brak rezerwacji w tej kategorii';
+
+  @override
+  String newBookingRequest(String name) {
+    return '$name chce dołączyć do Twojego przejazdu';
+  }
+
+  @override
+  String get bookingAccepted => 'Rezerwacja potwierdzona';
+
+  @override
+  String get bookingDeclined => 'Rezerwacja odrzucona';
+
+  @override
+  String get updatedJustNow => 'Zaktualizowano właśnie';
+
+  @override
+  String updatedMinutesAgo(int count) {
+    return 'Zaktualizowano $count min temu';
+  }
 }

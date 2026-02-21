@@ -38,7 +38,7 @@ sealed class PostRideFormState with _$PostRideFormState {
     DateTime? selectedDate,
     TimeOfDay? exactTime,
     PartOfDay? partOfDay,
-    @Default(false) bool isApproximate,
+    @Default(true) bool isApproximate,
     @Default(1) int availableSeats,
     int? pricePerSeat,
     String? description,
@@ -100,13 +100,16 @@ sealed class PostRideFormState with _$PostRideFormState {
     if (destination != null) allOsmIds.add(destination!.osmId);
     for (final stop in intermediateStops) {
       if (stop.location == null) return 'Select location for each stop';
-      if (stop.departureTime == null) return 'Select time for each stop';
       if (!allOsmIds.add(stop.location!.osmId)) {
         return 'Duplicate stop location';
       }
     }
     return null;
   }
+
+  /// True if instant booking is allowed (no stops, exact time, set price).
+  bool get canInstantBook =>
+      intermediateStops.isEmpty && !isApproximate && !isNegotiablePrice;
 
   /// True if all fields are valid.
   bool get isValid =>
@@ -227,6 +230,7 @@ class PostRideController extends _$PostRideController {
       isApproximate: value,
       exactTime: value ? null : state.exactTime,
       partOfDay: value ? state.partOfDay : null,
+      autoApprove: value ? false : state.autoApprove,
       errorMessage: null,
     );
     _saveDraft();
@@ -256,11 +260,16 @@ class PostRideController extends _$PostRideController {
   }
 
   void setNegotiablePrice(bool value) {
-    state = state.copyWith(isNegotiablePrice: value, errorMessage: null);
+    state = state.copyWith(
+      isNegotiablePrice: value,
+      autoApprove: value ? false : state.autoApprove,
+      errorMessage: null,
+    );
     _saveDraft();
   }
 
   void setAutoApprove(bool value) {
+    if (value && !state.canInstantBook) return;
     state = state.copyWith(autoApprove: value, errorMessage: null);
     _saveDraft();
   }
@@ -269,11 +278,33 @@ class PostRideController extends _$PostRideController {
 
   void addIntermediateStop() {
     if (state.intermediateStops.length >= 3) return;
+
+    // Compute default time: previous stop + 1h, or origin + 1h
+    TimeOfDay? defaultTime;
+    if (state.intermediateStops.isNotEmpty) {
+      final lastTime = state.intermediateStops.last.departureTime;
+      if (lastTime != null) {
+        defaultTime = TimeOfDay(
+          hour: (lastTime.hour + 1) % 24,
+          minute: lastTime.minute,
+        );
+      }
+    } else {
+      final dt = state.computedDepartureDateTime;
+      if (dt != null) {
+        defaultTime = TimeOfDay(
+          hour: (dt.hour + 1) % 24,
+          minute: dt.minute,
+        );
+      }
+    }
+
     state = state.copyWith(
       intermediateStops: [
         ...state.intermediateStops,
-        IntermediateStopEntry(id: _uuid.v4()),
+        IntermediateStopEntry(id: _uuid.v4(), departureTime: defaultTime),
       ],
+      autoApprove: false,
       errorMessage: null,
     );
     _saveDraft();
@@ -348,7 +379,12 @@ class PostRideController extends _$PostRideController {
         intermediateStops = [];
 
         for (final stop in state.intermediateStops) {
-          final stopTime = stop.departureTime!;
+          // Auto-fill missing stop time: previous + 1 hour
+          final stopTime = stop.departureTime ??
+              TimeOfDay(
+                hour: (previousTime.hour + 1) % 24,
+                minute: previousTime.minute,
+              );
 
           // If stop time is "earlier" than previous, it crossed midnight
           if (stopTime.hour < previousTime.hour ||

@@ -61,6 +61,15 @@ class BookingApiClient {
         await _dio.post('/rides/$rideId/bookings/$bookingId/reject');
     return BookingResponseDto.fromJson(response.data);
   }
+
+  /// Get all bookings for a ride (driver only).
+  Future<List<BookingResponseDto>> getBookingsForRide(int rideId) async {
+    final response = await _dio.get<List<dynamic>>('/rides/$rideId/bookings');
+    return (response.data ?? [])
+        .map((json) =>
+            BookingResponseDto.fromJson(json as Map<String, dynamic>))
+        .toList();
+  }
 }
 
 @Riverpod(keepAlive: true)

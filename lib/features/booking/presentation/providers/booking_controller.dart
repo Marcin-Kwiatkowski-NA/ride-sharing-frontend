@@ -25,6 +25,7 @@ class BookingSubmit extends _$BookingSubmit {
     required int boardStopOsmId,
     required int alightStopOsmId,
     required int seatCount,
+    int? proposedPrice,
   }) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
@@ -35,6 +36,7 @@ class BookingSubmit extends _$BookingSubmit {
           boardStopOsmId: boardStopOsmId,
           alightStopOsmId: alightStopOsmId,
           seatCount: seatCount,
+          proposedPrice: proposedPrice,
         ),
       );
 

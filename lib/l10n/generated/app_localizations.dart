@@ -1748,6 +1748,12 @@ abstract class AppLocalizations {
   /// **'You\'ll review and approve each request'**
   String get instantBookingOffSubtitle;
 
+  /// Subtitle when instant booking is not possible due to constraints
+  ///
+  /// In en, this message translates to:
+  /// **'Available for rides without stops, with exact time and set price'**
+  String get instantBookingUnavailable;
+
   /// Primary CTA to book a ride
   ///
   /// In en, this message translates to:
@@ -1801,6 +1807,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} × {price} PLN = {total} PLN'**
   String priceSummary(int count, int price, int total);
+
+  /// Reference label showing the driver's full route price
+  ///
+  /// In en, this message translates to:
+  /// **'Full route: {price} PLN'**
+  String fullRoutePrice(int price);
+
+  /// Label for the segment price input field
+  ///
+  /// In en, this message translates to:
+  /// **'Your offer for this segment'**
+  String get proposedPriceLabel;
 
   /// Booking mode badge label for auto-approve
   ///
@@ -1868,7 +1886,7 @@ abstract class AppLocalizations {
   /// **'Invalid boarding segment selected'**
   String get invalidSegmentError;
 
-  /// Snackbar message when booking is cancelled
+  /// Snackbar message when a booking is cancelled
   ///
   /// In en, this message translates to:
   /// **'Booking cancelled'**
@@ -1957,6 +1975,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Show full route'**
   String get showFullRoute;
+
+  /// Section header for passenger's booking in ride details
+  ///
+  /// In en, this message translates to:
+  /// **'Your Booking'**
+  String get yourBooking;
+
+  /// Section header for driver's booking management
+  ///
+  /// In en, this message translates to:
+  /// **'Bookings'**
+  String get bookingsSection;
+
+  /// Segmented filter label for pending bookings
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get filterPending;
+
+  /// Segmented filter label for confirmed bookings
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
+  String get filterConfirmed;
+
+  /// Segmented filter label for historical bookings
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get filterHistory;
+
+  /// Action to accept a pending booking request
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get acceptBooking;
+
+  /// Action to decline a pending booking request
+  ///
+  /// In en, this message translates to:
+  /// **'Decline'**
+  String get declineBooking;
+
+  /// Confirmation dialog for declining a booking
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to decline this booking request?'**
+  String get declineBookingConfirm;
+
+  /// Action to message a passenger from booking tile
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get messagePassenger;
+
+  /// Action to cancel a pending booking request
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel request'**
+  String get cancelRequest;
+
+  /// Action to message the driver
+  ///
+  /// In en, this message translates to:
+  /// **'Message driver'**
+  String get messageDriver;
+
+  /// Empty state for filtered bookings list
+  ///
+  /// In en, this message translates to:
+  /// **'No bookings in this category'**
+  String get noBookingsInCategory;
+
+  /// Snackbar message when a new booking request arrives
+  ///
+  /// In en, this message translates to:
+  /// **'{name} wants to join your ride'**
+  String newBookingRequest(String name);
+
+  /// Snackbar message when a booking is confirmed
+  ///
+  /// In en, this message translates to:
+  /// **'Booking confirmed'**
+  String get bookingAccepted;
+
+  /// Snackbar message when a booking is declined
+  ///
+  /// In en, this message translates to:
+  /// **'Booking declined'**
+  String get bookingDeclined;
+
+  /// Relative time label for recent update
+  ///
+  /// In en, this message translates to:
+  /// **'Updated just now'**
+  String get updatedJustNow;
+
+  /// Relative time label for minutes-ago update
+  ///
+  /// In en, this message translates to:
+  /// **'Updated {count} min ago'**
+  String updatedMinutesAgo(int count);
 }
 
 class _AppLocalizationsDelegate

@@ -6,9 +6,11 @@ import '../../../../core/theme/app_tokens.dart';
 import '../../../../routes/routes.dart';
 import '../../data/dto/draft_search_criteria.dart';
 import '../../data/dto/recent_search_snapshot.dart';
+import '../providers/paginated_rides_provider.dart';
 import '../providers/recent_searches_provider.dart';
 import '../providers/search_criteria_provider.dart';
 import '../providers/search_mode_provider.dart';
+import '../../../seats/presentation/providers/paginated_seats_provider.dart';
 
 /// Vertical list of recent searches displayed below the [HeroSearchCard].
 ///
@@ -96,6 +98,8 @@ class _SearchRow extends ConsumerWidget {
   void _onTap(BuildContext context, WidgetRef ref) {
     final draft = DraftSearchCriteria.fromSnapshot(snapshot);
     ref.read(searchCriteriaProvider.notifier).commitDraft(draft);
+    ref.invalidate(paginatedRidesProvider);
+    ref.invalidate(paginatedSeatsProvider);
     ref.read(searchModeProvider.notifier).setMode(snapshot.mode);
     ref.read(recentSearchesProvider.notifier).addSearch(snapshot);
     context.goNamed(RouteNames.ridesList);

@@ -982,6 +982,9 @@
   "instantBookingOffSubtitle": "You'll review and approve each request",
   "@instantBookingOffSubtitle": { "description": "Subtitle when instant booking is disabled" },
 
+  "instantBookingUnavailable": "Available for rides without stops, with exact time and set price",
+  "@instantBookingUnavailable": { "description": "Subtitle when instant booking is not possible due to constraints" },
+
   "bookRide": "Book Ride",
   "@bookRide": { "description": "Primary CTA to book a ride" },
 
@@ -1015,6 +1018,15 @@
       "total": { "type": "int" }
     }
   },
+
+  "fullRoutePrice": "Full route: {price} PLN",
+  "@fullRoutePrice": {
+    "description": "Reference label showing the driver's full route price",
+    "placeholders": { "price": { "type": "int" } }
+  },
+
+  "proposedPriceLabel": "Your offer for this segment",
+  "@proposedPriceLabel": { "description": "Label for the segment price input field" },
 
   "bookingModeInstant": "Instant",
   "@bookingModeInstant": { "description": "Booking mode badge label for auto-approve" },
@@ -1092,5 +1104,65 @@
   "@noBookingsYetMessage": { "description": "Empty state subtitle for bookings tab" },
 
   "showFullRoute": "Show full route",
-  "@showFullRoute": { "description": "Chip label to reveal collapsed stops" }
+  "@showFullRoute": { "description": "Chip label to reveal collapsed stops" },
+
+  "yourBooking": "Your Booking",
+  "@yourBooking": { "description": "Section header for passenger's booking in ride details" },
+
+  "bookingsSection": "Bookings",
+  "@bookingsSection": { "description": "Section header for driver's booking management" },
+
+  "filterPending": "Pending",
+  "@filterPending": { "description": "Segmented filter label for pending bookings" },
+
+  "filterConfirmed": "Confirmed",
+  "@filterConfirmed": { "description": "Segmented filter label for confirmed bookings" },
+
+  "filterHistory": "History",
+  "@filterHistory": { "description": "Segmented filter label for historical bookings" },
+
+  "acceptBooking": "Accept",
+  "@acceptBooking": { "description": "Action to accept a pending booking request" },
+
+  "declineBooking": "Decline",
+  "@declineBooking": { "description": "Action to decline a pending booking request" },
+
+  "declineBookingConfirm": "Are you sure you want to decline this booking request?",
+  "@declineBookingConfirm": { "description": "Confirmation dialog for declining a booking" },
+
+  "messagePassenger": "Message",
+  "@messagePassenger": { "description": "Action to message a passenger from booking tile" },
+
+  "cancelRequest": "Cancel request",
+  "@cancelRequest": { "description": "Action to cancel a pending booking request" },
+
+  "messageDriver": "Message driver",
+  "@messageDriver": { "description": "Action to message the driver" },
+
+  "noBookingsInCategory": "No bookings in this category",
+  "@noBookingsInCategory": { "description": "Empty state for filtered bookings list" },
+
+  "newBookingRequest": "{name} wants to join your ride",
+  "@newBookingRequest": {
+    "description": "Snackbar message when a new booking request arrives",
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "bookingAccepted": "Booking confirmed",
+  "@bookingAccepted": { "description": "Snackbar message when a booking is confirmed" },
+
+  "bookingDeclined": "Booking declined",
+  "@bookingDeclined": { "description": "Snackbar message when a booking is declined" },
+
+  "bookingCancelled": "Booking cancelled",
+  "@bookingCancelled": { "description": "Snackbar message when a booking is cancelled" },
+
+  "updatedJustNow": "Updated just now",
+  "@updatedJustNow": { "description": "Relative time label for recent update" },
+
+  "updatedMinutesAgo": "Updated {count} min ago",
+  "@updatedMinutesAgo": {
+    "description": "Relative time label for minutes-ago update",
+    "placeholders": { "count": { "type": "int" } }
+  }
 }

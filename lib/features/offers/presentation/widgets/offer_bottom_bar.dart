@@ -61,9 +61,6 @@ class OfferBottomBar extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Booking mode indicator
-        _BookingModeChip(bookingMode: offer.bookingMode),
-        const SizedBox(height: 8),
         // Secondary: Contact Driver
         SizedBox(
           width: double.infinity,
@@ -93,51 +90,3 @@ class OfferBottomBar extends StatelessWidget {
   }
 }
 
-class _BookingModeChip extends StatelessWidget {
-  final BookingMode bookingMode;
-
-  const _BookingModeChip({required this.bookingMode});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-    final l10n = context.l10n;
-
-    final isInstant = bookingMode == BookingMode.instant;
-    final bgColor = isInstant
-        ? cs.primaryContainer
-        : cs.tertiaryContainer;
-    final fgColor = isInstant
-        ? cs.onPrimaryContainer
-        : cs.onTertiaryContainer;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: ShapeDecoration(
-        color: bgColor,
-        shape: const StadiumBorder(),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            isInstant ? Icons.bolt : Icons.hourglass_top,
-            size: 14,
-            color: fgColor,
-          ),
-          const SizedBox(width: 4),
-          Text(
-            isInstant
-                ? l10n.bookingModeInstant
-                : l10n.bookingModeRequest,
-            style: tt.labelSmall?.copyWith(
-              color: fgColor,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}

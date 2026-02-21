@@ -65,6 +65,15 @@ class BookingRepository {
     }
   }
 
+  /// Get all bookings for a ride (driver only).
+  Future<List<BookingResponseDto>> getBookingsForRide(int rideId) async {
+    try {
+      return await _apiClient.getBookingsForRide(rideId);
+    } on DioException catch (e) {
+      throw _mapError(e);
+    }
+  }
+
   /// Map DioException to typed [BookingFailure] using ProblemDetail.
   BookingFailure _mapError(DioException e) {
     if (e.type == DioExceptionType.connectionError ||

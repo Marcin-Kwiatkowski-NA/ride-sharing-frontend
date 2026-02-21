@@ -1,9 +1,13 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_tokens.dart';
+import '../../../../core/utils/geo_utils.dart';
 import '../../../../routes/routes.dart';
 import '../../../../shared/widgets/number_stepper.dart';
 import '../../../offers/domain/offer_ui_model.dart';
@@ -44,6 +48,7 @@ class _BookingSheetContentState extends ConsumerState<_BookingSheetContent> {
   late RideStopDto _boardStop;
   late RideStopDto _alightStop;
   int _seatCount = 1;
+  final _priceController = TextEditingController();
 
   @override
   void initState() {
@@ -56,6 +61,14 @@ class _BookingSheetContentState extends ConsumerState<_BookingSheetContent> {
         ?? _sortedStops.first;
     _alightStop = _findStopByOsmId(widget.offer.searchDestinationOsmId)
         ?? _sortedStops.last;
+
+    _updateSuggestedPrice();
+  }
+
+  @override
+  void dispose() {
+    _priceController.dispose();
+    super.dispose();
   }
 
   RideStopDto? _findStopByOsmId(int? osmId) {
@@ -68,8 +81,61 @@ class _BookingSheetContentState extends ConsumerState<_BookingSheetContent> {
   bool get _isSegmentValid =>
       _boardStop.stopOrder < _alightStop.stopOrder;
 
+  bool get _isSegmentBooking =>
+      _boardStop.stopOrder != _sortedStops.first.stopOrder ||
+      _alightStop.stopOrder != _sortedStops.last.stopOrder;
+
   bool get _canSubmit =>
       _isSegmentValid && _seatCount <= widget.offer.count && _seatCount >= 1;
+
+  void _updateSuggestedPrice() {
+    if (!_isSegmentBooking || widget.offer.moneyAmount == null) {
+      _priceController.clear();
+      return;
+    }
+    final suggested = _calculateSuggestedPrice();
+    if (suggested != null) {
+      _priceController.text = suggested.toString();
+    }
+  }
+
+  int? _calculateSuggestedPrice() {
+    final amount = widget.offer.moneyAmount;
+    if (amount == null) return null;
+
+    // Total route distance (sum of consecutive stop distances)
+    var totalDistance = 0.0;
+    for (var i = 0; i < _sortedStops.length - 1; i++) {
+      totalDistance += _distanceBetweenStops(_sortedStops[i], _sortedStops[i + 1]);
+    }
+    if (totalDistance == 0) return null;
+
+    // Segment distance (board to alight)
+    var segmentDistance = 0.0;
+    final boardIdx = _sortedStops.indexWhere(
+        (s) => s.stopOrder == _boardStop.stopOrder);
+    final alightIdx = _sortedStops.indexWhere(
+        (s) => s.stopOrder == _alightStop.stopOrder);
+    if (boardIdx < 0 || alightIdx < 0 || boardIdx >= alightIdx) return null;
+    for (var i = boardIdx; i < alightIdx; i++) {
+      segmentDistance += _distanceBetweenStops(_sortedStops[i], _sortedStops[i + 1]);
+    }
+
+    final raw = amount * segmentDistance / totalDistance;
+    // Round up to nearest 5, minimum 10 PLN
+    final rounded = (raw / 5).ceil() * 5;
+    return max(10, rounded);
+  }
+
+  static double _distanceBetweenStops(RideStopDto a, RideStopDto b) {
+    final aLoc = a.location, bLoc = b.location;
+    if (aLoc.latitude == null || aLoc.longitude == null ||
+        bLoc.latitude == null || bLoc.longitude == null) {
+      return 0;
+    }
+    return haversineKm(aLoc.latitude!, aLoc.longitude!,
+        bLoc.latitude!, bLoc.longitude!);
+  }
 
   String _localizeFailure(BookingFailure failure) {
     final l10n = context.l10n;
@@ -150,14 +216,20 @@ class _BookingSheetContentState extends ConsumerState<_BookingSheetContent> {
               label: l10n.boardAt,
               stops: _sortedStops,
               selectedStop: _boardStop,
-              onChanged: (stop) => setState(() => _boardStop = stop),
+              onChanged: (stop) => setState(() {
+                _boardStop = stop;
+                _updateSuggestedPrice();
+              }),
             ),
             const SizedBox(height: 8),
             _StopDropdown(
               label: l10n.alightAt,
               stops: _sortedStops,
               selectedStop: _alightStop,
-              onChanged: (stop) => setState(() => _alightStop = stop),
+              onChanged: (stop) => setState(() {
+                _alightStop = stop;
+                _updateSuggestedPrice();
+              }),
             ),
             if (!_isSegmentValid)
               Padding(
@@ -179,28 +251,53 @@ class _BookingSheetContentState extends ConsumerState<_BookingSheetContent> {
             label: l10n.seatCountLabel,
           ),
 
-          // Price summary
+          // Price section
           if (offer.moneyAmount != null) ...[
             const SizedBox(height: 8),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: cs.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(AppTokens.radiusMD),
-              ),
-              child: Text(
-                l10n.priceSummary(
-                  _seatCount,
-                  offer.moneyAmount!.toInt(),
-                  (_seatCount * offer.moneyAmount!).toInt(),
-                ),
-                style: tt.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: cs.primary,
+            if (_isSegmentBooking) ...[
+              // Segment booking: show full route price as reference + editable proposal
+              Text(
+                l10n.fullRoutePrice(offer.moneyAmount!.toInt()),
+                style: tt.bodySmall?.copyWith(
+                  color: cs.onSurfaceVariant,
                 ),
               ),
-            ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _priceController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                ],
+                decoration: InputDecoration(
+                  labelText: l10n.proposedPriceLabel,
+                  suffixText: 'PLN',
+                  filled: true,
+                  fillColor: cs.surfaceContainerLow,
+                ),
+              ),
+            ] else ...[
+              // Full route: show fixed price summary
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: cs.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(AppTokens.radiusMD),
+                ),
+                child: Text(
+                  l10n.priceSummary(
+                    _seatCount,
+                    offer.moneyAmount!.toInt(),
+                    (_seatCount * offer.moneyAmount!).toInt(),
+                  ),
+                  style: tt.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: cs.primary,
+                  ),
+                ),
+              ),
+            ],
           ],
 
           const SizedBox(height: 16),
@@ -215,6 +312,9 @@ class _BookingSheetContentState extends ConsumerState<_BookingSheetContent> {
                         boardStopOsmId: _boardStop.location.osmId,
                         alightStopOsmId: _alightStop.location.osmId,
                         seatCount: _seatCount,
+                        proposedPrice: _isSegmentBooking
+                            ? int.tryParse(_priceController.text)
+                            : null,
                       )
                   : null,
               icon: isSubmitting

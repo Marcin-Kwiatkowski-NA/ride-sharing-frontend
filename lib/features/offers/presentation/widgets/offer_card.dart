@@ -347,32 +347,14 @@ class _PriceAndSeats extends StatelessWidget {
           ],
         ),
 
-        // Booking mode badge (internal rides only)
+        // Instant booking badge (internal rides only)
         if (!offer.isExternalSource &&
-            offer.offerKey.kind == OfferKind.ride) ...[
+            offer.offerKey.kind == OfferKind.ride &&
+            offer.bookingMode == BookingMode.instant) ...[
           const SizedBox(height: 6),
           _BookingModeBadge(bookingMode: offer.bookingMode),
         ],
 
-        // Facebook badge (external rides)
-        if (offer.isExternalSource) ...[
-          const SizedBox(height: 6),
-          Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(
-              color: colorScheme.tertiaryContainer,
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Text(
-              'Facebook',
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: colorScheme.onTertiaryContainer,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ],
       ],
     );
   }

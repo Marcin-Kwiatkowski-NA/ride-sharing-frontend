@@ -28,7 +28,7 @@ class PhotonLocationSearchClient implements LocationSearchClient {
         'q': query,
         'limit': '$limit',
         'layer': 'city',
-        if (lang != null) 'lang': lang,
+        'lang': ?lang,
       },
     );
 

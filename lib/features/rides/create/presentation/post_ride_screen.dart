@@ -286,15 +286,19 @@ class _PostRideScreenState extends ConsumerState<PostRideScreen> {
                       SwitchListTile.adaptive(
                         contentPadding: EdgeInsets.zero,
                         value: state.autoApprove,
-                        onChanged: controller.setAutoApprove,
+                        onChanged: state.canInstantBook
+                            ? controller.setAutoApprove
+                            : null,
                         title: Text(
                           context.l10n.instantBooking,
                           style: Theme.of(context).textTheme.bodyLarge,
                         ),
                         subtitle: Text(
-                          state.autoApprove
-                              ? context.l10n.instantBookingOnSubtitle
-                              : context.l10n.instantBookingOffSubtitle,
+                          !state.canInstantBook
+                              ? context.l10n.instantBookingUnavailable
+                              : state.autoApprove
+                                  ? context.l10n.instantBookingOnSubtitle
+                                  : context.l10n.instantBookingOffSubtitle,
                         ),
                         secondary: Icon(
                           state.autoApprove

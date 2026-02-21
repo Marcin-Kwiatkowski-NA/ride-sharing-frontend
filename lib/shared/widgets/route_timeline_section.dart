@@ -107,7 +107,7 @@ class RouteTimelineSection extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             buildDefaultDragHandles: false,
             proxyDecorator: _proxyDecorator,
-            onReorder: onStopReorder ?? (_, __) {},
+            onReorder: onStopReorder ?? (_, _) {},
             itemCount: stops.length,
             itemBuilder: (context, index) => _buildStopRow(context, index),
           ),
